@@ -20,7 +20,7 @@
 #
 ##############################################################################
 
-from openerp import models, fields
+from openerp import models, fields, api
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -30,4 +30,17 @@ class account_invoice_line(models.Model):
 
     analytic_policy = fields.Selection(
         string='Policy for analytic account',
-        related='account_id.user_type.analytic_policy', readonly=True)
+        related='account_id.analytic_policy', readonly=True)
+
+    @api.multi
+    def onchange_account_id(self, product_id, partner_id, inv_type,
+                            fposition_id, account_id):
+        res = super(account_invoice_line, self).onchange_account_id(
+            product_id, partner_id, inv_type, fposition_id, account_id)
+        account = self.env['account.account'].browse(account_id)
+        if account.analytic_policy == 'never':
+            if not res.get('value'):
+                res.update({'value': {'account_analytic_id': False}})
+            else:
+                res['value'].update({'account_analytic_id': False})
+        return res

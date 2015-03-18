@@ -11,7 +11,7 @@
           <field name="analytic_policy" invisible="1"/>
         </xpath>
         <xpath expr="//notebook//field[@name='invoice_line']//field[@name='account_analytic_id']" position="attributes">
-          <attribute name="attrs">{'required': [('analytic_policy', '=', 'always')]}</attribute>
+          <attribute name="attrs">{'required': [('analytic_policy', '=', 'always')], 'readonly': [('analytic_policy', '=', 'never')]}</attribute>
         </xpath>
       </field>
     </record>
@@ -25,7 +25,7 @@
           <field name="analytic_policy" invisible="1"/>
         </xpath>
         <xpath expr="//notebook//field[@name='invoice_line']//field[@name='account_analytic_id']" position="attributes">
-          <attribute name="attrs">{'required': [('analytic_policy', '=', 'always')]}</attribute>
+          <attribute name="attrs">{'required': [('analytic_policy', '=', 'always')], 'readonly': [('analytic_policy', '=', 'never')]}</attribute>
         </xpath>
       </field>
     </record>

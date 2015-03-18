@@ -21,40 +21,65 @@
 #
 ##############################################################################
 
-from openerp.osv import orm, fields
-from openerp.tools.translate import _
+from openerp import models, fields, api, _
 
 
-class account_account_type(orm.Model):
+class account_account_type(models.Model):
     _inherit = "account.account.type"
 
-    def _get_policies(self, cr, uid, context=None):
+    def init(self, cr):
+        cr.execute("""
+            UPDATE account_account_type
+              SET analytic_policy =
+                CASE WHEN report_type in ('income', 'expense')
+                 THEN 'optional'
+                 ELSE 'never'
+                END
+              WHERE analytic_policy is NULL;
+            ALTER TABLE account_account_type
+              ALTER COLUMN analytic_policy SET NOT NULL;
+        """)
+
+    @api.model
+    def _get_policies(self):
         """This is the method to be inherited for adding policies"""
         return [('optional', _('Optional')),
                 ('always', _('Always')),
                 ('never', _('Never'))]
 
-    _columns = {
-        'analytic_policy': fields.selection(
-            lambda self, *args, **kwargs: self._get_policies(*args, **kwargs),
-            'Policy for analytic account',
-            required=True,
-            help="Set the policy for analytic accounts : if you select "
-            "'Optional', the accountant is free to put an analytic account "
-            "on an account move line with this type of account ; if you "
-            "select 'Always', the accountant will get an error message if "
-            "there is no analytic account ; if you select 'Never', the "
-            "accountant will get an error message if an analytic account "
-            "is present."),
-    }
+    @api.onchange('report_type')
+    def _onchange_report_type(self):
+        if self.report_type in ['none', 'asset', 'liabilty']:
+            self.analytic_policy = 'never'
+        else:
+            self.analytic_policy = 'optional'
 
-    _defaults = {
-        'analytic_policy': 'optional',
-    }
+    analytic_policy = fields.Selection(
+        '_get_policies', string='Policy for analytic account',
+        required=True,
+        help="Set the policy for analytic accounts : if you select "
+        "'Optional', the accountant is free to put an analytic account "
+        "on an account move line with this type of account ; if you "
+        "select 'Always', the accountant will get an error message if "
+        "there is no analytic account ; if you select 'Never', the "
+        "accountant will get an error message if an analytic account "
+        "is present.")
 
 
-class account_move_line(orm.Model):
+class account_account(models.Model):
+    _inherit = "account.account"
+
+    analytic_policy = fields.Selection(
+        string='Policy for analytic account',
+        related='user_type.analytic_policy', readonly=True)
+
+
+class account_move_line(models.Model):
     _inherit = "account.move.line"
+
+    analytic_policy = fields.Selection(
+        string='Policy for analytic account',
+        related='account_id.analytic_policy', readonly=True)
 
     def _get_analytic_policy(self, cr, uid, account, context=None):
         """ Extension point to obtain analytic policy for an account """
@@ -90,6 +115,30 @@ class account_move_line(orm.Model):
         return not self._check_analytic_required_msg(cr, uid, ids,
                                                      context=context)
 
-    _constraints = [(_check_analytic_required,
-                     _check_analytic_required_msg,
-                     ['analytic_account_id', 'account_id', 'debit', 'credit'])]
+    _constraints = [(
+        _check_analytic_required,
+        _check_analytic_required_msg,
+        ['analytic_account_id', 'account_id', 'debit', 'credit'])]
+
+    def create(self, cr, uid, vals, context=None, check=True):
+        account_obj = self.pool['account.account']
+        account = account_obj.browse(
+            cr, uid, vals.get('account_id'), context=context)
+        if account.analytic_policy == 'never':
+            if 'analytic_account_id' in vals:
+                del vals['analytic_account_id']
+        return super(account_move_line, self).create(
+            cr, uid, vals, context=context, check=check)
+
+    def write(self, cr, uid, ids, vals, context=None,
+              check=True, update_check=True):
+        account_obj = self.pool['account.account']
+        for aml in self.browse(cr, uid, ids, context=context):
+            if 'account_id' in vals:
+                account = account_obj.browse(
+                    cr, uid, vals['account_id'], context=context)
+                if account.analytic_policy == 'never':
+                    vals['analytic_account_id'] = False
+        return super(account_move_line, self).write(
+            cr, uid, ids, vals, context=context,
+            check=check, update_check=update_check)

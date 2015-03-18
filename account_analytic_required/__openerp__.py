@@ -23,16 +23,17 @@
 
 {
     'name': 'Account Analytic Required',
-    'version': '0.3',
+    'version': '0.4',
     'category': 'Analytic Accounting',
     'license': 'AGPL-3',
     'summary': 'Account Analytic Required',
     'author': "Akretion,"
-              "Noviat,"
               "Odoo Community Association (OCA)",
     'depends': ['account'],
     'data': [
         'account_view.xml',
         'account_invoice_view.xml',
-    ],
+        'account_move_view.xml',
+        'views/account.xml',
+        ],
 }
