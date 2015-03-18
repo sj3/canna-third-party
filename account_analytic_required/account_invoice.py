@@ -44,3 +44,22 @@ class account_invoice_line(models.Model):
             else:
                 res['value'].update({'account_analytic_id': False})
         return res
+
+    @api.model
+    @api.returns('self', lambda value: value.id)
+    def create(self, vals):
+        account = self.env['account.account'].browse(vals.get('account_id'))
+        if account.analytic_policy == 'never':
+            if 'analytic_account_id' in vals:
+                del vals['analytic_account_id']
+        return super(account_invoice_line, self).create(vals)
+
+    @api.multi
+    def write(self, vals):
+        for aml in self:
+            if 'account_id' in vals:
+                account = self.env['account.account'].browse(
+                    vals['account_id'])
+                if account.analytic_policy == 'never':
+                    vals['analytic_account_id'] = False
+        return super(account_invoice_line, self).write(vals)
