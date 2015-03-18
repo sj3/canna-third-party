@@ -51,7 +51,7 @@ class account_invoice_line(models.Model):
         account = self.env['account.account'].browse(vals.get('account_id'))
         if account.analytic_policy == 'never':
             if 'analytic_account_id' in vals:
-                del vals['analytic_account_id']
+                del vals['account_analytic_id']
         return super(account_invoice_line, self).create(vals)
 
     @api.multi
@@ -61,5 +61,5 @@ class account_invoice_line(models.Model):
                 account = self.env['account.account'].browse(
                     vals['account_id'])
                 if account.analytic_policy == 'never':
-                    vals['analytic_account_id'] = False
+                    vals['account_analytic_id'] = False
         return super(account_invoice_line, self).write(vals)
