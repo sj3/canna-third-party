@@ -31,6 +31,17 @@ openerp.account_analytic_required = function (instance) {
             this._super.apply(this, arguments);
             this.model_account = new instance.web.Model("account.account");
             this.map_analytic_policy = {};
+            var required_dict = {};
+            _.each(this.create_form_fields, function(field) {                
+                if (field['required']) {
+                    required_dict[field['id']] = false;
+                    };
+                });
+            /* 
+            this.required_fields_set is used to check if all required fields 
+            are filled in before showing the 'Ok' button on a line
+            */
+            this.required_fields_set = required_dict;
         },
 
         start: function() {
@@ -58,6 +69,26 @@ openerp.account_analytic_required = function (instance) {
             var self = this;
             this._super.apply(this, arguments);
             this.map_analytic_policy = this.getParent().map_analytic_policy;
+            this.required_fields_set = this.getParent().required_fields_set;
+            },
+
+        UpdateRequiredFields: function(elt) {
+            if (elt.get('value')) {
+                this.required_fields_set[elt.name] = true;
+            } else {
+                this.required_fields_set[elt.name] = false;
+            };
+            var balanceChangedFlag = this.CheckRequiredFields(elt);
+            if (balanceChangedFlag) {
+                this.balanceChanged();      
+            } else {
+                self.$(".button_ok").text("OK").removeClass("oe_highlight").attr("disabled", "disabled");
+            };
+        },
+        
+        CheckRequiredFields: function() {
+            var flag = _.every(this.required_fields_set);
+            return flag;
         },
 
         formCreateInputChanged: function(elt, val) {
@@ -66,28 +97,21 @@ openerp.account_analytic_required = function (instance) {
             if (elt === self.account_id_field) {
                 if (self.map_analytic_policy[elt.get('value')] === 'always') {
                     this.analytic_account_id_field.modifiers = {'required': true, 'readonly': false};
+                    this.required_fields_set['analytic_account_id'] = false;
                     if (! this.analytic_account_id_field.get('value')) {
                         self.$(".button_ok").text("OK").removeClass("oe_highlight").attr("disabled", "disabled");
                     };
                 } else {
                     this.analytic_account_id_field.modifiers = undefined;
+                    delete this.required_fields_set['analytic_account_id'];
                     if (self.map_analytic_policy[elt.get('value')] === 'never') {
                        this.analytic_account_id_field.set('value', false);
                        this.analytic_account_id_field.modifiers = {'readonly': true};
-                       self.balanceChanged();
                        };
                 };
                 this.analytic_account_id_field.field_manager.do_show();
             };
-            if (elt === self.analytic_account_id_field) {
-                if (self.analytic_account_id_field.modifiers && self.analytic_account_id_field.modifiers['required']) {
-                    if (self.analytic_account_id_field.get('value')) {
-                        self.balanceChanged();
-                    } else {
-                        self.$(".button_ok").text("OK").removeClass("oe_highlight").attr("disabled", "disabled");
-                    };
-                };
-            };
+            self.UpdateRequiredFields(elt);
         },
 
     });

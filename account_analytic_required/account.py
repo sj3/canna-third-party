@@ -27,19 +27,6 @@ from openerp import models, fields, api, _
 class account_account_type(models.Model):
     _inherit = "account.account.type"
 
-    def init(self, cr):
-        cr.execute("""
-            UPDATE account_account_type
-              SET analytic_policy =
-                CASE WHEN report_type in ('income', 'expense')
-                 THEN 'optional'
-                 ELSE 'never'
-                END
-              WHERE analytic_policy is NULL;
-            ALTER TABLE account_account_type
-              ALTER COLUMN analytic_policy SET NOT NULL;
-        """)
-
     @api.model
     def _get_policies(self):
         """This is the method to be inherited for adding policies"""
@@ -54,9 +41,13 @@ class account_account_type(models.Model):
         else:
             self.analytic_policy = 'optional'
 
+    @api.model
+    def _default_policy(self):
+        return 'optional'
+
     analytic_policy = fields.Selection(
         '_get_policies', string='Policy for analytic account',
-        required=True,
+        required=True, default=_default_policy,
         help="Set the policy for analytic accounts : if you select "
         "'Optional', the accountant is free to put an analytic account "
         "on an account move line with this type of account ; if you "
