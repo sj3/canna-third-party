@@ -1,9 +1,9 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    OpenERP, Open Source Management Solution
+#    Odoo, Open Source Management Solution
 #
-#    Copyright (c) 2014-2015 Noviat nv/sa (www.noviat.com).
+#    Copyright (c) 2009-2016 Noviat nv/sa (www.noviat.com).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -21,7 +21,7 @@
 ##############################################################################
 {
     'name': 'Advanced Bank Statement',
-    'version': '0.6',
+    'version': '8.0.1.2.1',
     'license': 'AGPL-3',
     'author': 'Noviat',
     'category': 'Accounting & Finance',
@@ -37,11 +37,14 @@
         'security/ir.model.access.csv',
         'security/account_security.xml',
         'data/data.xml',
-        'account_bank_statement_view.xml',
-        'account_move_view.xml',
-        'wizard/bank_statement_balance_print.xml',
-        'report/reports.xml',
+        'views/account_bank_statement.xml',
+        'views/account_move.xml',
         'views/report_layout.xml',
         'views/report_statement_balances.xml',
-    ],
+        'views/account.xml',
+        'wizard/bank_statement_balance_print.xml',
+        'report/reports.xml',
+        ],
+    'installable': True,
+    'auto_install': False,
 }

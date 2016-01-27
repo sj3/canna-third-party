@@ -68,7 +68,9 @@ class account_asset_category(orm.Model):
         'name': fields.char('Name', size=64, required=True, select=1),
         'note': fields.text('Note'),
         'account_analytic_id': fields.many2one(
-            'account.analytic.account', 'Analytic account'),
+            'account.analytic.account', 'Analytic account',
+            domain=[('type', '!=', 'view'),
+                    ('state', 'not in', ('close', 'cancelled'))]),
         'account_asset_id': fields.many2one(
             'account.account', 'Asset Account', required=True,
             domain=[('type', '=', 'other')]),
@@ -234,16 +236,25 @@ class account_asset_asset(orm.Model):
     _parent_store = True
 
     def unlink(self, cr, uid, ids, context=None):
+        if context is None:
+            context = {}
         for asset in self.browse(cr, uid, ids, context=context):
             if asset.state != 'draft':
                 raise orm.except_orm(
                     _('Invalid action!'),
                     _("You can only delete assets in draft state."))
-            if asset.account_move_line_ids:
+            if filter(lambda dl: dl.type == 'depreciate' and dl.move_check,
+                      asset.depreciation_line_ids):
                 raise orm.except_orm(
                     _('Error!'),
                     _("You cannot delete an asset that contains "
                       "posted depreciation lines."))
+            else:
+                self.pool['account.move.line'].write(
+                    cr, uid, [x.id for x in asset.account_move_line_ids],
+                    {'asset_id': False},
+                    context=dict(context, allow_asset_removal=True,
+                                 from_parent_object=True))
             parent = asset.parent_id
             super(account_asset_asset, self).unlink(
                 cr, uid, [asset.id], context=context)
@@ -445,7 +456,11 @@ class account_asset_asset(orm.Model):
             # with a duration equals to calendar year
             cr.execute(
                 "SELECT id, date_start, date_stop "
-                "FROM account_fiscalyear ORDER BY date_stop ASC LIMIT 1")
+                "FROM account_fiscalyear "
+                "WHERE company_id = %s "
+                "ORDER BY date_stop ASC LIMIT 1"
+                % asset.company_id.id
+            )
             first_fy = cr.dictfetchone()
             first_fy_date_start = datetime.strptime(
                 first_fy['date_start'], '%Y-%m-%d')
@@ -712,19 +727,16 @@ class account_asset_asset(orm.Model):
                     residual_amount_table - residual_amount, digits)
                 if amount_diff:
                     entry = table[table_i_start]
-                    if entry['fy_id']:
-                        cr.execute(
-                            "SELECT COALESCE(SUM(amount), 0.0) "
-                            "FROM account_asset_depreciation_line "
-                            "WHERE id in %s "
-                            "      AND line_date >= %s and line_date <= %s",
-                            (tuple(posted_depreciation_line_ids),
-                             entry['date_start'],
-                             entry['date_stop']))
-                        res = cr.fetchone()
-                        fy_amount_check = res[0]
-                    else:
-                        fy_amount_check = 0.0
+                    cr.execute(
+                        "SELECT COALESCE(SUM(amount), 0.0) "
+                        "FROM account_asset_depreciation_line "
+                        "WHERE id in %s "
+                        "      AND line_date >= %s and line_date <= %s",
+                        (tuple(posted_depreciation_line_ids),
+                         entry['date_start'],
+                         entry['date_stop']))
+                    res = cr.fetchone()
+                    fy_amount_check = res[0]
                     lines = entry['lines']
                     for line in lines[line_i_start:-1]:
                         line['depreciated_value'] = depreciated_value
@@ -1101,7 +1113,9 @@ class account_asset_asset(orm.Model):
             relation='res.currency',
             store=True, readonly=True,),
         'account_analytic_id': fields.many2one(
-            'account.analytic.account', 'Analytic account'),
+            'account.analytic.account', 'Analytic account',
+            domain=[('type', '!=', 'view'),
+                    ('state', 'not in', ('close', 'cancelled'))]),
     }
 
     _defaults = {
@@ -1174,7 +1188,7 @@ class account_asset_asset(orm.Model):
                 'method_period': category_obj.method_period,
                 'method_progress_factor': category_obj.method_progress_factor,
                 'prorata': category_obj.prorata,
-                'account_analytic_id': category_obj.account_analytic_id,
+                'account_analytic_id': category_obj.account_analytic_id.id,
             }
         return res
 
@@ -1508,6 +1522,7 @@ class account_asset_depreciation_line(orm.Model):
         if isinstance(ids, (int, long)):
             ids = [ids]
         for dl in self.browse(cr, uid, ids, context):
+            dl_type = vals.get('type') or dl.type
             if vals.keys() == ['move_id'] and not vals['move_id']:
                 # allow to remove an accounting entry via the
                 # 'Delete Move' button on the depreciation lines.
@@ -1539,27 +1554,37 @@ class account_asset_depreciation_line(orm.Model):
                           "on a depreciation line "
                           "with prior posted entries."))
             elif vals.get('line_date'):
-                cr.execute(
-                    "SELECT id "
-                    "FROM account_asset_depreciation_line "
-                    "WHERE asset_id = %s "
-                    "AND (init_entry=TRUE OR move_check=TRUE)"
-                    "AND line_date > %s LIMIT 1",
-                    (dl.asset_id.id, vals['line_date']))
-                res = cr.fetchone()
-                if res:
-                    raise orm.except_orm(
-                        _('Error!'),
-                        _("You cannot set the date on a depreciation line "
-                          "prior to already posted entries."))
+                if dl_type == 'create':
+                    cr.execute(
+                        "SELECT id "
+                        "FROM account_asset_depreciation_line "
+                        "WHERE asset_id = %s "
+                        "AND type != 'create' "
+                        "AND (init_entry=TRUE OR move_check=TRUE) "
+                        "AND line_date < %s LIMIT 1",
+                        (dl.asset_id.id, vals['line_date']))
+                    res = cr.fetchone()
+                    if res:
+                        raise orm.except_orm(
+                            _('Error!'),
+                            _("You cannot set the Asset Start Date "
+                              "after already posted entries."))
+                else:
+                    cr.execute(
+                        "SELECT id "
+                        "FROM account_asset_depreciation_line "
+                        "WHERE asset_id = %s "
+                        "AND (init_entry=TRUE OR move_check=TRUE)"
+                        "AND line_date > %s LIMIT 1",
+                        (dl.asset_id.id, vals['line_date']))
+                    res = cr.fetchone()
+                    if res:
+                        raise orm.except_orm(
+                            _('Error!'),
+                            _("You cannot set the date on a depreciation line "
+                              "prior to already posted entries."))
         return super(account_asset_depreciation_line, self).write(
             cr, uid, ids, vals, context)
-
-    def reload_page(self, cr, uid, asset_id, context=None):
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'reload',
-        }
 
     def _setup_move_data(self, depreciation_line, depreciation_date,
                          period_id, context):
@@ -1646,8 +1671,6 @@ class account_asset_depreciation_line(orm.Model):
             if currency_obj.is_zero(cr, uid, asset.company_id.currency_id,
                                     asset.value_residual):
                 asset.write({'state': 'close'})
-            if len(ids) == 1 and context.get('create_move_from_button'):
-                return self.reload_page(cr, uid, asset.id, context)
         return created_move_ids
 
     def open_move(self, cr, uid, ids, context=None):
@@ -1678,14 +1701,9 @@ class account_asset_depreciation_line(orm.Model):
             self.write(cr, uid, [line.id], {'move_id': False}, context=ctx)
             if line.parent_state == 'close':
                 line.asset_id.write({'state': 'open'})
-                if len(ids) == 1:
-                    return self.reload_page(
-                        cr, uid, line.asset_id.id, context)
             elif line.parent_state == 'removed' and line.type == 'remove':
                 line.asset_id.write({'state': 'close'})
                 self.unlink(cr, uid, [line.id])
-            if len(ids) == 1:
-                return self.reload_page(cr, uid, line.asset_id.id, context)
         return True
 
 

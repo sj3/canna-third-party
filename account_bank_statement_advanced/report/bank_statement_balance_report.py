@@ -1,9 +1,9 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    OpenERP, Open Source Management Solution
+#    Odoo, Open Source Management Solution
 #
-#    Copyright (c) 2014-2015 Noviat nv/sa (www.noviat.com).
+#    Copyright (c) 2009-2016 Noviat nv/sa (www.noviat.com).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -33,8 +33,8 @@ _logger = logging.getLogger(__name__)
 class bank_statement_balance_report(report_sxw.rml_parse):
 
     def set_context(self, objects, data, ids, report_type=None):
-        _logger.warn('set_context, objects = %s, data = %s, ids = %s',
-                     objects, data, ids)
+        # _logger.warn('set_context, objects = %s, data = %s, ids = %s',
+        #              objects, data, ids)
         data = objects[0]
         cr = data._cr
         uid = data._uid
