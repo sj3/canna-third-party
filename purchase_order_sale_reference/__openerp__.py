@@ -28,7 +28,7 @@
     'website': 'http://www.noviat.com',
     'category': 'Accounting & Finance',
     'complexity': 'normal',
-    'summary': 'Add Sale Order references to Purchase Order ',
+    'summary': 'Add Sale Order references to Purchase Order',
     'depends': [
         'sale_stock'
     ],
