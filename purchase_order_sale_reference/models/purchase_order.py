@@ -20,7 +20,7 @@
 #
 ##############################################################################
 
-from openerp import models, fields, api, _
+from openerp import api, fields, models, _
 from openerp.exceptions import Warning as UserError
 
 
@@ -28,14 +28,14 @@ class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
     sale_order_ids = fields.Many2many(
-        comodel_name='sale.order', compute='_compute_sale_order_ids',
+        comodel_name='sale.order', compute='_compute_sale_order_count',
         string="Sale Orders")
     sale_order_count = fields.Integer(
-        compute='_compute_sale_order_ids',
+        compute='_compute_sale_order_count',
         string='# of Sales Order')
 
     @api.one
-    def _compute_sale_order_ids(self):
+    def _compute_sale_order_count(self):
         self.sale_order_ids = self.env['sale.order']
         procs = self.env['procurement.order'].search(
             [('purchase_id', '=', self.id),
