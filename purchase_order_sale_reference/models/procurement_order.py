@@ -20,7 +20,7 @@
 #
 ##############################################################################
 
-from openerp import models, fields, api, _
+from openerp import api, fields, models, _
 
 
 class ProcurementOrder(models.Model):
