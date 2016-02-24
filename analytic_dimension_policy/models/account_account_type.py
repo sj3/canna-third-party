@@ -45,6 +45,6 @@ class AccountAccountType(models.Model):
     @api.onchange('report_type')
     def _onchange_report_type(self):
         if self.report_type in ['none', 'asset', 'liabilty']:
-            self.analytic_policy = 'never'
+            self.analytic_dimension_policy = 'never'
         else:
-            self.analytic_policy = 'optional'
+            self.analytic_dimension_policy = 'optional'
