@@ -20,35 +20,5 @@
 #
 ##############################################################################
 
-{
-    'name': 'CRM Visit',
-    'version': '8.0.1.0.0',
-    'website' : 'https://www.onestein.eu',
-    'license': 'AGPL-3',
-    'category': 'CRM',
-    'summary': '',
-    'description': """
-CRM Visit
-=========
-- Manage Customer visits
-- Report on Customer visits
-
-""",
-    'author': 'Onestein BV, André Schenkels',
-    'depends': [
-        'base',
-        'mail'
-    ],
-    'data': [
-        'security/crm_visit_security.xml',
-        'security/ir.model.access.csv',
-        'views/menu_item.xml',
-        'views/mail_message_subtype.xml',
-        'views/crm_visit_feeling.xml',
-        'views/crm_visit_reason.xml',
-        'views/crm_visit.xml',
-        'views/res_partner.xml',
-        'data/crm_visit_sequence.xml'
-    ],
-
-}
+from . import crm_partner_action
+from . import crm_partner_action_group

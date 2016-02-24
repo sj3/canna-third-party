@@ -20,35 +20,12 @@
 #
 ##############################################################################
 
-{
-    'name': 'CRM Visit',
-    'version': '8.0.1.0.0',
-    'website' : 'https://www.onestein.eu',
-    'license': 'AGPL-3',
-    'category': 'CRM',
-    'summary': '',
-    'description': """
-CRM Visit
-=========
-- Manage Customer visits
-- Report on Customer visits
+from openerp import fields, models, api
 
-""",
-    'author': 'Onestein BV, André Schenkels',
-    'depends': [
-        'base',
-        'mail'
-    ],
-    'data': [
-        'security/crm_visit_security.xml',
-        'security/ir.model.access.csv',
-        'views/menu_item.xml',
-        'views/mail_message_subtype.xml',
-        'views/crm_visit_feeling.xml',
-        'views/crm_visit_reason.xml',
-        'views/crm_visit.xml',
-        'views/res_partner.xml',
-        'data/crm_visit_sequence.xml'
-    ],
+class CrmVisitReason(models.Model):
+    _inherit = 'crm.visit.reason'
 
-}
+    operating_unit_id = fields.Many2one('operating.unit', 'Operating Unit',
+                                        default=lambda self:
+                                        self.env['res.users'].
+                                        operating_unit_default_get(self._uid))

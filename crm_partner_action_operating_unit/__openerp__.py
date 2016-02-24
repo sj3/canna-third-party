@@ -19,36 +19,21 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-
 {
-    'name': 'CRM Visit',
-    'version': '8.0.1.0.0',
-    'website' : 'https://www.onestein.eu',
-    'license': 'AGPL-3',
-    'category': 'CRM',
-    'summary': '',
-    'description': """
-CRM Visit
-=========
-- Manage Customer visits
-- Report on Customer visits
-
-""",
-    'author': 'Onestein BV, André Schenkels',
-    'depends': [
-        'base',
-        'mail'
+    "name": "Operating Unit in CRM Partner Action",
+    "version": "8.0.1.0.0",
+    "summary": "An operating unit (OU) is an organizational entity part of a "
+               "company",
+    "author": "Onestein BV, André Schenkels"
+              "Odoo Community Association (OCA)",
+    "license": "AGPL-3",
+    "website": "http://www.onestein.eu",
+    "category": "CRM",
+    "depends": ["crm_partner_action", "operating_unit"],
+    "data": [
+        "views/crm_partner_action.xml",
+        "views/crm_partner_action_group.xml",
+        "security/crm_partner_action_security.xml",
+        "security/crm_partner_action_group_security.xml",
     ],
-    'data': [
-        'security/crm_visit_security.xml',
-        'security/ir.model.access.csv',
-        'views/menu_item.xml',
-        'views/mail_message_subtype.xml',
-        'views/crm_visit_feeling.xml',
-        'views/crm_visit_reason.xml',
-        'views/crm_visit.xml',
-        'views/res_partner.xml',
-        'data/crm_visit_sequence.xml'
-    ],
-
 }
