@@ -18,7 +18,8 @@
     "license": "AGPL-3",
     "data": [
         "security/account_security.xml",
-        "views/account_move_view.xml",
+        "views/account_move.xml",
+        "views/account_move_line.xml",
         "views/account_account_view.xml",
         "views/company_view.xml",
         "views/invoice_view.xml",
