@@ -21,7 +21,8 @@
  #
  ##############################################################################
 */
-openerp.account_operating_unit = function (instance) {
+
+openerp.account_operating_unit_dimension_policy = function (instance) {
     var _t = instance.web._t;
     var QWeb = instance.web.qweb;
 
@@ -32,32 +33,48 @@ openerp.account_operating_unit = function (instance) {
             this._super.apply(this, arguments);
 
             this.create_form_fields['operating_unit_id'] = {
-                id: 'operating_unit_id',
+                id: "operating_unit_id",
                 index: 5,
                 label: _t("Operating Unit"),
-                required: true,
-                corresponding_property: 'operating_unit_id',
+                corresponding_property: "operating_unit_id",
                 tabindex: 15,
                 constructor: instance.web.form.FieldMany2One,
                 field_properties: {
-                    relation: 'operating.unit',
+                    relation: "operating.unit",
                     string: _t("Operating Unit"),
-                    type: 'many2one',
+                    type: "many2one",
                 },
             };
-            this.required_fields_set['operating_unit_id'] = false;
+
         },
 
     });
 
     instance.web.account.bankStatementReconciliationLine.include({
 
+        init: function(parent, context) {
+            var self = this;
+            this._super.apply(this, arguments);
+            this.map_analytic_dimension_policy = this.getParent().map_analytic_dimension_policy;
+        },
+
         formCreateInputChanged: function(elt, val) {
             var self = this;
             this._super.apply(this, arguments);
-            if (elt === self.operating_unit_id_field) {
+            if (elt === self.account_id_field) {
+                if (self.map_analytic_dimension_policy[elt.get('value')] === 'always') {
+                    this.operating_unit_id_field.modifiers = {'required': true, 'readonly': false};
+                    this.required_fields_set['operating_unit_id'] = false;
+                } else {
+                    this.operating_unit_id_field.modifiers = undefined;
+                    delete this.required_fields_set['operating_unit_id'];
+                    if (self.map_analytic_dimension_policy[elt.get('value')] === 'never') {
+                        this.operating_unit_id_field.set('value', false);
+                        this.operating_unit_id_field.modifiers = {'readonly': true};
+                    };
+                };
                 self.UpdateRequiredFields(elt);
-            };            
+            };
         },
 
         prepareCreatedMoveLineForPersisting: function(line) {
