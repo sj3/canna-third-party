@@ -20,8 +20,12 @@
 #
 ##############################################################################
 
+import logging
+
 from openerp import fields, _
 from openerp.exceptions import RedirectWarning
+
+_logger = logging.getLogger(__name__)
 
 
 class CommonAccrual(object):
@@ -95,3 +99,19 @@ class CommonAccrual(object):
                 accruals[entry.get('product_id')] = aml
 
         return accrual_move_id.id, accruals
+
+    def _reconcile_accrued_expense_lines(self, accrual_lines):
+        for p_id in accrual_lines:
+            to_reconcile = accrual_lines[p_id]
+            check = 0.0
+            for l in to_reconcile:
+                check += l.debit - l.credit
+            if self.company_id.currency_id.is_zero(check):
+                to_reconcile.reconcile()
+            else:
+                _logger.error(_(
+                    "%s, accrual reconcile failed for "
+                    "account.move.line ids %s, "
+                    "sum(debit) != sum(credit)"),
+                    self.name, [x.id for x in to_reconcile]
+                    )

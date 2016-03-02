@@ -20,12 +20,13 @@
 #
 ##############################################################################
 
+import logging
+
 from openerp import api, fields, models, _
 from openerp.addons.account_sale_purchase_accruals.models.common_accrual \
     import CommonAccrual
 from openerp.exceptions import Warning as UserError
 
-import logging
 _logger = logging.getLogger(__name__)
 
 
@@ -39,15 +40,30 @@ class AccountInvoice(models.Model, CommonAccrual):
     purchase_order_ids = fields.Many2many(
         comodel_name='purchase.order', compute='_compute_purchase_order_ids',
         string="Purchase Orders")
+    sale_order_ids = fields.Many2many(
+        comodel_name='sale.order', compute='_compute_sale_order_ids',
+        string="Sale Orders")
 
     @api.one
     def _compute_purchase_order_ids(self):
         dom = [('invoice_ids', '=', self.id)]
         self.purchase_order_ids = self.env['purchase.order'].search(dom)
 
-    def _create_expense_accruals(self):
+    @api.one
+    def _compute_sale_order_ids(self):
+        dom = [('invoice_ids', '=', self.id)]
+        self.sale_order_ids = self.env['sale.order'].search(dom)
 
+    def _customer_invoice_create_expense_accruals(self):
+        """
+        - Create 'Accrued Expense Account' entries for the Customer Invoice.
+        - Reconcile these 'Accrued Expense Account' entries
+          with it's counterpart created during the Procurement Process
+          (e.g. Purchase Order Confirmation).
+        """
         aml_vals = []
+        inv_accruals = {}
+        inv_accrual_accounts = []
         partner = self.partner_id.commercial_partner_id
 
         for ail in self.invoice_line:
@@ -59,6 +75,7 @@ class AccountInvoice(models.Model, CommonAccrual):
                         get_accrued_expense_account()
                 if accrual_account:
 
+                    inv_accrual_accounts.append(accrual_account)
                     expense_account = product.property_account_expense
                     if not expense_account:
                         expense_account = product.categ_id.\
@@ -98,11 +115,29 @@ class AccountInvoice(models.Model, CommonAccrual):
                         }
                     aml_vals.append(accrual_vals)
 
-            if aml_vals:
-                am_id, accruals = self._create_accrual_move(aml_vals)
-                self.write({'accrual_move_id': am_id})
+        if aml_vals:
+            am_id, inv_accruals = self._create_accrual_move(aml_vals)
+            self.write({'accrual_move_id': am_id})
 
-    def _reconcile_accruals(self):
+        dom = [('sale_order_ids', 'in', self.sale_order_ids)]
+        purchase_orders = self.env['purchase.order'].search(dom)
+        po_accruals = purchase_orders.mapped('s_accrual_move_id')
+        for po_accrual in po_accruals:
+            for l in po_accrual.line_id:
+                if l.product_id.id in inv_accruals \
+                        and l.account_id in inv_accrual_accounts:
+                    inv_accruals[l.product_id.id] += l
+
+        # TODO: extend logic for stock & manufacturing procurements
+        if po_accruals:
+            self._reconcile_accrued_expense_lines(inv_accruals)
+
+    def _supplier_invoice_reconcile_accruals(self):
+        """
+        Reconcile the 'Accrued Expense Account' entries of the
+        Purchase Invoice with it's counterpart created during the
+        Purchase Order Confirmation.
+        """
         amls = self.move_id.line_id
         for aml in amls:
             to_reconcile = aml
@@ -115,39 +150,39 @@ class AccountInvoice(models.Model, CommonAccrual):
                         get_accrued_expense_account()
 
                 if accrual_account:
-                    if self.type == 'in_invoice':
-                        p_accruals = [p.p_accrual_move_id
-                                      for p in self.purchase_order_ids]
-                        p_amls = self.env['account.move.line']
-                        for p_accrual in p_accruals:
-                            p_amls += p_accrual.line_id
-                        for p_aml in p_amls:
-                            if p_aml.account_id == accrual_account:
-                                to_reconcile += p_aml
 
-                        check = 0.0
-                        for l in to_reconcile:
-                            check += l.debit - l.credit
-                        if self.company_id.currency_id.is_zero(check):
-                            to_reconcile.reconcile()
-                        else:
-                            _logger.error(_(
-                                "%s, accrual reconcile failed for "
-                                "account.move.line ids %s, "
-                                "sum(debit) != sum(credit)"),
-                                self.name, [x.id for x in to_reconcile]
-                                )
+                    accruals = [po.p_accrual_move_id
+                                for po in self.purchase_order_ids]
+                    amls = self.env['account.move.line']
+                    for accrual in accruals:
+                        amls += accrual.line_id
+                    for aml in amls:
+                        if aml.account_id == accrual_account:
+                            to_reconcile += aml
+
+                    check = 0.0
+                    for l in to_reconcile:
+                        check += l.debit - l.credit
+                    if self.company_id.currency_id.is_zero(check):
+                        to_reconcile.reconcile()
+                    else:
+                        _logger.error(_(
+                            "%s, accrual reconcile failed for "
+                            "account.move.line ids %s, "
+                            "sum(debit) != sum(credit)"),
+                            self.name, [x.id for x in to_reconcile]
+                            )
 
     @api.multi
     def invoice_validate(self):
         res = super(AccountInvoice, self).invoice_validate()
         for inv in self:
             if inv.type == 'out_invoice':
-                inv._create_expense_accruals()
+                inv._customer_invoice_create_expense_accruals()
             elif inv.type == 'out_refund':
                 _logger.error("WIP")
             elif inv.type == 'in_invoice':
-                self._reconcile_accruals()
+                inv._supplier_invoice_reconcile_accruals()
             elif inv.type == 'in_refund':
                 _logger.error("WIP")
         return res

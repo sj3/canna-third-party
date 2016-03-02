@@ -20,12 +20,13 @@
 #
 ##############################################################################
 
+import logging
+
 from openerp import api, fields, models, _
 from openerp.addons.account_sale_purchase_accruals.models.common_accrual \
     import CommonAccrual
 from openerp.exceptions import Warning as UserError
 
-import logging
 _logger = logging.getLogger(__name__)
 
 
@@ -207,21 +208,7 @@ class PurchaseOrder(models.Model, CommonAccrual):
                     if l.product_id.id in s_po_accruals \
                             and l.account_id in po_accrual_accounts:
                         s_po_accruals[l.product_id.id] += l
-
-        for p_id in s_po_accruals:
-            to_reconcile = s_po_accruals[p_id]
-            check = 0.0
-            for l in to_reconcile:
-                check += l.debit - l.credit
-            if self.company_id.currency_id.is_zero(check):
-                to_reconcile.reconcile()
-            else:
-                _logger.error(_(
-                    "%s, accrual reconcile failed for "
-                    "account.move.line ids %s, "
-                    "sum(debit) != sum(credit)"),
-                    self.name, [x.id for x in to_reconcile]
-                    )
+        self._reconcile_accrued_expense_lines(s_po_accruals)
 
     @api.multi
     def wkf_confirm_order(self):

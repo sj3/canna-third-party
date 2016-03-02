@@ -26,12 +26,6 @@ from openerp import api, fields, models
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
-    TODEL_accrued_income_account_id = fields.Many2one(
-        'account.account', string='Accrued Income Account',
-        domain=[('type', 'not in', ['view', 'closed', 'consolidation'])],
-        company_dependent=True, ondelete='restrict',
-        help="Set this account to create an accrual for the income of goods "
-             "or services when confirming the Sales Order.")
     accrued_expense_account_id = fields.Many2one(
         'account.account', string='Accrued Expense Account',
         domain=[('type', 'not in', ['view', 'closed', 'consolidation'])],
