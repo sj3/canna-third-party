@@ -13,18 +13,6 @@
             </field>
         </record>
 
-        <!-- Not implemented in dimension policy-->
-        <!--<record id="view_move_line_form2" model="ir.ui.view">-->
-            <!--<field name="name">account.move.line.form2</field>-->
-            <!--<field name="model">account.move.line</field>-->
-            <!--<field name="inherit_id" ref="account_operating_unit.view_move_line_form2"/>-->
-            <!--<field name="arch" type="xml">-->
-                <!--<field name="operating_unit_id" postition="attributes">-->
-                    <!--<attribute name="attrs">{'readonly': [('analytic_dimension_policy', '=', 'never')], 'required': [('analytic_dimension_policy', '=', 'always')]}</attribute>-->
-                <!--</field>-->
-            <!--</field>-->
-        <!--</record>-->
-
         <record id="view_move_line_tree" model="ir.ui.view">
             <field name="name">account.move.line.tree</field>
             <field name="model">account.move.line</field>

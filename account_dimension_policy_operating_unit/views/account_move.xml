@@ -7,7 +7,7 @@
             <field name="model">account.move</field>
             <field name="inherit_id" ref="account_operating_unit.view_move_form"/>
             <field name="arch" type="xml">
-                 <xpath expr="//field[@name='line_id']/tree//field[@name='operating_unit_id']" position="attributes">
+                <xpath expr="//field[@name='line_id']/tree//field[@name='operating_unit_id']" position="attributes">
                     <attribute name="attrs">{'readonly': [('analytic_dimension_policy', '=', 'never')], 'required': [('analytic_dimension_policy', '=', 'always')]}</attribute>
                 </xpath>
                 <xpath expr="//field[@name='line_id']/form//field[@name='operating_unit_id']" position="attributes">
