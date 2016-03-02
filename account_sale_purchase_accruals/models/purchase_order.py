@@ -202,13 +202,15 @@ class PurchaseOrder(models.Model, CommonAccrual):
                 am_id, p_po_accruals = self._create_accrual_move(p_aml_vals)
                 self.write({'p_accrual_move_id': am_id})
 
-        for so in self.sale_order_ids:
-            for inv in so.invoice_ids:
-                for l in inv.accrual_move_id.line_id:
-                    if l.product_id.id in s_po_accruals \
-                            and l.account_id in po_accrual_accounts:
-                        s_po_accruals[l.product_id.id] += l
-        self._reconcile_accrued_expense_lines(s_po_accruals)
+        sale_invoices = self.sale_order_ids.mapped('invoice_ids')
+        si_accruals = sale_invoices.mapped('accrual_move_id')
+        for si_accrual in si_accruals:
+            for l in si_accrual.line_id:
+                if l.product_id.id in s_po_accruals \
+                        and l.account_id in po_accrual_accounts:
+                    s_po_accruals[l.product_id.id] += l
+        if si_accruals:
+            self._reconcile_accrued_expense_lines(s_po_accruals)
 
     @api.multi
     def wkf_confirm_order(self):
