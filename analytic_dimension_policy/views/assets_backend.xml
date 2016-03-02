@@ -4,7 +4,7 @@
 
     <template id="assets_backend" name="account assets" inherit_id="web.assets_backend">
       <xpath expr="." position="inside">
-        <script type="text/javascript" src="/account_analytic_required/static/src/js/analytic_dimension_policy.js"></script>
+        <script type="text/javascript" src="/analytic_dimension_policy/static/src/js/analytic_dimension_policy.js"></script>
       </xpath>
     </template>
 
