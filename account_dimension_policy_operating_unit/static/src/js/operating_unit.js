@@ -22,7 +22,7 @@
  ##############################################################################
 */
 
-openerp.account_operating_unit_dimension_policy = function (instance) {
+openerp.account_dimension_policy_operating_unit = function (instance) {
     var _t = instance.web._t;
     var QWeb = instance.web.qweb;
 
