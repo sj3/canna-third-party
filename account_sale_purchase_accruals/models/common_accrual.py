@@ -81,9 +81,9 @@ class CommonAccrual(object):
         for entry in aml_vals:
             hashcode = self._accrual_hashcode(entry)
             if hashcode in grouped:
-                for field in aml_vals:
+                for field in entry:
                     if field in fields_to_sum:
-                        grouped[hashcode][field] += aml_vals[field]
+                        grouped[hashcode][field] += entry[field]
             else:
                 grouped[hashcode] = entry
 
@@ -103,6 +103,8 @@ class CommonAccrual(object):
     def _reconcile_accrued_expense_lines(self, accrual_lines):
         for p_id in accrual_lines:
             to_reconcile = accrual_lines[p_id]
+            if len(to_reconcile) < 2:
+                continue
             check = 0.0
             for l in to_reconcile:
                 check += l.debit - l.credit

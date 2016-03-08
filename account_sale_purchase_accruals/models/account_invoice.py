@@ -69,10 +69,7 @@ class AccountInvoice(models.Model, CommonAccrual):
         for ail in self.invoice_line:
             product = ail.product_id
             if product:
-                accrual_account = product.accrued_expense_account_id
-                if not accrual_account:
-                    accrual_account = product.product_tmpl_id.\
-                        get_accrued_expense_account()
+                accrual_account = product.recursive_accrued_expense_account_id
                 if accrual_account:
 
                     inv_accrual_accounts.append(accrual_account)
@@ -89,6 +86,8 @@ class AccountInvoice(models.Model, CommonAccrual):
                     if fpos:
                         expense_account = fpos.map_account(expense_account)
                     amount = ail.quantity * product.standard_price
+                    if self.type == 'out_refund':
+                        amount = -amount
 
                     expense_vals = {
                         'account_id': expense_account.id,
@@ -132,6 +131,25 @@ class AccountInvoice(models.Model, CommonAccrual):
         if po_accruals:
             self._reconcile_accrued_expense_lines(inv_accruals)
 
+        # reconcile refund accrual with original invoice accrual
+        # remark: this operation may fail, e.g. if original invoice
+        # accrual is already reconciled during procurement proces.
+        accrual_lines = {}
+        for aml in self.accrual_move_id.line_id:
+            if aml.account_id in inv_accrual_accounts:
+                accrual_lines[aml.product_id.id] = aml
+        # Logic infra doesn't cover refund validated via refund wizard
+        # since origin_invoices_ids field is populated after the validation.
+        # As a consequence we have added the same logic to the refund wizard.
+        for origin_invoice in self.origin_invoices_ids:
+            for orig_aml in origin_invoice.accrual_move_id.line_id:
+                if orig_aml.account_id in inv_accrual_accounts \
+                        and not orig_aml.reconcile_id:
+                    if orig_aml.product_id.id in accrual_lines:
+                        accrual_lines[orig_aml.product_id.id] += orig_aml
+        if accrual_lines:
+            self._reconcile_accrued_expense_lines(accrual_lines)
+
     def _supplier_invoice_reconcile_accruals(self):
         """
         Reconcile the 'Accrued Expense Account' entries of the
@@ -139,18 +157,13 @@ class AccountInvoice(models.Model, CommonAccrual):
         Purchase Order Confirmation.
         """
         amls = self.move_id.line_id
+        accrual_lines = {}
         for aml in amls:
-            to_reconcile = aml
             product = aml.product_id
+            accrual_lines[product.id] = aml
             if product:
-
-                accrual_account = product.accrued_expense_account_id
-                if not accrual_account:
-                    accrual_account = product.product_tmpl_id.\
-                        get_accrued_expense_account()
-
+                accrual_account = product.recursive_accrued_expense_account_id
                 if accrual_account:
-
                     accruals = [po.p_accrual_move_id
                                 for po in self.purchase_order_ids]
                     amls = self.env['account.move.line']
@@ -158,29 +171,16 @@ class AccountInvoice(models.Model, CommonAccrual):
                         amls += accrual.line_id
                     for aml in amls:
                         if aml.account_id == accrual_account:
-                            to_reconcile += aml
-
-                    check = 0.0
-                    for l in to_reconcile:
-                        check += l.debit - l.credit
-                    if self.company_id.currency_id.is_zero(check):
-                        to_reconcile.reconcile()
-                    else:
-                        _logger.error(_(
-                            "%s, accrual reconcile failed for "
-                            "account.move.line ids %s, "
-                            "sum(debit) != sum(credit)"),
-                            self.name, [x.id for x in to_reconcile]
-                            )
+                            accrual_lines[product.id] += aml
+        if accrual_lines:
+            self._reconcile_accrued_expense_lines(accrual_lines)
 
     @api.multi
     def invoice_validate(self):
         res = super(AccountInvoice, self).invoice_validate()
         for inv in self:
-            if inv.type == 'out_invoice':
+            if inv.type in ('out_invoice', 'out_refund'):
                 inv._customer_invoice_create_expense_accruals()
-            elif inv.type == 'out_refund':
-                _logger.error("WIP")
             elif inv.type == 'in_invoice':
                 inv._supplier_invoice_reconcile_accruals()
             elif inv.type == 'in_refund':
@@ -209,12 +209,9 @@ class AccountInvoiceLine(models.Model):
             partner_id=partner_id, fposition_id=fposition_id,
             price_unit=price_unit, currency_id=currency_id,
             company_id=company_id)
-        if product_id:
+        if type in ('in_invoice', 'in_refund') and product_id:
             product = self.env['product.product'].browse(product_id)
-            accrual_account = product.accrued_expense_account_id
-            if not accrual_account:
-                accrual_account = product.product_tmpl_id.\
-                    get_accrued_expense_account()
+            accrual_account = product.recursive_accrued_expense_account_id
             if accrual_account:
                 res['value']['account_id'] = accrual_account
         return res

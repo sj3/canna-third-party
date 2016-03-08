@@ -20,26 +20,4 @@
 #
 ##############################################################################
 
-{
-    'name': 'Account Sale Purchase Accruals',
-    'version': '8.0.0.1.4',
-    'license': 'AGPL-3',
-    'author': 'Noviat',
-    'website': 'http://www.noviat.com',
-    'category': 'Accounting & Finance',
-    'complexity': 'normal',
-    'summary': 'Traceable Journal Entries for Sale/Purchase/Stock process',
-    'conflicts': ['account_anglo_saxon'],
-    'depends': [
-        'purchase_order_sale_reference',
-        'account_refund_original',
-    ],
-    'data': [
-        'views/account_invoice.xml',
-        'views/product_category.xml',
-        'views/product_template.xml',
-        'views/purchase_order.xml',
-        'views/res_company.xml',
-    ],
-    'installable': True,
-}
+from . import account_invoice_refund

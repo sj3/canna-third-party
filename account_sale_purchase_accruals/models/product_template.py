@@ -32,6 +32,21 @@ class ProductTemplate(models.Model):
         company_dependent=True, ondelete='restrict',
         help="Set this account to create an accrual for the cost of goods "
              "or services when confirming the Sales Order.")
+    recursive_accrued_expense_account_id = fields.Many2one(
+        'account.account', string='Accrued Expense Account',
+        compute='_compute_recursive_accrued_expense_account_id',
+        company_dependent=True,
+        help="Accrued Expense Account on Product Record or Product Category.")
+
+    @api.multi
+    def _compute_recursive_accrued_expense_account_id(self):
+        if self.accrued_expense_account_id:
+            account = self.accrued_expense_account_id
+        elif self.categ_id:
+            account = self.categ_id.get_accrued_expense_account()
+        else:
+            account = self.env['account.account']
+        self.recursive_accrued_expense_account_id = account
 
     @api.multi
     def get_accrued_expense_account(self):

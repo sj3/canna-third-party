@@ -59,10 +59,7 @@ class PurchaseOrder(models.Model, CommonAccrual):
         product_id = vals.get('product_id')
         if product_id:
             product = self.env['product.product'].browse(product_id)
-            accrual_account = product.accrued_expense_account_id
-            if not accrual_account:
-                accrual_account = product.product_tmpl_id.\
-                    get_accrued_expense_account()
+            accrual_account = product.recursive_accrued_expense_account_id
             if accrual_account:
                 vals['account_id'] = accrual_account.id
         return vals
@@ -93,10 +90,7 @@ class PurchaseOrder(models.Model, CommonAccrual):
         for pol in self.order_line:
             product = pol.product_id
             if product:
-                accrual_account = product.accrued_expense_account_id
-                if not accrual_account:
-                    accrual_account = product.product_tmpl_id.\
-                        get_accrued_expense_account()
+                accrual_account = product.recursive_accrued_expense_account_id
                 if accrual_account:
 
                     po_accrual_accounts.append(accrual_account)
