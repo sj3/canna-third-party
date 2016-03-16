@@ -69,7 +69,8 @@ class AccountInvoice(models.Model, CommonAccrual):
         for ail in self.invoice_line:
             product = ail.product_id
             if product:
-                accrual_account = product.recursive_accrued_expense_account_id
+                accrual_account = \
+                    product.recursive_accrued_expense_out_account_id
                 if accrual_account:
 
                     inv_accrual_accounts.append(accrual_account)
@@ -162,7 +163,8 @@ class AccountInvoice(models.Model, CommonAccrual):
             product = aml.product_id
             accrual_lines[product.id] = aml
             if product:
-                accrual_account = product.recursive_accrued_expense_account_id
+                accrual_account = \
+                    product.recursive_accrued_expense_in_account_id
                 if accrual_account:
                     accruals = [po.p_accrual_move_id
                                 for po in self.purchase_order_ids]
@@ -183,8 +185,6 @@ class AccountInvoice(models.Model, CommonAccrual):
                 inv._customer_invoice_create_expense_accruals()
             elif inv.type == 'in_invoice':
                 inv._supplier_invoice_reconcile_accruals()
-            elif inv.type == 'in_refund':
-                _logger.error("WIP")
         return res
 
     @api.multi
@@ -211,7 +211,8 @@ class AccountInvoiceLine(models.Model):
             company_id=company_id)
         if type in ('in_invoice', 'in_refund') and product_id:
             product = self.env['product.product'].browse(product_id)
-            accrual_account = product.recursive_accrued_expense_account_id
+            accrual_account = \
+                product.recursive_accrued_expense_out_account_id
             if accrual_account:
                 res['value']['account_id'] = accrual_account
         return res

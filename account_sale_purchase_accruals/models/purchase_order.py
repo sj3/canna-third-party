@@ -59,7 +59,7 @@ class PurchaseOrder(models.Model, CommonAccrual):
         product_id = vals.get('product_id')
         if product_id:
             product = self.env['product.product'].browse(product_id)
-            accrual_account = product.recursive_accrued_expense_account_id
+            accrual_account = product.recursive_accrued_expense_in_account_id
             if accrual_account:
                 vals['account_id'] = accrual_account.id
         return vals
@@ -84,16 +84,26 @@ class PurchaseOrder(models.Model, CommonAccrual):
         cpy_cur = self.company_id.currency_id
         s_aml_vals = []
         s_po_accruals = {}
-        po_accrual_accounts = []
+        po_accrual_out_accounts = []
         p_aml_vals = []
 
         for pol in self.order_line:
             product = pol.product_id
             if product:
-                accrual_account = product.recursive_accrued_expense_account_id
-                if accrual_account:
+                accrual_in_account = \
+                    product.recursive_accrued_expense_in_account_id
+                accrual_out_account = \
+                    product.recursive_accrued_expense_out_account_id
+                if (accrual_in_account and not accrual_out_account) \
+                        or (accrual_out_account and not accrual_in_account):
+                    raise UserError(_(
+                        "Configuration Error for product '%s'."
+                        "\nBoth Accrued Expense Accounts should be defined.")
+                        % product.name)
 
-                    po_accrual_accounts.append(accrual_account)
+                if accrual_out_account:
+
+                    po_accrual_out_accounts.append(accrual_out_account)
                     expense_account = product.property_account_expense
                     if not expense_account:
                         expense_account = product.categ_id.\
@@ -130,7 +140,7 @@ class PurchaseOrder(models.Model, CommonAccrual):
                     s_aml_vals.append(expense_vals)
 
                     accrual_vals = {
-                        'account_id': accrual_account.id,
+                        'account_id': accrual_out_account.id,
                         'debit': credit,
                         'credit': debit,
                         'product_id': product.id,
@@ -174,7 +184,7 @@ class PurchaseOrder(models.Model, CommonAccrual):
                     p_aml_vals.append(expense_vals)
 
                     accrual_vals = {
-                        'account_id': accrual_account.id,
+                        'account_id': accrual_in_account.id,
                         'debit': credit,
                         'credit': debit,
                         'product_id': product.id,
@@ -201,7 +211,7 @@ class PurchaseOrder(models.Model, CommonAccrual):
         for si_accrual in si_accruals:
             for l in si_accrual.line_id:
                 if l.product_id.id in s_po_accruals \
-                        and l.account_id in po_accrual_accounts:
+                        and l.account_id in po_accrual_out_accounts:
                     s_po_accruals[l.product_id.id] += l
         if si_accruals:
             self._reconcile_accrued_expense_lines(s_po_accruals)

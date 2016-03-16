@@ -26,35 +26,69 @@ from openerp import api, fields, models
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
-    accrued_expense_account_id = fields.Many2one(
-        'account.account', string='Accrued Expense Account',
+    accrued_expense_in_account_id = fields.Many2one(
+        'account.account', string='Accrued Expense In Account',
         domain=[('type', 'not in', ['view', 'closed', 'consolidation'])],
         company_dependent=True, ondelete='restrict',
         help="Set this account to create an accrual for the cost of goods "
-             "or services when confirming the Sales Order.")
-    recursive_accrued_expense_account_id = fields.Many2one(
-        'account.account', string='Accrued Expense Account',
-        compute='_compute_recursive_accrued_expense_account_id',
+             "or services during the procurement operation.")
+    accrued_expense_out_account_id = fields.Many2one(
+        'account.account', string='Accrued Expense Out Account',
+        domain=[('type', 'not in', ['view', 'closed', 'consolidation'])],
+        company_dependent=True, ondelete='restrict',
+        help="Set this account to create an accrual for the cost of goods "
+             "or services during the sales operation.")
+    recursive_accrued_expense_in_account_id = fields.Many2one(
+        'account.account', string='Accrued Expense In Account',
+        compute='_compute_recursive_accrued_expense_in_account_id',
         company_dependent=True,
-        help="Accrued Expense Account on Product Record or Product Category.")
+        help="Accrued Expense In Account on "
+             "Product Record or Product Category.")
+    recursive_accrued_expense_out_account_id = fields.Many2one(
+        'account.account', string='Accrued Expense Out Account',
+        compute='_compute_recursive_accrued_expense_out_account_id',
+        company_dependent=True,
+        help="Accrued Expense Out Account "
+             "on Product Record or Product Category.")
 
     @api.multi
-    def _compute_recursive_accrued_expense_account_id(self):
-        if self.accrued_expense_account_id:
-            account = self.accrued_expense_account_id
+    def _compute_recursive_accrued_expense_in_account_id(self):
+        if self.accrued_expense_in_account_id:
+            account = self.accrued_expense_in_account_id
         elif self.categ_id:
-            account = self.categ_id.get_accrued_expense_account()
+            account = self.categ_id.get_accrued_expense_in_account()
         else:
             account = self.env['account.account']
-        self.recursive_accrued_expense_account_id = account
+        self.recursive_accrued_expense_in_account_id = account
 
     @api.multi
-    def get_accrued_expense_account(self):
+    def get_accrued_expense_in_account(self):
         self.ensure_one()
-        if self.accrued_expense_account_id:
-            res = self.accrued_expense_account_id
+        if self.accrued_expense_in_account_id:
+            res = self.accrued_expense_in_account_id
         elif self.categ_id:
-            res = self.categ_id.get_accrued_expense_account()
+            res = self.categ_id.get_accrued_expense_in_account()
+        else:
+            res = self.env['account.account']
+        return res
+
+    @api.multi
+    def _compute_recursive_accrued_expense_out_account_id(self):
+        if self.accrued_expense_out_account_id:
+            account = self.accrued_expense_out_account_id
+        elif self.categ_id:
+            account = self.categ_id.get_accrued_expense_out_account()
+        else:
+            account = self.env['account.account']
+        self.recursive_accrued_expense_out_account_id = account
+
+    @api.multi
+    def get_accrued_expense_out_account(self):
+        self.ensure_one()
+        if self.accrued_expense_out_account_id:
+            res = self.accrued_expense_out_account_id
+        elif self.categ_id:
+            res = self.categ_id.get_accrued_expense_out_account()
         else:
             res = self.env['account.account']
         return res

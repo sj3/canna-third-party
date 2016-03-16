@@ -26,20 +26,37 @@ from openerp import api, fields, models
 class ProductCategory(models.Model):
     _inherit = 'product.category'
 
-    accrued_expense_account_id = fields.Many2one(
-        'account.account', string='Accrued Expense Account',
+    accrued_expense_in_account_id = fields.Many2one(
+        'account.account', string='Accrued Expense In Account',
         domain=[('type', 'not in', ['view', 'closed', 'consolidation'])],
         company_dependent=True, ondelete='restrict',
         help="Set this account to create an accrual for the cost of goods "
-             "or services when confirming the Sales Invoice.")
+             "or services during the procurement operation.")
+    accrued_expense_out_account_id = fields.Many2one(
+        'account.account', string='Accrued Expense Out Account',
+        domain=[('type', 'not in', ['view', 'closed', 'consolidation'])],
+        company_dependent=True, ondelete='restrict',
+        help="Set this account to create an accrual for the cost of goods "
+             "or services during the sales operation.")
 
     @api.multi
-    def get_accrued_expense_account(self):
+    def get_accrued_expense_in_account(self):
         self.ensure_one()
-        if self.accrued_expense_account_id:
-            res = self.accrued_expense_account_id
+        if self.accrued_expense_in_account_id:
+            res = self.accrued_expense_in_account_id
         elif self.parent_id:
-            res = self.parent_id.get_accrued_expense_account()
+            res = self.parent_id.get_accrued_expense_in_account()
+        else:
+            res = self.env['account.account']
+        return res
+
+    @api.multi
+    def get_accrued_expense_out_account(self):
+        self.ensure_one()
+        if self.accrued_expense_out_account_id:
+            res = self.accrued_expense_out_account_id
+        elif self.parent_id:
+            res = self.parent_id.get_accrued_expense_out_account()
         else:
             res = self.env['account.account']
         return res
