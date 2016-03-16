@@ -38,6 +38,18 @@ class ProductCategory(models.Model):
         company_dependent=True, ondelete='restrict',
         help="Set this account to create an accrual for the cost of goods "
              "or services during the sales operation.")
+    supply_method = fields.Selection(
+        selection=lambda self: self._supply_method_select(),
+        string='Supply Method', company_dependent=True,
+        help="Set this parameter in order to enforce the selected "
+             "supply Method for the products in this category.")
+
+    @api.one
+    def _supply_method_select(self):
+        # TODO: create module to add ('manufacture', 'Manufacture')
+        return [
+            ('stock', 'Take From Stock'),
+            ('buy', 'Buy')]
 
     @api.multi
     def get_accrued_expense_in_account(self):
@@ -59,4 +71,15 @@ class ProductCategory(models.Model):
             res = self.parent_id.get_accrued_expense_out_account()
         else:
             res = self.env['account.account']
+        return res
+
+    @api.multi
+    def get_supply_method(self):
+        self.ensure_one()
+        if self.supply_method:
+            res = self.supply_method
+        elif self.parent_id:
+            res = self.parent_id.get_supply_method()
+        else:
+            res = False
         return res

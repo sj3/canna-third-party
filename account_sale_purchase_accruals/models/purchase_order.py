@@ -89,116 +89,123 @@ class PurchaseOrder(models.Model, CommonAccrual):
 
         for pol in self.order_line:
             product = pol.product_id
-            if product:
-                accrual_in_account = \
-                    product.recursive_accrued_expense_in_account_id
-                accrual_out_account = \
-                    product.recursive_accrued_expense_out_account_id
-                if (accrual_in_account and not accrual_out_account) \
-                        or (accrual_out_account and not accrual_in_account):
-                    raise UserError(_(
-                        "Configuration Error for product '%s'."
-                        "\nBoth Accrued Expense Accounts should be defined.")
+
+            if not product:
+                continue
+
+            if product.type in ('product', 'consu'):
+                if self.location_id.usage == 'internal':
+                    continue
+
+            accrual_in_account = \
+                product.recursive_accrued_expense_in_account_id
+            accrual_out_account = \
+                product.recursive_accrued_expense_out_account_id
+            if (accrual_in_account and not accrual_out_account) \
+                    or (accrual_out_account and not accrual_in_account):
+                raise UserError(_(
+                    "Configuration Error for product '%s'."
+                    "\nBoth Accrued Expense Accounts should be defined.")
+                    % product.name)
+
+            if accrual_out_account:
+
+                po_accrual_out_accounts.append(accrual_out_account)
+                expense_account = product.property_account_expense
+                if not expense_account:
+                    expense_account = product.categ_id.\
+                        property_account_expense_categ
+                if not expense_account:
+                    raise UserError(
+                        _("No 'Expense Account' defined for "
+                          "product '%s' or the product category")
                         % product.name)
 
-                if accrual_out_account:
+                if fpos:
+                    expense_account = fpos.map_account(expense_account)
+                amount = pol.product_qty * product.standard_price
+                if not amount:
+                    raise UserError(
+                        _("No 'Cost' defined for product '%s'")
+                        % product.name)
+                debit = amount < 0 and -amount or 0.0
+                credit = amount > 0 and amount or 0.0
 
-                    po_accrual_out_accounts.append(accrual_out_account)
-                    expense_account = product.property_account_expense
-                    if not expense_account:
-                        expense_account = product.categ_id.\
-                            property_account_expense_categ
-                    if not expense_account:
-                        raise UserError(
-                            _("No 'Expense Account' defined for "
-                              "product '%s' or the product category")
-                            % product.name)
+                # prepare s_accrual_move
 
-                    if fpos:
-                        expense_account = fpos.map_account(expense_account)
-                    amount = pol.product_qty * product.standard_price
-                    if not amount:
-                        raise UserError(
-                            _("No 'Cost' defined for product '%s'")
-                            % product.name)
-                    debit = amount < 0 and -amount or 0.0
-                    credit = amount > 0 and amount or 0.0
+                expense_vals = {
+                    'account_id': expense_account.id,
+                    'debit': debit,
+                    'credit': credit,
+                    'product_id': product.id,
+                    'quantity': pol.product_qty,
+                    'partner_id': partner.id,
+                    'name': pol.name,
+                    'analytic_account_id': pol.account_analytic_id.id,
+                    'entry_type': 'expense',
+                    }
+                s_aml_vals.append(expense_vals)
 
-                    # prepare s_accrual_move
+                accrual_vals = {
+                    'account_id': accrual_out_account.id,
+                    'debit': credit,
+                    'credit': debit,
+                    'product_id': product.id,
+                    'quantity': pol.product_qty,
+                    'partner_id': partner.id,
+                    'name': pol.name,
+                    'entry_type': 'accrual',
+                    }
+                s_aml_vals.append(accrual_vals)
 
-                    expense_vals = {
-                        'account_id': expense_account.id,
-                        'debit': debit,
-                        'credit': credit,
-                        'product_id': product.id,
-                        'quantity': pol.product_qty,
-                        'partner_id': partner.id,
-                        'name': pol.name,
-                        'analytic_account_id': pol.account_analytic_id.id,
-                        'entry_type': 'expense',
-                        }
-                    s_aml_vals.append(expense_vals)
+                # prepare p_accrual_move
 
-                    accrual_vals = {
-                        'account_id': accrual_out_account.id,
-                        'debit': credit,
-                        'credit': debit,
-                        'product_id': product.id,
-                        'quantity': pol.product_qty,
-                        'partner_id': partner.id,
-                        'name': pol.name,
-                        'entry_type': 'accrual',
-                        }
-                    s_aml_vals.append(accrual_vals)
+                amount = pol.price_subtotal
+                if not amount:
+                    raise UserError(
+                        _("No price defined for order line '%s'")
+                        % pol.name)
+                if cur != cpy_cur:
+                    amt_cpy_cur = cur.compute(amount, cpy_cur)
+                else:
+                    amt_cpy_cur = amount
+                debit = amount > 0 and amt_cpy_cur or 0.0
+                credit = amount < 0 and -amt_cpy_cur or 0.0
 
-                    # prepare p_accrual_move
+                expense_vals = {
+                    'account_id': expense_account.id,
+                    'debit': debit,
+                    'credit': credit,
+                    'product_id': product.id,
+                    'quantity': pol.product_qty,
+                    'partner_id': partner.id,
+                    'name': pol.name,
+                    'analytic_account_id': pol.account_analytic_id.id,
+                    'entry_type': 'expense',
+                    }
+                if cur != cpy_cur:
+                    expense_vals.update({
+                        'currency_id': cur.id,
+                        'amount_currency': amount,
+                        })
+                p_aml_vals.append(expense_vals)
 
-                    amount = pol.price_subtotal
-                    if not amount:
-                        raise UserError(
-                            _("No price defined for order line '%s'")
-                            % pol.name)
-                    if cur != cpy_cur:
-                        amt_cpy_cur = cur.compute(amount, cpy_cur)
-                    else:
-                        amt_cpy_cur = amount
-                    debit = amount > 0 and amt_cpy_cur or 0.0
-                    credit = amount < 0 and -amt_cpy_cur or 0.0
-
-                    expense_vals = {
-                        'account_id': expense_account.id,
-                        'debit': debit,
-                        'credit': credit,
-                        'product_id': product.id,
-                        'quantity': pol.product_qty,
-                        'partner_id': partner.id,
-                        'name': pol.name,
-                        'analytic_account_id': pol.account_analytic_id.id,
-                        'entry_type': 'expense',
-                        }
-                    if cur != cpy_cur:
-                        expense_vals.update({
-                            'currency_id': cur.id,
-                            'amount_currency': amount,
-                            })
-                    p_aml_vals.append(expense_vals)
-
-                    accrual_vals = {
-                        'account_id': accrual_in_account.id,
-                        'debit': credit,
-                        'credit': debit,
-                        'product_id': product.id,
-                        'quantity': pol.product_qty,
-                        'partner_id': partner.id,
-                        'name': pol.name,
-                        'entry_type': 'accrual',
-                        }
-                    if cur != cpy_cur:
-                        accrual_vals.update({
-                            'currency_id': cur.id,
-                            'amount_currency': -amount,
-                            })
-                    p_aml_vals.append(accrual_vals)
+                accrual_vals = {
+                    'account_id': accrual_in_account.id,
+                    'debit': credit,
+                    'credit': debit,
+                    'product_id': product.id,
+                    'quantity': pol.product_qty,
+                    'partner_id': partner.id,
+                    'name': pol.name,
+                    'entry_type': 'accrual',
+                    }
+                if cur != cpy_cur:
+                    accrual_vals.update({
+                        'currency_id': cur.id,
+                        'amount_currency': -amount,
+                        })
+                p_aml_vals.append(accrual_vals)
 
             if s_aml_vals:
                 am_id, s_po_accruals = self._create_accrual_move(s_aml_vals)

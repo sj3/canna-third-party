@@ -29,27 +29,39 @@ class ProductTemplate(models.Model):
     accrued_expense_in_account_id = fields.Many2one(
         'account.account', string='Accrued Expense In Account',
         domain=[('type', 'not in', ['view', 'closed', 'consolidation'])],
-        company_dependent=True, ondelete='restrict',
+        company_dependent=True,
         help="Set this account to create an accrual for the cost of goods "
              "or services during the procurement operation.")
     accrued_expense_out_account_id = fields.Many2one(
         'account.account', string='Accrued Expense Out Account',
         domain=[('type', 'not in', ['view', 'closed', 'consolidation'])],
-        company_dependent=True, ondelete='restrict',
+        company_dependent=True,
         help="Set this account to create an accrual for the cost of goods "
              "or services during the sales operation.")
     recursive_accrued_expense_in_account_id = fields.Many2one(
         'account.account', string='Accrued Expense In Account',
         compute='_compute_recursive_accrued_expense_in_account_id',
-        company_dependent=True,
         help="Accrued Expense In Account on "
              "Product Record or Product Category.")
     recursive_accrued_expense_out_account_id = fields.Many2one(
         'account.account', string='Accrued Expense Out Account',
         compute='_compute_recursive_accrued_expense_out_account_id',
-        company_dependent=True,
         help="Accrued Expense Out Account "
              "on Product Record or Product Category.")
+    supply_method = fields.Selection(
+        selection=lambda self: self._supply_method_select(),
+        string='Supply Method', company_dependent=True,
+        help="Set this parameter in order to enforce the selected "
+             "supply Method for this product")
+    recursive_supply_method = fields.Char(
+        string='Supply Method',
+        compute='_compute_recursive_supply_method',
+        help="Supply Method for this product")
+    # TODO: implement enforcement
+
+    @api.one
+    def _supply_method_select(self):
+        return self.env['product.category']._supply_method_select()
 
     @api.multi
     def _compute_recursive_accrued_expense_in_account_id(self):
@@ -62,17 +74,6 @@ class ProductTemplate(models.Model):
         self.recursive_accrued_expense_in_account_id = account
 
     @api.multi
-    def get_accrued_expense_in_account(self):
-        self.ensure_one()
-        if self.accrued_expense_in_account_id:
-            res = self.accrued_expense_in_account_id
-        elif self.categ_id:
-            res = self.categ_id.get_accrued_expense_in_account()
-        else:
-            res = self.env['account.account']
-        return res
-
-    @api.multi
     def _compute_recursive_accrued_expense_out_account_id(self):
         if self.accrued_expense_out_account_id:
             account = self.accrued_expense_out_account_id
@@ -83,12 +84,8 @@ class ProductTemplate(models.Model):
         self.recursive_accrued_expense_out_account_id = account
 
     @api.multi
-    def get_accrued_expense_out_account(self):
-        self.ensure_one()
-        if self.accrued_expense_out_account_id:
-            res = self.accrued_expense_out_account_id
+    def _compute_recursive_supply_method(self):
+        if self.supply_method:
+            self.recursive_suppy_method = self.supply_method
         elif self.categ_id:
-            res = self.categ_id.get_accrued_expense_out_account()
-        else:
-            res = self.env['account.account']
-        return res
+            self.recursive_suppy_method = self.categ_id.get_supply_method()

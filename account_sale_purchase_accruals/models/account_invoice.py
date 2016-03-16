@@ -68,52 +68,66 @@ class AccountInvoice(models.Model, CommonAccrual):
 
         for ail in self.invoice_line:
             product = ail.product_id
-            if product:
-                accrual_account = \
-                    product.recursive_accrued_expense_out_account_id
-                if accrual_account:
 
-                    inv_accrual_accounts.append(accrual_account)
-                    expense_account = product.property_account_expense
-                    if not expense_account:
-                        expense_account = product.categ_id.\
-                            property_account_expense_categ
-                    if not expense_account:
-                        raise UserError(
-                            _("No 'Expense Account' defined for "
-                              "product '%s' or the product category")
-                            % product.name)
-                    fpos = partner.property_account_position
-                    if fpos:
-                        expense_account = fpos.map_account(expense_account)
-                    amount = ail.quantity * product.standard_price
-                    if self.type == 'out_refund':
-                        amount = -amount
+            if not product:
+                continue
 
-                    expense_vals = {
-                        'account_id': expense_account.id,
-                        'debit': amount > 0 and amount or 0.0,
-                        'credit': amount < 0 and -amount or 0.0,
-                        'product_id': product.id,
-                        'quantity': ail.quantity,
-                        'partner_id': partner.id,
-                        'name': ail.name,
-                        'analytic_account_id': ail.account_analytic_id.id,
-                        'entry_type': 'expense',
-                        }
-                    aml_vals.append(expense_vals)
+            if ail._is_stock_delivery():
+                if product.valuation == 'real_time':
+                    accrual_account = \
+                        product.property_stock_account_output
+                else:
+                    continue
 
-                    accrual_vals = {
-                        'account_id': accrual_account.id,
-                        'debit': expense_vals['credit'],
-                        'credit': expense_vals['debit'],
-                        'product_id': product.id,
-                        'quantity': ail.quantity,
-                        'partner_id': partner.id,
-                        'name': ail.name,
-                        'entry_type': 'accrual',
-                        }
-                    aml_vals.append(accrual_vals)
+            accrual_account = \
+                product.recursive_accrued_expense_out_account_id
+            if accrual_account:
+
+                inv_accrual_accounts.append(accrual_account)
+                expense_account = product.property_account_expense
+                if not expense_account:
+                    expense_account = product.categ_id.\
+                        property_account_expense_categ
+                if not expense_account:
+                    raise UserError(
+                        _("No 'Expense Account' defined for "
+                          "product '%s' or the product category")
+                        % product.name)
+                fpos = partner.property_account_position
+                if fpos:
+                    expense_account = fpos.map_account(expense_account)
+                amount = ail.quantity * product.standard_price
+                if self.type == 'out_refund':
+                    amount = -amount
+                if not amount:
+                    raise UserError(
+                        _("No 'Cost' defined for product '%s'")
+                        % product.name)
+
+                expense_vals = {
+                    'account_id': expense_account.id,
+                    'debit': amount > 0 and amount or 0.0,
+                    'credit': amount < 0 and -amount or 0.0,
+                    'product_id': product.id,
+                    'quantity': ail.quantity,
+                    'partner_id': partner.id,
+                    'name': ail.name,
+                    'analytic_account_id': ail.account_analytic_id.id,
+                    'entry_type': 'expense',
+                    }
+                aml_vals.append(expense_vals)
+
+                accrual_vals = {
+                    'account_id': accrual_account.id,
+                    'debit': expense_vals['credit'],
+                    'credit': expense_vals['debit'],
+                    'product_id': product.id,
+                    'quantity': ail.quantity,
+                    'partner_id': partner.id,
+                    'name': ail.name,
+                    'entry_type': 'accrual',
+                    }
+                aml_vals.append(accrual_vals)
 
         if aml_vals:
             am_id, inv_accruals = self._create_accrual_move(aml_vals)
@@ -216,3 +230,37 @@ class AccountInvoiceLine(models.Model):
             if accrual_account:
                 res['value']['account_id'] = accrual_account
         return res
+
+    def _is_stock_delivery(self):
+        """
+        Returns True if this invoice line is for an order line that
+        has been delivered from stock.
+        This function  is required in order to use a different accruals
+        logic for the following use cases:
+        - buy (drop shipping & bought-in services)
+        - delivery from stock
+
+        Since there is no direct link in the standard addons,
+        a sequence of queries is required in order to find this information
+        and not all cases can be covered.
+
+        You can set the 'supply_method' parameter on the product record
+        to bypass this lookup.
+        """
+        stock_delivery = False
+        product = self.product_id
+        if product.type in ('product', 'consu'):
+            supply_method = product.supply_method \
+                or product.recursive_supply_method
+            if supply_method == 'stock':
+                stock_delivery = True
+            else:
+                dom = [('invoice_lines', '=', self.id)]
+                sols = self.env['sale.order.line'].search(dom)
+                sol = sols and sols[0]
+                procs = sol.procurement_ids
+                proc = procs and procs[0]
+                rule = proc.rule_id
+                if rule.action == 'move':
+                    stock_delivery = True
+        return stock_delivery
