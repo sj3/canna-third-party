@@ -49,7 +49,7 @@ class ProductTemplate(models.Model):
         help="Accrued Expense Out Account "
              "on Product Record or Product Category.")
     supply_method = fields.Selection(
-        selection=lambda self: self._supply_method_select(),
+        selection='_supply_method_select',
         string='Supply Method', company_dependent=True,
         help="Set this parameter in order to enforce the selected "
              "supply Method for this product")
@@ -57,9 +57,7 @@ class ProductTemplate(models.Model):
         string='Supply Method',
         compute='_compute_recursive_supply_method',
         help="Supply Method for this product")
-    # TODO: implement enforcement
 
-    @api.one
     def _supply_method_select(self):
         return self.env['product.category']._supply_method_select()
 

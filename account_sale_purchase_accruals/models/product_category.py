@@ -39,12 +39,11 @@ class ProductCategory(models.Model):
         help="Set this account to create an accrual for the cost of goods "
              "or services during the sales operation.")
     supply_method = fields.Selection(
-        selection=lambda self: self._supply_method_select(),
+        selection='_supply_method_select',
         string='Supply Method', company_dependent=True,
         help="Set this parameter in order to enforce the selected "
              "supply Method for the products in this category.")
 
-    @api.one
     def _supply_method_select(self):
         # TODO: create module to add ('manufacture', 'Manufacture')
         return [

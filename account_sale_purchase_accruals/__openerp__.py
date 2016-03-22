@@ -22,7 +22,7 @@
 
 {
     'name': 'Account Sale Purchase Accruals',
-    'version': '8.0.0.2.0',
+    'version': '8.0.0.2.3',
     'license': 'AGPL-3',
     'author': 'Noviat',
     'website': 'http://www.noviat.com',
