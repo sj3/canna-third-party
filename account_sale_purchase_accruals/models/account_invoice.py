@@ -59,7 +59,7 @@ class AccountInvoice(models.Model, CommonAccrual):
         - Create 'Accrued Expense Account' entries for the Customer Invoice.
         - Reconcile these 'Accrued Expense Account' entries
           with it's counterpart created during the Procurement Process
-          (e.g. Purchase Order Confirmation).
+          (Purchase Order Confirmation).
         """
         aml_vals = []
         inv_accruals = {}
@@ -72,15 +72,19 @@ class AccountInvoice(models.Model, CommonAccrual):
             if not product:
                 continue
 
-            if ail._is_stock_delivery():
+            procurement_action = ail._get_procurement_action()
+            if procurement_action == 'move':
                 if product.valuation == 'real_time':
                     accrual_account = \
-                        product.property_stock_account_output
+                        product.recursive_property_stock_account_output
                 else:
                     continue
+            elif procurement_action == 'buy':
+                accrual_account = \
+                    product.recursive_accrued_expense_out_account_id
+            else:
+                continue
 
-            accrual_account = \
-                product.recursive_accrued_expense_out_account_id
             if accrual_account:
 
                 inv_accrual_accounts.append(accrual_account)
@@ -213,54 +217,17 @@ class AccountInvoice(models.Model, CommonAccrual):
 class AccountInvoiceLine(models.Model):
     _inherit = 'account.invoice.line'
 
-    @api.multi
-    def product_id_change(self, product_id, uom_id, qty=0, name='',
-                          type='out_invoice', partner_id=False,
-                          fposition_id=False, price_unit=False,
-                          currency_id=False, company_id=None):
-        res = super(AccountInvoiceLine, self).product_id_change(
-            product_id, uom_id, qty=qty, name=name, type=type,
-            partner_id=partner_id, fposition_id=fposition_id,
-            price_unit=price_unit, currency_id=currency_id,
-            company_id=company_id)
-        if type in ('in_invoice', 'in_refund') and product_id:
-            product = self.env['product.product'].browse(product_id)
-            accrual_account = \
-                product.recursive_accrued_expense_out_account_id
-            if accrual_account:
-                res['value']['account_id'] = accrual_account
-        return res
-
-    def _is_stock_delivery(self):
-        """
-        Returns True if this invoice line is for an order line that
-        has been delivered from stock.
-        This function  is required in order to use a different accruals
-        logic for the following use cases:
-        - buy (drop shipping & bought-in services)
-        - delivery from stock
-
-        Since there is no direct link in the standard addons,
-        a sequence of queries is required in order to find this information
-        and not all cases can be covered.
-
-        You can set the 'supply_method' parameter on the product record
-        to bypass this lookup.
-        """
-        stock_delivery = False
+    def _get_procurement_action(self):
+        action = False
         product = self.product_id
         if product.type in ('product', 'consu'):
-            supply_method = product.supply_method \
-                or product.recursive_supply_method
-            if supply_method == 'stock':
-                stock_delivery = True
-            else:
-                dom = [('invoice_lines', '=', self.id)]
-                sols = self.env['sale.order.line'].search(dom)
-                sol = sols and sols[0]
-                procs = sol.procurement_ids
-                proc = procs and procs[0]
-                rule = proc.rule_id
-                if rule.action == 'move':
-                    stock_delivery = True
-        return stock_delivery
+            dom = [
+                ('invoice_lines', '=', self.id),
+                ('product_id', '=', product.id)]
+            sols = self.env['sale.order.line'].search(dom)
+            procs = sols.mapped('procurement_ids')
+            rules = procs.mapped('rule_id')
+            actions = rules.mapped('action')
+            if len(actions) == 1:
+                action = actions[0]
+        return action

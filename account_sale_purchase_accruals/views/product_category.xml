@@ -15,16 +15,5 @@
       </field>
     </record>
 
-    <record id="product_category_form_view_inherit" model="ir.ui.view">
-      <field name="name">product.category.form.inherit</field>
-      <field name="model">product.category</field>
-      <field name="inherit_id" ref="stock.product_category_form_view_inherit"/>
-      <field name="arch" type="xml">
-        <field name="removal_strategy_id" position="before">
-          <field name="supply_method"/>
-        </field>
-      </field>
-    </record>
-
   </data>
 </openerp>

@@ -48,18 +48,16 @@ class ProductTemplate(models.Model):
         compute='_compute_recursive_accrued_expense_out_account_id',
         help="Accrued Expense Out Account "
              "on Product Record or Product Category.")
-    supply_method = fields.Selection(
-        selection='_supply_method_select',
-        string='Supply Method', company_dependent=True,
-        help="Set this parameter in order to enforce the selected "
-             "supply Method for this product")
-    recursive_supply_method = fields.Char(
-        string='Supply Method',
-        compute='_compute_recursive_supply_method',
-        help="Supply Method for this product")
-
-    def _supply_method_select(self):
-        return self.env['product.category']._supply_method_select()
+    recursive_property_stock_account_input = fields.Many2one(
+        'account.account', string='Stock Input Account',
+        compute='_compute_recursive_property_stock_account_input',
+        help="Stock Input Account on "
+             "Product Record or Product Category.")
+    recursive_property_stock_account_output = fields.Many2one(
+        'account.account', string='Stock Output Account',
+        compute='_compute_recursive_property_stock_account_output',
+        help="Stock Output Account "
+             "on Product Record or Product Category.")
 
     @api.multi
     def _compute_recursive_accrued_expense_in_account_id(self):
@@ -82,8 +80,21 @@ class ProductTemplate(models.Model):
         self.recursive_accrued_expense_out_account_id = account
 
     @api.multi
-    def _compute_recursive_supply_method(self):
-        if self.supply_method:
-            self.recursive_suppy_method = self.supply_method
+    def _compute_recursive_property_stock_account_input(self):
+        if self.property_stock_account_input:
+            account = self.property_stock_account_input
         elif self.categ_id:
-            self.recursive_suppy_method = self.categ_id.get_supply_method()
+            account = self.categ_id.get_property_stock_account_input()
+        else:
+            account = self.env['account.account']
+        self.recursive_property_stock_account_input = account
+
+    @api.multi
+    def _compute_recursive_property_stock_account_output(self):
+        if self.property_stock_account_output:
+            account = self.property_stock_account_output
+        elif self.categ_id:
+            account = self.categ_id.get_property_stock_account_output()
+        else:
+            account = self.env['account.account']
+        self.recursive_property_stock_account_output = account

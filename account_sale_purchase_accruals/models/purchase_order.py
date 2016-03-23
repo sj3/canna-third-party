@@ -54,12 +54,25 @@ class PurchaseOrder(models.Model, CommonAccrual):
 
     @api.model
     def _prepare_inv_line(self, account_id, order_line):
+        """
+        Change the default general account in case of
+        - drop ship
+        - stock move with real-time stock valuation
+        """
         vals = super(PurchaseOrder, self)._prepare_inv_line(
             account_id, order_line)
         product_id = vals.get('product_id')
         if product_id:
+            accrual_account = False
             product = self.env['product.product'].browse(product_id)
-            accrual_account = product.recursive_accrued_expense_in_account_id
+            if product.type in ('product', 'consu'):
+                if order_line.order_id.location_id.usage == 'internal':
+                    if product.valuation == 'real_time':
+                        accrual_account = \
+                            product.recursive_property_stock_account_input
+                else:
+                    accrual_account = \
+                        product.recursive_accrued_expense_in_account_id
             if accrual_account:
                 vals['account_id'] = accrual_account.id
         return vals

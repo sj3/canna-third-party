@@ -21,7 +21,6 @@
 ##############################################################################
 
 from . import account_invoice
-from . import procurement_order
 from . import product_category
 from . import product_template
 from . import purchase_order

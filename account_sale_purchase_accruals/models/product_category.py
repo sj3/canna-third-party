@@ -38,17 +38,6 @@ class ProductCategory(models.Model):
         company_dependent=True, ondelete='restrict',
         help="Set this account to create an accrual for the cost of goods "
              "or services during the sales operation.")
-    supply_method = fields.Selection(
-        selection='_supply_method_select',
-        string='Supply Method', company_dependent=True,
-        help="Set this parameter in order to enforce the selected "
-             "supply Method for the products in this category.")
-
-    def _supply_method_select(self):
-        # TODO: create module to add ('manufacture', 'Manufacture')
-        return [
-            ('stock', 'Take From Stock'),
-            ('buy', 'Buy')]
 
     @api.multi
     def get_accrued_expense_in_account(self):
@@ -73,12 +62,23 @@ class ProductCategory(models.Model):
         return res
 
     @api.multi
-    def get_supply_method(self):
+    def get_property_stock_account_input(self):
         self.ensure_one()
-        if self.supply_method:
-            res = self.supply_method
+        if self.property_stock_account_input_categ:
+            res = self.property_stock_account_input_categ
         elif self.parent_id:
-            res = self.parent_id.get_supply_method()
+            res = self.parent_id.get_property_stock_account_input()
         else:
-            res = False
+            res = self.env['account.account']
+        return res
+
+    @api.multi
+    def get_property_stock_account_output(self):
+        self.ensure_one()
+        if self.property_stock_account_output_categ:
+            res = self.property_stock_account_output_categ
+        elif self.parent_id:
+            res = self.parent_id.get_property_stock_account_input()
+        else:
+            res = self.env['account.account']
         return res

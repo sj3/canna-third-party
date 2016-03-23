@@ -10,14 +10,35 @@ This module generates traceable Journal Entries for the complete
 Sale/Purchase/Stock process with automatic reconciliation of
 entries on accrued expense accounts.
 
+Installation
+============
 
-Usage
-=====
+This module is NOT compatible with the 'account_anglo_saxon' module from the standard addons.
+
+This module requires that your Odoo instance runs a version that includes the
+following Pull Request:
+
+  https://github.com/odoo/odoo/pull/10551
+
+You should install the patch distributed with this module if this is not the case,
+cf. doc/account_invoice.diff
+
+Configuration
+=============
 
 Product parameters
 ------------------
 
-Define the accrued expense accounts on Product or Product Category.
+Procurement Action = Buy
+''''''''''''''''''''''''
+
+Define the Accrued Expense In/Out accounts on Product or Product Category.
+
+Procurement Action = Move
+'''''''''''''''''''''''''
+
+Set 'Inventory Valuation' to Real Time on the Product record.
+Define the Stock Input/Output accounts on Product or Product Category.
 
 Company parameters
 ------------------
@@ -32,13 +53,10 @@ These Sales and Purchase accruals will be automatically reconciled with each oth
 As a consequence, the non-reconciled accruals give the list of sold products with
 pending procurements.
 
-Installation guidelines
-=======================
+Known issues / Roadmap
+======================
 
-This module requires that your Odoo instance runs a version that includes the
-following Pull Request:
+At this point in time the module does not support accruals for
 
-  https://github.com/odoo/odoo/pull/10551
-
-You should install the patch distributed with this module if this is not the case,
-cf. doc/account_invoice.diff
+- bougth-in services (unless if you configure such a service as a 'dropship consumable')
+- manufacturing
