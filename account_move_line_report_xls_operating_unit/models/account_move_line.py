@@ -36,14 +36,13 @@ class AccountMoveLine(models.Model):
 
     @api.model
     def _report_xls_template(self):
-        update = {
-            'operating_unit_name': {
-                'header': [1, 25, 'text', _('Operating Unit')],
-                'lines': [
-                    1, 0, 'text', _render(
-                        "line.account_id.operating_unit_id and "
-                        "line.account_id.operating_unit_id.name "
-                        "or ''")],
-                'totals': [1, 0, 'text', None]},
-        }
+        update = super(AccountMoveLine, self).\
+            _report_xls_template()
+        update['operating_unit_name'] = {
+            'header': [1, 25, 'text', _('Operating Unit')],
+            'lines': [
+                1, 0, 'text', _render(
+                    "line.operating_unit_id and "
+                    "line.operating_unit_id.name "
+                    "or ''")]}
         return update
