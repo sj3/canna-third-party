@@ -44,5 +44,6 @@ class AccountMoveLine(models.Model):
                 1, 0, 'text', _render(
                     "line.operating_unit_id and "
                     "line.operating_unit_id.name "
-                    "or ''")]}
+                    "or ''")],
+            'totals': [1, 0, 'text', None]}
         return update
