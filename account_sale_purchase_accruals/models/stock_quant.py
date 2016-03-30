@@ -20,11 +20,17 @@
 #
 ##############################################################################
 
-from . import account_invoice
-from . import account_move
-from . import product_category
-from . import product_template
-from . import purchase_order
-from . import res_company
-from . import stock_picking
-from . import stock_quant
+from openerp import api, models
+
+
+class StockQuant(models.Model):
+    _inherit = 'stock.quant'
+
+    @api.model
+    def _create_account_move_line(self, quants, move, credit_account_id,
+                                  debit_account_id, journal_id):
+        ctx = dict(self._context,
+                   picking_id=move.picking_id.id,
+                   create_from_picking=True)
+        super(StockQuant, self.with_context(ctx))._create_account_move_line(
+            quants, move, credit_account_id, debit_account_id, journal_id)

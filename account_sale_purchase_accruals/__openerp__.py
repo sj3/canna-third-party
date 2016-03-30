@@ -22,7 +22,7 @@
 
 {
     'name': 'Account Sale Purchase Accruals',
-    'version': '8.0.0.2.4',
+    'version': '8.0.0.2.9',
     'license': 'AGPL-3',
     'author': 'Noviat',
     'website': 'http://www.noviat.com',
@@ -40,6 +40,7 @@
         'views/product_template.xml',
         'views/purchase_order.xml',
         'views/res_company.xml',
+        'views/stock_picking.xml',
     ],
     'installable': True,
 }

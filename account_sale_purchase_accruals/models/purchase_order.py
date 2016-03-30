@@ -165,7 +165,7 @@ class PurchaseOrder(models.Model, CommonAccrual):
                     'credit': debit,
                     'product_id': product.id,
                     'quantity': pol.product_qty,
-                    'partner_id': partner.id,
+                    'partner_id': False,
                     'name': pol.name,
                     'entry_type': 'accrual',
                     }

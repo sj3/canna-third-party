@@ -20,11 +20,19 @@
 #
 ##############################################################################
 
-from . import account_invoice
-from . import account_move
-from . import product_category
-from . import product_template
-from . import purchase_order
-from . import res_company
-from . import stock_picking
-from . import stock_quant
+from openerp import api, fields, models
+
+
+class AccountMove(models.Model):
+    _inherit = 'account.move'
+
+    picking_id = fields.Many2one(
+        comodel_name='stock.picking', index=True,
+        string='Stock Picking', ondelete='cascade')
+
+    @api.model
+    def create(self, vals, **kwargs):
+        context = self._context
+        if context.get('create_from_picking'):
+            vals['picking_id'] = context['picking_id']
+        return super(AccountMove, self).create(vals, **kwargs)

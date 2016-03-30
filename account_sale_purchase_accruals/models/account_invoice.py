@@ -56,15 +56,28 @@ class AccountInvoice(models.Model, CommonAccrual):
 
     def _customer_invoice_create_expense_accruals(self):
         """
-        - Create 'Accrued Expense Account' entries for the Customer Invoice.
-        - Reconcile these 'Accrued Expense Account' entries
-          with it's counterpart created during the Procurement Process
-          (Purchase Order Confirmation).
+        - Create Accrual entries for the Customer Invoice.
+        - Reconcile these entries with it's counterpart created during the
+          Procurement Process in case of dropshipping
+          (Purchase Order Confirmation) or
+          the Outgoing Shipment in case of delivery from stock(.
         """
         aml_vals = []
         inv_accruals = {}
         inv_accrual_accounts = []
         partner = self.partner_id.commercial_partner_id
+        supply_partner = partner
+
+        # find associated pickings or purchase orders
+        so_dom = [('sale_order_id', 'in', self.sale_order_ids._ids)]
+        procs = self.env['procurement.order'].search(so_dom)
+        proc_groups = procs.mapped('group_id')
+        sp_dom = [('group_id', 'in', proc_groups._ids)]
+        stock_pickings = self.env['stock.picking'].search(sp_dom)
+        if not stock_pickings:
+            purchase_orders = procs.mapped('purchase_id')
+        else:
+            purchase_orders = self.env['purchase.order']
 
         for ail in self.invoice_line:
             product = ail.product_id
@@ -127,7 +140,8 @@ class AccountInvoice(models.Model, CommonAccrual):
                     'credit': expense_vals['debit'],
                     'product_id': product.id,
                     'quantity': ail.quantity,
-                    'partner_id': partner.id,
+                    'partner_id': procurement_action == 'move' \
+                        and partner.id or False,
                     'name': ail.name,
                     'entry_type': 'accrual',
                     }
@@ -137,17 +151,17 @@ class AccountInvoice(models.Model, CommonAccrual):
             am_id, inv_accruals = self._create_accrual_move(aml_vals)
             self.write({'accrual_move_id': am_id})
 
-        dom = [('sale_order_ids', 'in', self.sale_order_ids)]
-        purchase_orders = self.env['purchase.order'].search(dom)
-        po_accruals = purchase_orders.mapped('s_accrual_move_id')
-        for po_accrual in po_accruals:
-            for l in po_accrual.line_id:
-                if l.product_id.id in inv_accruals \
-                        and l.account_id in inv_accrual_accounts:
-                    inv_accruals[l.product_id.id] += l
-
-        # TODO: extend logic for stock & manufacturing procurements
-        if po_accruals:
+        # reconcile with Stock Valuation or PO accruals
+        if stock_pickings:
+            accruals = stock_pickings.mapped('valuation_move_ids')
+        else:
+            accruals = purchase_orders.mapped('s_accrual_move_id')
+        if accruals:
+            amls = accruals.mapped('line_id')
+            for aml in amls:
+                if aml.product_id.id in inv_accruals \
+                        and aml.account_id in inv_accrual_accounts:
+                    inv_accruals[aml.product_id.id] += aml
             self._reconcile_accrued_expense_lines(inv_accruals)
 
         # reconcile refund accrual with original invoice accrual
@@ -171,27 +185,35 @@ class AccountInvoice(models.Model, CommonAccrual):
 
     def _supplier_invoice_reconcile_accruals(self):
         """
-        Reconcile the 'Accrued Expense Account' entries of the
+        Reconcile the accruel entries of the
         Purchase Invoice with it's counterpart created during the
-        Purchase Order Confirmation.
+        Purchase Order Confirmation or Incoming Picking.
         """
-        amls = self.move_id.line_id
+        si_amls = self.move_id.line_id
         accrual_lines = {}
-        for aml in amls:
-            product = aml.product_id
-            accrual_lines[product.id] = aml
+        for si_aml in si_amls:
+            product = si_aml.product_id
             if product:
                 accrual_account = \
-                    product.recursive_accrued_expense_in_account_id
-                if accrual_account:
-                    accruals = [po.p_accrual_move_id
-                                for po in self.purchase_order_ids]
-                    amls = self.env['account.move.line']
-                    for accrual in accruals:
-                        amls += accrual.line_id
-                    for aml in amls:
-                        if aml.account_id == accrual_account:
-                            accrual_lines[product.id] += aml
+                    product.recursive_property_stock_account_input
+                if si_aml.account_id == accrual_account:
+                    accrual_lines[product.id] = si_aml
+                    pickings = self.purchase_order_ids.mapped('picking_ids')
+                    accruals = pickings.valuation_move_ids
+                else:
+                    accrual_account = \
+                        product.recursive_accrued_expense_in_account_id
+                    if accrual_account \
+                            and si_aml.account_id == accrual_account:
+                        accrual_lines[product.id] = si_aml
+                        accruals = self.purchase_order_ids.mapped(
+                            'p_accrual_move_id')
+                    else:
+                        return
+                amls = accruals.mapped('line_id')
+                for aml in amls:
+                    if aml.account_id == accrual_account:
+                        accrual_lines[product.id] += aml
         if accrual_lines:
             self._reconcile_accrued_expense_lines(accrual_lines)
 

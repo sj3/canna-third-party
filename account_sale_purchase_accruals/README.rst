@@ -40,6 +40,11 @@ Procurement Action = Move
 Set 'Inventory Valuation' to Real Time on the Product record.
 Define the Stock Input/Output accounts on Product or Product Category.
 
+Financial Journals
+------------------
+
+Set the 'Group Invoice Lines' flag on your Sales and Purchase Journals.
+
 Company parameters
 ------------------
 
