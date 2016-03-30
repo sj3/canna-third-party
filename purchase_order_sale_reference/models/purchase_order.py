@@ -36,15 +36,11 @@ class PurchaseOrder(models.Model):
 
     @api.one
     def _compute_sale_order_count(self):
-        self.sale_order_ids = self.env['sale.order']
         procs = self.env['procurement.order'].search(
             [('purchase_id', '=', self.id),
              ('state', '!=', 'cancel')
              ])
-        for proc in procs:
-            so = proc.sale_order_id
-            if so not in self.sale_order_ids:
-                self.sale_order_ids += so
+        self.sale_order_ids = procs.mapped('sale_order_id')
         self.sale_order_count = len(self.sale_order_ids)
 
     @api.multi
