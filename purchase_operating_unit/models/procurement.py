@@ -17,7 +17,8 @@ class ProcurementOrder(models.Model):
         purchase = self.purchase_line_id
         if purchase and\
                 purchase.operating_unit_id !=\
-                self.location_id.operating_unit_id:
+                self.location_id.operating_unit_id\
+                and self.location_id.usage == 'internal':
             raise Warning(_('Configuration error!\nThe Quotation / Purchase\
             Order and the Procurement Order must belong to the\
             same Operating Unit.'))
