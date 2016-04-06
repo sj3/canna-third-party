@@ -66,7 +66,6 @@ class AccountInvoice(models.Model, CommonAccrual):
         inv_accruals = {}
         inv_accrual_accounts = []
         partner = self.partner_id.commercial_partner_id
-        supply_partner = partner
 
         # find associated pickings or purchase orders
         so_dom = [('sale_order_id', 'in', self.sale_order_ids._ids)]
