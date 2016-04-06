@@ -250,4 +250,4 @@ class PurchaseOrder(models.Model, CommonAccrual):
                 if accrual:
                     accrual.button_cancel()
                     accrual.unlink()
-        return super(PurchaseOrder, self).action_cancel()
+        return super(PurchaseOrder, self).wkf_action_cancel()
