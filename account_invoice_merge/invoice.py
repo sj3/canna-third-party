@@ -22,18 +22,27 @@ from openerp import models, api
 from openerp import workflow
 from openerp.osv.orm import browse_record, browse_null
 
-INVOICE_KEY_COLS = ['partner_id', 'user_id', 'type',
-                    'account_id', 'currency_id',
-                    'journal_id', 'company_id']
-
-INVOICE_LINE_KEY_COLS = ['name', 'origin', 'discount',
-                         'invoice_line_tax_id', 'price_unit',
-                         'product_id', 'account_id',
-                         'account_analytic_id']
-
 
 class account_invoice(models.Model):
     _inherit = "account.invoice"
+
+    @api.model
+    def _get_invoice_key_cols(self):
+        return [
+            'partner_id', 'user_id', 'type', 'account_id', 'currency_id',
+            'journal_id', 'company_id', 'partner_bank_id',
+        ]
+
+    @api.model
+    def _get_invoice_line_key_cols(self):
+        fields = [
+            'name', 'origin', 'discount', 'invoice_line_tax_id', 'price_unit',
+            'product_id', 'account_id', 'account_analytic_id',
+        ]
+        for field in ['analytics_id']:
+            if field in self.env['account.invoice.line']._fields:
+                fields.append(field)
+        return fields
 
     @api.model
     def _get_first_invoice_fields(self, invoice):
@@ -53,10 +62,11 @@ class account_invoice(models.Model):
             'payment_term': invoice.payment_term.id,
             'period_id': invoice.period_id.id,
             'invoice_line': {},
+            'partner_bank_id': invoice.partner_bank_id.id,
         }
 
     @api.multi
-    def do_merge(self, keep_references=True):
+    def do_merge(self, keep_references=True, date_invoice=False):
         """
         To merge similar type of account invoices.
         Invoices will only be merged if:
@@ -103,7 +113,7 @@ class account_invoice(models.Model):
 
         for account_invoice in draft_invoices:
             invoice_key = make_key(
-                account_invoice, INVOICE_KEY_COLS)
+                account_invoice, self._get_invoice_key_cols())
             new_invoice = new_invoices.setdefault(invoice_key, ({}, []))
             origins = seen_origins.setdefault(invoice_key, set())
             client_refs = seen_client_refs.setdefault(invoice_key, set())
@@ -135,7 +145,7 @@ class account_invoice(models.Model):
                     client_refs.add(account_invoice.reference)
             for invoice_line in account_invoice.invoice_line:
                 line_key = make_key(
-                    invoice_line, INVOICE_LINE_KEY_COLS)
+                    invoice_line, self._get_invoice_line_key_cols())
                 o_line = invoice_infos['invoice_line'].setdefault(line_key, {})
                 uos_factor = (invoice_line.uos_id and
                               invoice_line.uos_id.factor or 1.0)
@@ -165,6 +175,8 @@ class account_invoice(models.Model):
             invoice_data['invoice_line'] = [
                 (0, 0, value) for value in
                 invoice_data['invoice_line'].itervalues()]
+            if date_invoice:
+                invoice_data['date_invoice'] = date_invoice
             # create the new invoice
             newinvoice = self.with_context(is_merge=True).create(invoice_data)
             invoices_info.update({newinvoice.id: old_ids})
@@ -184,8 +196,6 @@ class account_invoice(models.Model):
             if 'sale.order' in self.env.registry else False
         invoice_line_obj = self.env['account.invoice.line']
         # None if purchase is not installed
-        po_obj = self.env['purchase.order']\
-            if 'purchase.order' in self.env.registry else False
         for new_invoice_id in invoices_info:
             if so_obj:
                 todos = so_obj.search(
@@ -199,10 +209,6 @@ class account_invoice(models.Model):
                         if invoice_line_ids:
                             so_line.write(
                                 {'invoice_lines': [(6, 0, invoice_line_ids)]})
-            if po_obj:
-                todos = po_obj.search(
-                    [('invoice_ids', 'in', invoices_info[new_invoice_id])])
-                todos.write({'invoice_ids': [(4, new_invoice_id)]})
         # recreate link (if any) between original analytic account line
         # (invoice time sheet for example) and this new invoice
         anal_line_obj = self.env['account.analytic.line']
