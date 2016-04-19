@@ -73,10 +73,7 @@ class AccountInvoice(models.Model, CommonAccrual):
         proc_groups = procs.mapped('group_id')
         sp_dom = [('group_id', 'in', proc_groups._ids)]
         stock_pickings = self.env['stock.picking'].search(sp_dom)
-        if not stock_pickings:
-            purchase_orders = procs.mapped('purchase_id')
-        else:
-            purchase_orders = self.env['purchase.order']
+        purchase_orders = procs.mapped('purchase_id')
 
         for ail in self.invoice_line:
             product = ail.product_id
@@ -139,8 +136,8 @@ class AccountInvoice(models.Model, CommonAccrual):
                     'credit': expense_vals['debit'],
                     'product_id': product.id,
                     'quantity': ail.quantity,
-                    'partner_id': procurement_action == 'move' \
-                        and partner.id or False,
+                    'partner_id':
+                        procurement_action == 'move' and partner.id or False,
                     'name': ail.name,
                     'entry_type': 'accrual',
                     }
@@ -153,7 +150,7 @@ class AccountInvoice(models.Model, CommonAccrual):
         # reconcile with Stock Valuation or PO accruals
         if stock_pickings:
             accruals = stock_pickings.mapped('valuation_move_ids')
-        else:
+        if purchase_orders:
             accruals = purchase_orders.mapped('s_accrual_move_id')
         if accruals:
             amls = accruals.mapped('line_id')

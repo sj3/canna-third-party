@@ -59,7 +59,7 @@ class ProductTemplate(models.Model):
         help="Stock Output Account "
              "on Product Record or Product Category.")
 
-    @api.multi
+    @api.one
     def _compute_recursive_accrued_expense_in_account_id(self):
         if self.accrued_expense_in_account_id:
             account = self.accrued_expense_in_account_id
@@ -69,7 +69,7 @@ class ProductTemplate(models.Model):
             account = self.env['account.account']
         self.recursive_accrued_expense_in_account_id = account
 
-    @api.multi
+    @api.one
     def _compute_recursive_accrued_expense_out_account_id(self):
         if self.accrued_expense_out_account_id:
             account = self.accrued_expense_out_account_id
@@ -79,7 +79,7 @@ class ProductTemplate(models.Model):
             account = self.env['account.account']
         self.recursive_accrued_expense_out_account_id = account
 
-    @api.multi
+    @api.one
     def _compute_recursive_property_stock_account_input(self):
         if self.property_stock_account_input:
             account = self.property_stock_account_input
@@ -89,7 +89,7 @@ class ProductTemplate(models.Model):
             account = self.env['account.account']
         self.recursive_property_stock_account_input = account
 
-    @api.multi
+    @api.one
     def _compute_recursive_property_stock_account_output(self):
         if self.property_stock_account_output:
             account = self.property_stock_account_output
