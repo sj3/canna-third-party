@@ -20,16 +20,15 @@
 #
 ##############################################################################
 
-from openerp import models, fields
+from openerp import fields, models
 
 
 class AccountMoveLine(models.Model):
-    _inherit = 'account.move.line'
-
     """
     This module adds fields to facilitate UI enforcement
     of analytic dimensions.
     """
+    _inherit = 'account.move.line'
 
     analytic_dimension_policy = fields.Selection(
         string='Policy for analytic dimension',
@@ -37,5 +36,17 @@ class AccountMoveLine(models.Model):
     move_state = fields.Selection(
         string='Move State',
         related='move_id.state',
-        default='draft',  # required for view attrs before object is created
         readonly=True)
+
+    def fields_get(self, cr, uid, allfields=None, context=None,
+                   write_access=True, attributes=None):
+        """
+        force 'move_state' into non-required field to allow creation of
+        account.move.line objects via the standard 'Journal Items' menu entry
+        """
+        res = super(AccountMoveLine, self).fields_get(
+            cr, uid, allfields=allfields, context=context,
+            write_access=write_access, attributes=attributes)
+        if res.get('move_state'):
+            res['move_state']['required'] = False
+        return res

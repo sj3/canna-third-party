@@ -21,8 +21,8 @@
 ##############################################################################
 
 {
-    'name': 'Analytic Dimension Required',
-    'version': '8.0.0.0.1',
+    'name': 'Analytic Dimension Policy',
+    'version': '8.0.0.0.4',
     'license': 'AGPL-3',
     'author': 'Noviat',
     'category': 'Accounting & Finance',
