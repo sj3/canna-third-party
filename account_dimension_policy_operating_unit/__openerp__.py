@@ -23,14 +23,14 @@
 
 {
     'name': 'Account Operating Unit Dimension Policy',
-    'version': '8.0.1.0.0',
+    'version': '8.0.1.1.0',
     'license': 'AGPL-3',
     'author': 'Noviat, Onestein',
     'category': 'Operating Unit',
-    'summary': 'Operating Unit Required or not',
+    'summary': 'Enforce Analytic Dimension Policy on Operating Unit',
     'depends': [
         'analytic_dimension_policy',
-        'account_operating_unit',
+        'account_bank_statement_operating_unit',
     ],
     'data': [
         'views/account_invoice.xml',
