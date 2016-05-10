@@ -82,10 +82,17 @@ openerp.analytic_dimension_policy = function (instance) {
                 this.$(".button_ok").text("OK").removeClass("oe_highlight").attr("disabled", "disabled");
             };
         },
-        
+
         CheckRequiredFields: function() {
             var flag = _.every(this.required_fields_set);
             return flag;
+        },
+
+        formCreateInputChanged: function(elt, val) {
+            this._super.apply(this, arguments);
+            if (elt.name in this.required_fields_set) {
+                this.UpdateRequiredFields(elt);
+            };
         },
 
     });

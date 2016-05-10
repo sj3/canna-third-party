@@ -22,7 +22,7 @@
 
 {
     'name': 'Analytic Dimension Policy',
-    'version': '8.0.0.0.4',
+    'version': '8.0.1.0.0',
     'license': 'AGPL-3',
     'author': 'Noviat',
     'category': 'Accounting & Finance',
