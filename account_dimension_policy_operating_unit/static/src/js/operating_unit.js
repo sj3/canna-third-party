@@ -33,8 +33,9 @@ openerp.account_dimension_policy_operating_unit = function (instance) {
             if (elt === this.account_id_field) {
                 if (this.map_analytic_dimension_policy[elt.get('value')] === 'always') {
                     this.operating_unit_id_field.modifiers = {'required': true, 'readonly': false};
+
+                    this.required_fields_set['operating_unit_id'] = false;
                     if (! this.operating_unit_id_field.get('value')) {
-                        this.required_fields_set['operating_unit_id'] = false;
                         this.$(".button_ok").text("OK").removeClass("oe_highlight").attr("disabled", "disabled");
                     };
                 } else {
@@ -48,9 +49,12 @@ openerp.account_dimension_policy_operating_unit = function (instance) {
                 };
                 this.operating_unit_id_field.field_manager.do_show();
             };
-            this.UpdateRequiredFields(elt);
+            if (elt.name === 'operating_unit_id') {
+                if ('operating_unit_id' in this.required_fields_set)  {
+                    this.UpdateRequiredFields(elt);
+                };
+            };
         },
-
     });
 
 };

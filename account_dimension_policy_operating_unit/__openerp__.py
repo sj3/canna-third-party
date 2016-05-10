@@ -23,7 +23,7 @@
 
 {
     'name': 'Account Operating Unit Dimension Policy',
-    'version': '8.0.1.1.0',
+    'version': '8.0.1.1.1',
     'license': 'AGPL-3',
     'author': 'Noviat, Onestein',
     'category': 'Operating Unit',
