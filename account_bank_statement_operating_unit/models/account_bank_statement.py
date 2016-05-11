@@ -20,7 +20,7 @@
 #
 ##############################################################################
 
-from openerp import fields, models
+from openerp import api, fields, models
 
 
 class AccountBankStatement(models.Model):
@@ -28,6 +28,18 @@ class AccountBankStatement(models.Model):
 
     operating_unit_id = fields.Many2one(
         comodel_name='operating.unit',
-        string='Operating Unit',
-        default=lambda self:
-            self.env['res.users'].operating_unit_default_get(self._uid))
+        string='Operating Unit')
+
+    @api.multi
+    def onchange_journal_id(self, journal_id):
+        res = super(AccountBankStatement, self).onchange_journal_id(journal_id)
+        journal = self.env['account.journal'].browse(journal_id)
+        ou = journal.default_debit_account_id.operating_unit_id
+        if not ou:
+            ou = self.env['res.users'].operating_unit_default_get(self._uid)
+        ou_id = ou and ou.id
+        if not res:
+            res = {'value': {'operating_unit_id': ou_id}}
+        else:
+            res['value']['operating_unit_id'] = ou_id
+        return res
