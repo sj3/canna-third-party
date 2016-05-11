@@ -33,7 +33,6 @@ openerp.account_dimension_policy_operating_unit = function (instance) {
             if (elt === this.account_id_field) {
                 if (this.map_analytic_dimension_policy[elt.get('value')] === 'always') {
                     this.operating_unit_id_field.modifiers = {'required': true, 'readonly': false};
-
                     this.required_fields_set['operating_unit_id'] = false;
                     if (! this.operating_unit_id_field.get('value')) {
                         this.$(".button_ok").text("OK").removeClass("oe_highlight").attr("disabled", "disabled");
@@ -55,6 +54,7 @@ openerp.account_dimension_policy_operating_unit = function (instance) {
                 };
             };
         },
+
     });
 
 };
