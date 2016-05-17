@@ -21,8 +21,6 @@
 ##############################################################################
 
 from openerp import fields, models
-# from openerp import api, fields, models, _
-# from openerp.exceptions import ValidationError
 
 
 class ResCompany(models.Model):
