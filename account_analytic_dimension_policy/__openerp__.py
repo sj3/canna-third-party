@@ -21,7 +21,7 @@
 ##############################################################################
 
 {
-    'name': 'Analytic Dimension Policy',
+    'name': 'Account Analytic Dimension Policy',
     'version': '8.0.1.0.0',
     'license': 'AGPL-3',
     'author': 'Noviat',

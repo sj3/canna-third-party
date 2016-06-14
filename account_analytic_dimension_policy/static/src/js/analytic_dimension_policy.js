@@ -20,7 +20,7 @@
 #
 ##############################################################################
 */
-openerp.analytic_dimension_policy = function (instance) {
+openerp.account_analytic_dimension_policy = function (instance) {
     var _t = instance.web._t;
     var QWeb = instance.web.qweb;
 
