@@ -2,7 +2,7 @@
 <openerp>
   <data>
 
-    <template id="assets_backend" name="account assets" inherit_id="analytic_dimension_policy.assets_backend">
+    <template id="assets_backend" name="account assets" inherit_id="account_analytic_dimension_policy.assets_backend">
       <xpath expr="." position="inside">
         <script type="text/javascript" src="/account_dimension_policy_operating_unit/static/src/js/operating_unit.js"></script>
       </xpath>

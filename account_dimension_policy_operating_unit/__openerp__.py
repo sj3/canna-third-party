@@ -29,7 +29,7 @@
     'category': 'Operating Unit',
     'summary': 'Enforce Analytic Dimension Policy on Operating Unit',
     'depends': [
-        'analytic_dimension_policy',
+        'account_analytic_dimension_policy',
         'account_bank_statement_operating_unit',
     ],
     'data': [
