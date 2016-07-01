@@ -30,39 +30,11 @@ def migrate(cr, version):
         return
 
     # Ensure table exists
-    cr.execute(
-        """
-        SELECT EXISTS (
-        SELECT 1 FROM pg_catalog.pg_class c
-        JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace
-            WHERE  n.nspname = 'public'
-            AND    c.relname = 'banking_export_sdd'
-            AND    c.relkind = 'r'
-        );
-        """
-    )
-    res = cr.fetchone()
-    if res == 't':
-        logger.info('banking_export_sdd', res)
+    if openupgrade.table_exists(cr, 'banking_export_sdd'):
         cr.execute(
             'ALTER TABLE banking_export_sdd '
             'RENAME TO migration_banking_export_sdd')
-
-    cr.execute(
-        """
-        SELECT EXISTS (
-        SELECT 1 FROM pg_catalog.pg_class c
-        JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace
-            WHERE  n.nspname = 'public'
-            AND    c.relname = 'account_payment_order_sdd_rel'
-            AND    c.relkind = 'r'
-        );
-        """
-    )
-    del(res)
-    res = cr.fetchone()
-    if res == 't':
-        logger.info('account_payment_order_sdd_rel', res)
+    if openupgrade.table_exists(cr, 'account_payment_order_sdd_rel'):
         cr.execute(
             'ALTER TABLE account_payment_order_sdd_rel '
             'RENAME TO migration_account_payment_order_sdd_rel')

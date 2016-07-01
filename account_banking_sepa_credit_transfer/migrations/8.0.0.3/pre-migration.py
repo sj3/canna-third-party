@@ -31,23 +31,12 @@ def migrate(cr, version):
         return
 
     # Ensure table exists
-    cr.execute(
-        """
-        SELECT EXISTS (
-        SELECT 1 FROM pg_catalog.pg_class c
-        JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace
-            WHERE  n.nspname = 'public'
-            AND    c.relname = 'banking_export_sepa'
-            AND    c.relkind = 'r'
-        );
-        """
-    )
-    res = cr.fetchone()
-    if res == 't':
-        logger.info('banking_export_sepa', res)
+    # TODO use rename to legacy here and in post-migration.py
+    if openupgrade.table_exists(cr, 'banking_export_sepa'):
         cr.execute(
                 'ALTER TABLE banking_export_sepa '
                 'RENAME TO migration_banking_export_sepa')
-    cr.execute(
-        'ALTER TABLE account_payment_order_sepa_rel '
-        'RENAME TO migration_account_payment_order_sepa_rel')
+    if openupgrade.table_exists(cr, 'account_payment_order_sepa_rel'):
+        cr.execute(
+            'ALTER TABLE account_payment_order_sepa_rel '
+            'RENAME TO migration_account_payment_order_sepa_rel')

@@ -33,6 +33,6 @@ class ProcurementOrder(models.Model):
     @api.one
     @api.depends('group_id')
     def _compute_sale_order_id(self):
-        self.sale_order_id = self.env['sale.order'].search(
-            [('procurement_group_id', '!=', False),
+        self.sale_order_id = self.env['sale.order'].search([
+            # ('procurement_group_id', '!=', False),
             ('procurement_group_id', '=', self.group_id.id)])
