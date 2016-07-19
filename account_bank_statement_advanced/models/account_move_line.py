@@ -75,8 +75,7 @@ class AccountMoveLine(models.Model):
             st = move_line.statement_id
             if st and st.state == 'confirm':
                 for k in vals:
-                    if k not in [
-                             ['reconcile_id'], ['reconcile_partial_id']]:
+                    if k not in ['reconcile_id', 'reconcile_partial_id']:
                         raise UserError(
                             _("Operation not allowed ! "
                               "\nYou cannot modify an Accounting Entry "
