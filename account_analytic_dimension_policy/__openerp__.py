@@ -30,6 +30,7 @@
     'data': [
         'views/account_account_type.xml',
         'views/account_invoice.xml',
+        'views/account_invoice_line.xml',
         'views/account_move.xml',
         'views/account_move_line.xml',
         'views/assets_backend.xml',
