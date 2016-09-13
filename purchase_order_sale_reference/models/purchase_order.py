@@ -23,16 +23,29 @@
 from openerp import api, fields, models, _
 from openerp.exceptions import Warning as UserError
 
-
 class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
     sale_order_ids = fields.Many2many(
         comodel_name='sale.order', compute='_compute_sale_order_count',
+        search='_search_sale_order_ids',
         string="Sale Orders")
     sale_order_count = fields.Integer(
         compute='_compute_sale_order_count',
         string='# of Sales Order')
+
+    @api.model
+    def _search_sale_order_ids(self, operator, value):
+        if operator == 'in':
+            if isinstance(value, int):
+                value = [value]
+            po_ids = self.env['procurement.order'].search(
+                [('sale_order_id', 'in', value),
+                 ('state', '!=', 'cancel')
+             ]).mapped('purchase_id.id')
+            return [('id', 'in', po_ids)]
+        else:
+            raise UserError(_('Unsupported operand for search!'))
 
     @api.one
     def _compute_sale_order_count(self):
