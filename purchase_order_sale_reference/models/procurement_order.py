@@ -20,7 +20,7 @@
 #
 ##############################################################################
 
-from openerp import api, fields, models, _
+from openerp import api, fields, models
 
 
 class ProcurementOrder(models.Model):
@@ -34,5 +34,4 @@ class ProcurementOrder(models.Model):
     @api.depends('group_id')
     def _compute_sale_order_id(self):
         self.sale_order_id = self.env['sale.order'].search([
-            # ('procurement_group_id', '!=', False),
             ('procurement_group_id', '=', self.group_id.id)])

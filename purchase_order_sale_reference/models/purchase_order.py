@@ -23,6 +23,7 @@
 from openerp import api, fields, models, _
 from openerp.exceptions import Warning as UserError
 
+
 class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
@@ -42,7 +43,7 @@ class PurchaseOrder(models.Model):
             po_ids = self.env['procurement.order'].search(
                 [('sale_order_id', 'in', value),
                  ('state', '!=', 'cancel')
-             ]).mapped('purchase_id.id')
+                 ]).mapped('purchase_id.id')
             return [('id', 'in', po_ids)]
         else:
             raise UserError(_('Unsupported operand for search!'))
@@ -62,8 +63,7 @@ class PurchaseOrder(models.Model):
         action = {}
         so_ids = [x.id for x in self.sale_order_ids]
         if so_ids:
-            form = self.env.ref(
-                    'sale.view_order_form')
+            form = self.env.ref('sale.view_order_form')
             if len(so_ids) > 1:
                 tree = self.env.ref(
                     'sale.view_order_tree')
