@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<openerp>
+  <data>
+
+    <record  id="view_order_form" model="ir.ui.view">
+      <field name="name">view.order.form</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.view_order_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//h1" position="after">
+          <field name="purchase_order_count" invisible="1"/>
+          <div class=" oe_right oe_button_box">
+            <p/>
+            <button class="oe_inline oe_stat_button oe_right"
+                    name="view_purchase_order" type="object" string="View Purchases"
+                    help="View related purchases"
+                    attrs="{'invisible':[('purchase_order_count', '=', '0')]}"
+                    icon="fa-plus" widget="statinfo"/>
+          </div>
+        </xpath>
+      </field>
+    </record>
+
+  </data>
+</openerp>
