@@ -14,7 +14,7 @@
             <button class="oe_inline oe_stat_button oe_right"
                     name="view_purchase_order" type="object" string="View Purchases"
                     help="View related purchases"
-                    attrs="{'invisible':[('purchase_order_count', '=', '0')]}"
+                    attrs="{'invisible':[('purchase_order_count', '=', 0)]}"
                     icon="fa-plus" widget="statinfo"/>
           </div>
         </xpath>

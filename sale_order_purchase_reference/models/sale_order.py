@@ -25,9 +25,10 @@ from openerp import api, fields, models, _
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-    purchase_order_ids = fields.Many2one(
+    purchase_order_ids = fields.Many2many(
         comodel_name='purchase.order',
         compute='_compute_purchase_order_ids',
+        search='_search_purchase_order_ids',
         string='Purchase Orders',
     )
     purchase_order_count = fields.Integer(
@@ -42,6 +43,19 @@ class SaleOrder(models.Model):
              ])
         self.purchase_order_ids = procs.mapped('purchase_id')
         self.purchase_order_count = len(self.purchase_order_ids)
+
+    @api.model
+    def _search_purchase_order_ids(self, operator, value):
+        if operator == 'in':
+            if isinstance(value, int):
+                value = [value]
+            so_ids = self.env['procurement.order'].search(
+                [('purchase_id', 'in', value),
+                 ('state', '!=', 'cancel')
+             ]).mapped('sale_order_id.id')
+            return [('id', 'in', so_ids)]
+        else:
+            raise UserError(_('Unsupported operand for search!'))
 
     @api.multi
     def view_purchase_order(self):
