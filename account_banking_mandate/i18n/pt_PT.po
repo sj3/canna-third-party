@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bank-payment (8.0)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-09-03 05:04+0000\n"
-"PO-Revision-Date: 2016-09-16 21:46+0000\n"
+"PO-Revision-Date: 2016-09-13 11:38+0000\n"
 "Last-Translator: OCA Transbot <transbot@odoo-community.org>\n"
-"Language-Team: French (http://www.transifex.com/oca/OCA-bank-payment-8-0/language/fr/)\n"
+"Language-Team: Portuguese (Portugal) (http://www.transifex.com/oca/OCA-bank-payment-8-0/language/pt_PT/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Language: fr\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Language: pt_PT\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. module: account_banking_mandate
 #: model:ir.actions.act_window,help:account_banking_mandate.mandate_action
@@ -101,7 +101,7 @@ msgstr ""
 #. module: account_banking_mandate
 #: view:account.banking.mandate:account_banking_mandate.view_mandate_form
 msgid "Cancel"
-msgstr "Annuler"
+msgstr "Cancelar"
 
 #. module: account_banking_mandate
 #: view:account.banking.mandate:account_banking_mandate.view_mandate_search
@@ -130,12 +130,12 @@ msgstr ""
 #. module: account_banking_mandate
 #: field:account.banking.mandate,create_uid:0
 msgid "Created by"
-msgstr "Créé par"
+msgstr "Criado por"
 
 #. module: account_banking_mandate
 #: field:account.banking.mandate,create_date:0
 msgid "Created on"
-msgstr "Date"
+msgstr "Criado em"
 
 #. module: account_banking_mandate
 #: view:res.partner:account_banking_mandate.mandate_partner_form
@@ -156,7 +156,7 @@ msgstr ""
 #. module: account_banking_mandate
 #: help:account.banking.mandate,message_last_post:0
 msgid "Date of the last message posted on the record."
-msgstr ""
+msgstr "Data da última mensagem registada."
 
 #. module: account_banking_mandate
 #: field:account.invoice,mandate_id:0 field:bank.payment.line,mandate_id:0
@@ -173,12 +173,12 @@ msgstr ""
 #. module: account_banking_mandate
 #: field:account.banking.mandate,display_name:0
 msgid "Display Name"
-msgstr "Nom à afficher"
+msgstr ""
 
 #. module: account_banking_mandate
 #: view:account.banking.mandate:account_banking_mandate.view_mandate_search
 msgid "Draft"
-msgstr ""
+msgstr "Rascunho"
 
 #. module: account_banking_mandate
 #: view:account.banking.mandate:account_banking_mandate.view_mandate_search
@@ -188,7 +188,7 @@ msgstr ""
 #. module: account_banking_mandate
 #: field:account.banking.mandate,message_follower_ids:0
 msgid "Followers"
-msgstr ""
+msgstr "Seguidores"
 
 #. module: account_banking_mandate
 #: view:account.banking.mandate:account_banking_mandate.view_mandate_form
@@ -199,14 +199,14 @@ msgstr ""
 #. module: account_banking_mandate
 #: view:account.banking.mandate:account_banking_mandate.view_mandate_search
 msgid "Group By"
-msgstr "Regrouper par"
+msgstr ""
 
 #. module: account_banking_mandate
 #: help:account.banking.mandate,message_summary:0
 msgid ""
 "Holds the Chatter summary (number of messages, ...). This summary is "
 "directly in html format in order to be inserted in kanban views."
-msgstr ""
+msgstr "Contém o resumo do Chatter (número de mensagens, ...). Este resumo é formatado diretamente em html para poder ser inserido em vistas de kanban."
 
 #. module: account_banking_mandate
 #: field:account.banking.mandate,id:0
@@ -216,7 +216,7 @@ msgstr "ID"
 #. module: account_banking_mandate
 #: help:account.banking.mandate,message_unread:0
 msgid "If checked new messages require your attention."
-msgstr ""
+msgstr "Se assinalada, há novas mensagens a requerer a sua atenção."
 
 #. module: account_banking_mandate
 #: model:ir.model,name:account_banking_mandate.model_account_invoice
@@ -226,27 +226,27 @@ msgstr ""
 #. module: account_banking_mandate
 #: field:account.banking.mandate,message_is_follower:0
 msgid "Is a Follower"
-msgstr ""
+msgstr "É um Seguidor"
 
 #. module: account_banking_mandate
 #: field:account.banking.mandate,message_last_post:0
 msgid "Last Message Date"
-msgstr ""
+msgstr "Data da Última Mensagem"
 
 #. module: account_banking_mandate
 #: field:account.banking.mandate,__last_update:0
 msgid "Last Modified on"
-msgstr "Dernière modification le"
+msgstr ""
 
 #. module: account_banking_mandate
 #: field:account.banking.mandate,write_uid:0
 msgid "Last Updated by"
-msgstr "Dernière mise à jour par"
+msgstr "Atualizado pela última vez por"
 
 #. module: account_banking_mandate
 #: field:account.banking.mandate,write_date:0
 msgid "Last Updated on"
-msgstr "Dernière mise à jour le"
+msgstr "Atualizado pela última vez em"
 
 #. module: account_banking_mandate
 #: view:bank.payment.line:account_banking_mandate.bank_payment_line_tree
@@ -295,12 +295,12 @@ msgstr ""
 #. module: account_banking_mandate
 #: field:account.banking.mandate,message_ids:0
 msgid "Messages"
-msgstr ""
+msgstr "Mensagens"
 
 #. module: account_banking_mandate
 #: help:account.banking.mandate,message_ids:0
 msgid "Messages and communication history"
-msgstr ""
+msgstr "História das mensagens e comunicações"
 
 #. module: account_banking_mandate
 #: help:account.banking.mandate,state:0
@@ -312,12 +312,12 @@ msgstr ""
 #. module: account_banking_mandate
 #: field:account.banking.mandate,partner_id:0
 msgid "Partner"
-msgstr "Partenaire"
+msgstr ""
 
 #. module: account_banking_mandate
 #: model:ir.model,name:account_banking_mandate.model_payment_line
 msgid "Payment Line"
-msgstr "Ligne de paiement"
+msgstr ""
 
 #. module: account_banking_mandate
 #: view:account.banking.mandate:account_banking_mandate.view_mandate_tree
@@ -338,7 +338,7 @@ msgstr ""
 #. module: account_banking_mandate
 #: model:ir.ui.menu,name:account_banking_mandate.mandate_menu
 msgid "SEPA Direct Debit Mandates"
-msgstr "Mandats de prélèvement SEPA"
+msgstr ""
 
 #. module: account_banking_mandate
 #: field:account.banking.mandate,scan:0
@@ -364,12 +364,12 @@ msgstr ""
 #. module: account_banking_mandate
 #: field:account.banking.mandate,state:0
 msgid "Status"
-msgstr ""
+msgstr "Estado"
 
 #. module: account_banking_mandate
 #: field:account.banking.mandate,message_summary:0
 msgid "Summary"
-msgstr ""
+msgstr "Resumo"
 
 #. module: account_banking_mandate
 #: code:addons/account_banking_mandate/models/account_banking_mandate.py:83
@@ -402,7 +402,7 @@ msgstr ""
 #. module: account_banking_mandate
 #: field:account.banking.mandate,message_unread:0
 msgid "Unread Messages"
-msgstr ""
+msgstr "Mensagens não lidas"
 
 #. module: account_banking_mandate
 #: view:account.banking.mandate:account_banking_mandate.view_mandate_search
@@ -412,7 +412,7 @@ msgstr ""
 #. module: account_banking_mandate
 #: view:account.banking.mandate:account_banking_mandate.view_mandate_form
 msgid "Validate"
-msgstr "Valider"
+msgstr ""
 
 #. module: account_banking_mandate
 #: view:account.banking.mandate:account_banking_mandate.view_mandate_form
