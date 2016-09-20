@@ -61,7 +61,7 @@ class SaleOrder(models.Model):
     def view_purchase_order(self):
         self.ensure_one()
 
-        action = self.env.ref('sale_order_purchase_reference.purchase_list_action').read()[0]
+        action = self.env.ref('sale_order_purchase_reference.purchase_order_action_sales').read()[0]
         
         po_ids = [x.id for x in self.purchase_order_ids]
         if po_ids:
