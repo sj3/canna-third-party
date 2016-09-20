@@ -3,76 +3,71 @@
 # * currency_rate_update
 # 
 # Translators:
-# Antonio Trueba, 2016
-# Bruno JOLIVEAU, 2015
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2011-2012
-# Matjaž Mozetič <m.mozetic@matmoz.si>, 2015
-# Thomas A. Jaeger, 2015
-# Yael Terrettaz, 2015
+# Bole <bole@dajmi5.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: account-financial-tools (8.0)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-23 00:52+0000\n"
-"PO-Revision-Date: 2015-06-03 15:55+0000\n"
-"Last-Translator: <>\n"
-"Language-Team: Italian (http://www.transifex.com/oca/OCA-account-financial-tools-8-0/language/it/)\n"
+"POT-Creation-Date: 2016-05-28 00:59+0000\n"
+"PO-Revision-Date: 2016-05-31 13:38+0000\n"
+"Last-Translator: Bole <bole@dajmi5.com>\n"
+"Language-Team: Croatian (Croatia) (http://www.transifex.com/oca/OCA-account-financial-tools-8-0/language/hr_HR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Language: it\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: hr_HR\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 
 #. module: currency_rate_update
 #: selection:currency.rate.update.service,service:0
 msgid "Admin.ch"
-msgstr ""
+msgstr "Admin.ch"
 
 #. module: currency_rate_update
 #: field:res.company,auto_currency_up:0
 msgid "Automatic Update"
-msgstr ""
+msgstr "Automatsko ažuriranje"
 
 #. module: currency_rate_update
 #: help:res.company,auto_currency_up:0
 msgid "Automatic update of the currencies for this company"
-msgstr ""
+msgstr "Automatsko ažuriranje valuta za ovo poduzeće"
 
 #. module: currency_rate_update
 #: selection:currency.rate.update.service,service:0
 msgid "Bank of Canada - noon rates"
-msgstr ""
+msgstr "Bank of Canada - podnevni tečaj"
 
 #. module: currency_rate_update
 #: selection:currency.rate.update.service,service:0
 msgid "Bank of Mexico"
-msgstr ""
+msgstr "Bank of Mexico"
 
 #. module: currency_rate_update
 #: code:addons/currency_rate_update/model/currency_rate_update.py:265
 #, python-format
 msgid "Base currency rate should be 1.00!"
-msgstr ""
+msgstr "Osnovni tečaj bi trebao biti 1.00!"
 
 #. module: currency_rate_update
 #: model:ir.model,name:currency_rate_update.model_res_company
 msgid "Companies"
-msgstr "Azienda"
+msgstr "Poduzeća"
 
 #. module: currency_rate_update
 #: field:currency.rate.update.service,company_id:0
 msgid "Company"
-msgstr "Azienda"
+msgstr "Poduzeće"
 
 #. module: currency_rate_update
 #: field:currency.rate.update.service,create_uid:0
 msgid "Created by"
-msgstr "Creato da"
+msgstr "Kreirao"
 
 #. module: currency_rate_update
 #: field:currency.rate.update.service,create_date:0
 msgid "Created on"
-msgstr "Creato il"
+msgstr "Kreirano"
 
 #. module: currency_rate_update
 #: field:currency.rate.update.service,currency_list:0
@@ -116,6 +111,11 @@ msgid "Day(s)"
 msgstr ""
 
 #. module: currency_rate_update
+#: field:currency.rate.update.service,display_name:0
+msgid "Display Name"
+msgstr ""
+
+#. module: currency_rate_update
 #: code:addons/currency_rate_update/services/update_service_CA_BOC.py:75
 #: code:addons/currency_rate_update/services/update_service_CA_BOC.py:96
 #, python-format
@@ -147,7 +147,7 @@ msgstr ""
 #. module: currency_rate_update
 #: field:currency.rate.update.service,id:0
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 #. module: currency_rate_update
 #: help:currency.rate.update.service,max_delta_days:0
@@ -164,14 +164,19 @@ msgid "Interval number must be >= 0"
 msgstr ""
 
 #. module: currency_rate_update
+#: field:currency.rate.update.service,__last_update:0
+msgid "Last Modified on"
+msgstr ""
+
+#. module: currency_rate_update
 #: field:currency.rate.update.service,write_uid:0
 msgid "Last Updated by"
-msgstr "Last Updated by"
+msgstr ""
 
 #. module: currency_rate_update
 #: field:currency.rate.update.service,write_date:0
 msgid "Last Updated on"
-msgstr "Last Updated on"
+msgstr ""
 
 #. module: currency_rate_update
 #: view:currency.rate.update.service:currency_rate_update.currency_rate_update_form
@@ -192,6 +197,11 @@ msgstr ""
 #. module: currency_rate_update
 #: selection:currency.rate.update.service,interval_type:0
 msgid "Month(s)"
+msgstr ""
+
+#. module: currency_rate_update
+#: field:res.company,multi_company_currency_enable:0
+msgid "Multi company currency"
 msgstr ""
 
 #. module: currency_rate_update
@@ -233,6 +243,13 @@ msgstr ""
 #. module: currency_rate_update
 #: selection:currency.rate.update.service,interval_type:0
 msgid "Week(s)"
+msgstr ""
+
+#. module: currency_rate_update
+#: help:res.company,multi_company_currency_enable:0
+msgid ""
+"When this option is unchecked it will allow users to set a distinct currency"
+" updates on each company."
 msgstr ""
 
 #. module: currency_rate_update
