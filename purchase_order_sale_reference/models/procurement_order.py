@@ -28,10 +28,11 @@ class ProcurementOrder(models.Model):
 
     sale_order_id = fields.Many2one(
         comodel_name='sale.order', compute='_compute_sale_order_id',
-        string="Sale Order", store=True, readonly=True)
+        string='Sale Order', store=True, readonly=True)
 
     @api.one
     @api.depends('group_id')
     def _compute_sale_order_id(self):
-        self.sale_order_id = self.env['sale.order'].search([
-            ('procurement_group_id', '=', self.group_id.id)])
+        if self.group_id:
+            self.sale_order_id = self.env['sale.order'].search([
+                ('procurement_group_id', '=', self.group_id.id)])
