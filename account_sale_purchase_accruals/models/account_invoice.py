@@ -44,6 +44,10 @@ class AccountInvoice(models.Model, CommonAccrual):
         comodel_name='sale.order', compute='_compute_sale_order_ids',
         string="Sale Orders")
 
+    def _prepare_accrual_move_ref(self):
+        sale_orders = self.sale_order_ids
+        return ', '.join([x.name for x in sale_orders])
+
     @api.one
     def _compute_purchase_order_ids(self):
         dom = [('invoice_ids', '=', self.id)]
