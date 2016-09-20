@@ -60,31 +60,19 @@ class SaleOrder(models.Model):
     @api.multi
     def view_purchase_order(self):
         self.ensure_one()
-        action = {}
+
+        action = self.env.ref('sale_order_purchase_reference.purchase_list_action').read()[0]
+        
         po_ids = [x.id for x in self.purchase_order_ids]
         if po_ids:
-            form = self.env.ref(
-                    'purchase.purchase_order_form')
-            if len(po_ids) > 1:
-                tree = self.env.ref(
-                    'purchase.purchase_order_tree')
-                action.update({
-                    'name': _('Purchase Orders'),
-                    'view_mode': 'tree,form',
-                    'views': [(tree.id, 'tree'), (form.id, 'form')],
+            action.update({
                     'domain': [('id', 'in', po_ids)],
                     })
-            else:
+
+            if len(po_ids) == 1:
                 action.update({
-                    'name': _('Purchase Order'),
-                    'view_mode': 'form',
-                    'view_id': form.id,
+                    'views': [v for v in action.get('views', []) if v[1] == 'form'],
                     'res_id': po_ids[0],
                     })
-            action.update({
-                'context': self._context,
-                'view_type': 'form',
-                'res_model': 'purchase.order',
-                'type': 'ir.actions.act_window',
-                })
+
         return action
