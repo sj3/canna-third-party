@@ -26,14 +26,11 @@ def migrate(cr, version):
         return
     # if we end up here, we migrate from 7.0's account_banking
     # set transaction ids, taking care to enforce uniqueness
-
-    res = cr.fetchone()
-    if res == 1:
-        cr.execute(
-            """update account_bank_statement_line l set unique_import_id=l1.trans
-            from (
-                select distinct
-                first_value(id) over (partition by trans) id, trans
-                from account_bank_statement_line
-            ) l1
-            where l.id=l1.id""")
+    cr.execute(
+        """update account_bank_statement_line l set unique_import_id=l1.trans
+        from (
+            select distinct
+            first_value(id) over (partition by trans) id, trans
+            from account_bank_statement_line
+        ) l1
+        where l.id=l1.id""")
