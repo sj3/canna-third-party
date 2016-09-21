@@ -35,6 +35,7 @@
         'account_refund_original',
     ],
     'data': [
+        'data/accrual_data.xml',
         'views/account_invoice.xml',
         'views/product_category.xml',
         'views/product_template.xml',

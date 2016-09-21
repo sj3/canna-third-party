@@ -220,11 +220,11 @@ class PurchaseOrder(models.Model, CommonAccrual):
                         })
                 p_aml_vals.append(accrual_vals)
 
-            if s_aml_vals:
-                am_id, s_po_accruals = self._create_accrual_move(s_aml_vals)
-                self.write({'s_accrual_move_id': am_id})
-                am_id, p_po_accruals = self._create_accrual_move(p_aml_vals)
-                self.write({'p_accrual_move_id': am_id})
+        if s_aml_vals:
+            am_id, s_po_accruals = self._create_accrual_move(s_aml_vals)
+            self.write({'s_accrual_move_id': am_id})
+            am_id, p_po_accruals = self._create_accrual_move(p_aml_vals)
+            self.write({'p_accrual_move_id': am_id})
 
         sale_invoices = self.sale_order_ids.mapped('invoice_ids')
         si_accruals = sale_invoices.mapped('accrual_move_id')
