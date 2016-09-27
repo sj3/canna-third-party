@@ -237,8 +237,8 @@ class PurchaseOrder(models.Model, CommonAccrual):
             self._reconcile_accrued_expense_lines(s_po_accruals)
 
     @api.multi
-    def wkf_confirm_order(self):
-        super(PurchaseOrder, self).wkf_confirm_order()
+    def wkf_approve_order(self):
+        super(PurchaseOrder, self).wkf_approve_order()
         for po in self:
             po._create_accrual_moves()
         return True
