@@ -21,6 +21,7 @@
 ##############################################################################
 
 from openerp import api, fields, models, _
+from openerp.exceptions import Warning
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
@@ -55,7 +56,7 @@ class SaleOrder(models.Model):
              ]).mapped('sale_order_id.id')
             return [('id', 'in', so_ids)]
         else:
-            raise UserError(_('Unsupported operand for search!'))
+            raise Warning(_('Unsupported operand for search!'))
 
     @api.multi
     def view_purchase_order(self):
