@@ -20,23 +20,15 @@
 #
 ##############################################################################
 
-from openupgradelib import openupgrade
-import logging
-logger = logging.getLogger('OpenUpgrade')
 
-
-@openupgrade.migrate(no_version=False)
 def migrate(cr, version):
     if not version:
         return
 
-    # Ensure table exists
-    # TODO use rename to legacy here and in post-migration.py
-    if openupgrade.table_exists(cr, 'banking_export_sepa'):
-        cr.execute(
-                'ALTER TABLE banking_export_sepa '
-                'RENAME TO migration_banking_export_sepa')
-    if openupgrade.table_exists(cr, 'account_payment_order_sepa_rel'):
-        cr.execute(
-            'ALTER TABLE account_payment_order_sepa_rel '
-            'RENAME TO migration_account_payment_order_sepa_rel')
+
+    cr.execute(
+            'ALTER TABLE banking_export_sepa '
+            'RENAME TO migration_banking_export_sepa')
+    cr.execute(
+        'ALTER TABLE account_payment_order_sepa_rel '
+        'RENAME TO migration_account_payment_order_sepa_rel')

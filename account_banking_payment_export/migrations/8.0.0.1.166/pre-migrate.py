@@ -18,34 +18,7 @@
 #
 ##############################################################################
 
-from openupgradelib import openupgrade
-import logging
-
-logger = logging.getLogger('OpenUpgrade.account_payment_extension')
-
-# WARNING check table_exists below if you adjust this dictionary
-column_renames = {
-    'bank_type_payment_type_rel': [
-        ('pay_type_id', None),
-        ('bank_type_id', None),
-    ],
-}
-
-table_renames = [
-    ('bank_type_payment_type_rel', None),
-    # ('payment_type', None),
-]
-
-
-@openupgrade.migrate(no_version=True)
 def migrate(cr, version):
-    # In case account_payment_extension was installed, set
-    # bank_type_payment_type_rel to legacy; assume payment.mode.type
-    # and payment.type are not the same.
-    if openupgrade.table_exists(cr, 'bank_type_payment_type_rel'):
-        logger.info("Found bank_type_payment_type_rel")
-        openupgrade.rename_columns(cr, column_renames)
-        openupgrade.rename_tables(cr, table_renames)
     cr.execute(
         'SELECT count(attname) FROM pg_attribute '
         'WHERE attrelid = '

@@ -20,21 +20,14 @@
 #
 ##############################################################################
 
-from openupgradelib import openupgrade
-import logging
-logger = logging.getLogger('OpenUpgrade')
 
-@openupgrade.migrate(no_version=False)
 def migrate(cr, version):
     if not version:
         return
 
-    # Ensure table exists
-    if openupgrade.table_exists(cr, 'banking_export_sdd'):
-        cr.execute(
-            'ALTER TABLE banking_export_sdd '
-            'RENAME TO migration_banking_export_sdd')
-    if openupgrade.table_exists(cr, 'account_payment_order_sdd_rel'):
-        cr.execute(
-            'ALTER TABLE account_payment_order_sdd_rel '
-            'RENAME TO migration_account_payment_order_sdd_rel')
+    cr.execute(
+        'ALTER TABLE banking_export_sdd '
+        'RENAME TO migration_banking_export_sdd')
+    cr.execute(
+        'ALTER TABLE account_payment_order_sdd_rel '
+        'RENAME TO migration_account_payment_order_sdd_rel')
