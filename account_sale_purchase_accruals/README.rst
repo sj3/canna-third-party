@@ -51,7 +51,7 @@ Company parameters
 - Accrual Journal
 
 Define the Financial Journal used for the product related Accrual Entries generated when
-confirming a Sales Order. Also the product related accrual entries generated when purchasing
+validating the Sales Invoice. Also the product related accrual entries generated when purchasing
 those goods are created in this Journal.
 
 These Sales and Purchase accruals will be automatically reconciled with each other.
