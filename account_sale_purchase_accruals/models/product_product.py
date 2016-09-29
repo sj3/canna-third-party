@@ -20,13 +20,27 @@
 #
 ##############################################################################
 
-from . import account_invoice
-from . import account_invoice_line
-from . import account_move
-from . import product_category
-from . import product_product
-from . import product_template
-from . import purchase_order
-from . import res_company
-from . import stock_picking
-from . import stock_quant
+from openerp import models
+
+
+class ProductProduct(models.Model):
+    _inherit = 'product.product'
+
+    def _get_expense_accrual_amount(self, qty, procurement_action='buy'):
+        amount = 0.0
+        if procurement_action == 'buy':
+            dom = [('product_tmpl_id', '=', self.product_tmpl_id.id),
+                   ('company_id', '=', self.company_id.id)]
+            main_supplier = self.env['product.supplierinfo'].search(
+                dom, limit=1)
+            if main_supplier:
+                supplier = main_supplier.name
+                pricelist = supplier.property_product_pricelist_purchase
+                if pricelist:
+                    price_get = pricelist.price_get(
+                        self.id, qty, partner=main_supplier.id)
+                    if price_get:
+                        amount = price_get[pricelist.id] * qty
+        if not amount:
+            amount = self.standard_price * qty
+        return amount

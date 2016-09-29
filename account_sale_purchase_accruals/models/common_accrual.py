@@ -101,6 +101,17 @@ class CommonAccrual(object):
         return accrual_move_id.id, accruals
 
     def _reconcile_accrued_expense_lines(self, accrual_lines):
+        """
+        The 'to_correct' dict is returned so that extension
+        modules can take specific actions on these entries
+        such as the creation of a correction booking to enable
+        automatic reconciliation.
+        In a generic module this is not possible because a
+        failing reconcile could be perfectly valid (e.g.
+        a single Sales Invoice linked to multiple Purchase Orders
+        will give failing reconciles until the last PO is approved).
+        """
+        to_correct = {}
         for p_id in accrual_lines:
             to_reconcile = accrual_lines[p_id]
             if len(to_reconcile) < 2:
@@ -111,9 +122,11 @@ class CommonAccrual(object):
             if self.company_id.currency_id.is_zero(check):
                 to_reconcile.reconcile()
             else:
+                to_correct[p_id] = (accrual_lines[p_id], check)
                 _logger.error(_(
                     "%s, accrual reconcile failed for "
                     "account.move.line ids %s, "
                     "sum(debit) != sum(credit)"),
                     self.name, [x.id for x in to_reconcile]
                     )
+        return to_correct

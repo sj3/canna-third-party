@@ -113,11 +113,12 @@ class AccountInvoice(models.Model, CommonAccrual):
                 fpos = partner.property_account_position
                 if fpos:
                     expense_account = fpos.map_account(expense_account)
-                amount = ail.quantity * product.standard_price
+                amount = product._get_expense_accrual_amount(
+                    ail.quantity, procurement_action)
                 if self.type == 'out_refund':
                     amount = -amount
                 if not amount:
-                    raise UserError(
+                    _logger.error(
                         _("No 'Cost' defined for product '%s'")
                         % product.name)
 
@@ -235,22 +236,3 @@ class AccountInvoice(models.Model, CommonAccrual):
                 inv.accrual_move_id.button_cancel()
                 inv.accrual_move_id.unlink()
         return super(AccountInvoice, self).action_cancel()
-
-
-class AccountInvoiceLine(models.Model):
-    _inherit = 'account.invoice.line'
-
-    def _get_procurement_action(self):
-        action = False
-        product = self.product_id
-        if product.type in ('product', 'consu'):
-            dom = [
-                ('invoice_lines', '=', self.id),
-                ('product_id', '=', product.id)]
-            sols = self.env['sale.order.line'].search(dom)
-            procs = sols.mapped('procurement_ids')
-            rules = procs.mapped('rule_id')
-            actions = rules.mapped('action')
-            if len(actions) == 1:
-                action = actions[0]
-        return action

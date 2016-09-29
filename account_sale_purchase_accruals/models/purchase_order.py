@@ -108,7 +108,7 @@ class PurchaseOrder(models.Model, CommonAccrual):
 
             if product.type in ('product', 'consu'):
                 if self.location_id.usage == 'internal':
-                    continue
+                    continue  # no accruals if order for stock
 
             accrual_in_account = \
                 product.recursive_accrued_expense_in_account_id
@@ -136,7 +136,10 @@ class PurchaseOrder(models.Model, CommonAccrual):
 
                 if fpos:
                     expense_account = fpos.map_account(expense_account)
-                amount = pol.product_qty * product.standard_price
+
+                amount = product._get_expense_accrual_amount(
+                    pol.product_qty, procurement_action='buy')
+
                 if not amount:
                     raise UserError(
                         _("No 'Cost' defined for product '%s'")

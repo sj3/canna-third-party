@@ -20,13 +20,23 @@
 #
 ##############################################################################
 
-from . import account_invoice
-from . import account_invoice_line
-from . import account_move
-from . import product_category
-from . import product_product
-from . import product_template
-from . import purchase_order
-from . import res_company
-from . import stock_picking
-from . import stock_quant
+from openerp import models
+
+
+class AccountInvoiceLine(models.Model):
+    _inherit = 'account.invoice.line'
+
+    def _get_procurement_action(self):
+        action = False
+        product = self.product_id
+        if product.type in ('product', 'consu'):
+            dom = [
+                ('invoice_lines', '=', self.id),
+                ('product_id', '=', product.id)]
+            sols = self.env['sale.order.line'].search(dom)
+            procs = sols.mapped('procurement_ids')
+            rules = procs.mapped('rule_id')
+            actions = rules.mapped('action')
+            if len(actions) == 1:
+                action = actions[0]
+        return action
