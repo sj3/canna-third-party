@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Copyright (C) 2015 ICTSTUDIO (<http://www.ictstudio.eu>).
-#    Copyright (C) 2012-2016 Noviat nv/sa (www.noviat.com).
+#    Odoo, Open Source Management Solution
+#
+#    Copyright (c) 2009-2016 Noviat nv/sa (www.noviat.com).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -11,25 +12,25 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU Affero General Public License for more details.
 #
 #    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#    along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
 
 from openerp import api, fields, models
 
 
-class ProductPricelist(models.Model):
-    _inherit = 'product.pricelist'
+class AccountPaymentTerm(models.Model):
+    _inherit = 'account.payment.term'
 
     sale_discount_ids = fields.Many2many(
         string='Sale Discounts',
         comodel_name='sale.discount',
-        relation='pricelist_sale_discount_rel',
-        column1='pricelist_id',
+        relation='payterm_sale_discount_rel',
+        column1='payterm_id',
         column2='discount_id')
 
     @api.one
