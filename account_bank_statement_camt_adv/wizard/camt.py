@@ -83,7 +83,7 @@ class CamtParserAdv(Parser):
             if party_name_node:
                 party_name = party_name_node[0].text
                 transaction.note += _('Partner Name') + ': %s\n' % party_name
-            WIP
+            # WIP
 
             #  import pdb; pdb.set_trace()
             """
