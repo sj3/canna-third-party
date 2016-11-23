@@ -13,7 +13,7 @@
         'account_bank_statement_advanced',
     ],
     'data': [
-        'wizard/account_bank_statement_import_view.xml',
+        'wizard/account_bank_statement_import.xml',
     ],
     'installable': True,
 }

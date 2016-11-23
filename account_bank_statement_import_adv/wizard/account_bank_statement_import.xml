@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<openerp>
+  <data>
+
+    <record id="account_bank_statement_import_view_form_result" model="ir.ui.view">
+      <field name="name">Import Bank Statements</field>
+      <field name="model">account.bank.statement.import</field>
+      <field name="priority">1</field>
+      <field name="arch" type="xml">
+        <form string="Import Bank Statements">
+          <separator colspan="4" string="Results :" />
+          <field name="note" colspan="4" nolabel="1" width="850" height="400"/>
+          <footer>
+            <button name="action_open_bank_statements"
+                    string="View Bank Statement(s)" type="object" class="oe_highlight"
+                    invisible="not context.get('bk_st_ids')"/>
+            <button name="button_close" type="object" string="Close"/>
+          </footer>
+        </form>
+      </field>
+    </record>
+
+  </data>
+</openerp>
