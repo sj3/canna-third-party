@@ -33,6 +33,26 @@ class BankTransaction(BankTransactionBase):
         """property setter"""
         self['val_date'] = value_date
 
+    @property
+    def counterparty_number(self):
+        """property getter"""
+        return self['counterparty_number']
+
+    @counterparty_number.setter
+    def counterparty_number(self, counterparty_number):
+        """property setter"""
+        self['counterparty_number'] = counterparty_number
+
+    @property
+    def counterparty_bic(self):
+        """property getter"""
+        return self['counterparty_bic']
+
+    @counterparty_bic.setter
+    def counterparty_bic(self, counterparty_bic):
+        """property setter"""
+        self['counterparty_bic'] = counterparty_bic
+
     def __init__(self):
         super(BankTransaction, self).__init__()
         self.note = ''

@@ -45,25 +45,7 @@ class CamtParserAdv(Parser):
     def parse_transaction_details(self, ns, node, transaction):
         super(CamtParserAdv, self).parse_transaction_details(
             ns, node, transaction)
-        _logger.error('parse_transaction_details, transaction=%s',
-                      transaction)
-
         self._parse_RltdPties(ns, node, transaction)
-
-        """
-        TODO:
-
-        - Add Bank Transaction Code
-        <BkTxCd>
-              <Prtry>
-                <Cd>NTRF+166+993205</Cd>
-                <Issr>ZKA</Issr>
-              </Prtry>
-        </BkTxCd>
-
-        - Add PAIN EndTOEnd refs to st_line payment_reference
-
-        """
 
     def _parse_RltdPties(self, ns, node, transaction):
         """
@@ -83,52 +65,35 @@ class CamtParserAdv(Parser):
             if party_name_node:
                 party_name = party_name_node[0].text
                 transaction.note += _('Partner Name') + ': %s\n' % party_name
-            # WIP
 
-            #  import pdb; pdb.set_trace()
-            """
-            self.add_value_from_node(
-                ns, party_node[0], './ns:Nm', transaction, 'note',
-                join_str=_('Partner Name') + ': ')
-            """
+            # WIP - Address fields
 
-        """
-            self.add_value_from_node(
-                ns, party_node[0], './ns:PstlAdr/ns:Ctry', transaction,
-                'remote_owner_country'
+            # Get remote_account from iban or from domestic account:
+            account_node = node.xpath(
+                './ns:RltdPties/ns:%sAcct/ns:Id' % party_type,
+                namespaces={'ns': ns}
             )
-            address_node = party_node[0].xpath(
-                './ns:PstlAdr/ns:AdrLine', namespaces={'ns': ns})
-            if address_node:
-                transaction.remote_owner_address = [address_node[0].text]
-        # Get remote_account from iban or from domestic account:
-        account_node = node.xpath(
-            './ns:RltdPties/ns:%sAcct/ns:Id' % party_type,
-            namespaces={'ns': ns}
-        )
-        if account_node:
-            iban_node = account_node[0].xpath(
-                './ns:IBAN', namespaces={'ns': ns})
-            if iban_node:
-                transaction.remote_account = iban_node[0].text
-                bic_node = node.xpath(
-                    './ns:RltdAgts/ns:%sAgt/ns:FinInstnId/ns:BIC' % party_type,
-                    namespaces={'ns': ns}
-                )
-                if bic_node:
-                    transaction.remote_bank_bic = bic_node[0].text
-            else:
-                self.add_value_from_node(
-                    ns, account_node[0], './ns:Othr/ns:Id', transaction,
-                    'remote_account'
-                )
-
-        # eref
-        self.add_value_from_node(
-            ns, node, [
-                './ns:RmtInf/ns:Strd/ns:CdtrRefInf/ns:Ref',
-                './ns:Refs/ns:EndToEndId',
-            ],
-            transaction, 'eref'
-        )
-        """
+            if account_node:
+                counterparty_number = counterparty_bic = ''
+                iban_node = account_node[0].xpath(
+                    './ns:IBAN', namespaces={'ns': ns})
+                if iban_node:
+                    counterparty_number = iban_node[0].text
+                    bic_node = node.xpath(
+                        './ns:RltdAgts/ns:%sAgt/ns:FinInstnId/ns:BIC'
+                        % party_type,
+                        namespaces={'ns': ns}
+                    )
+                    if bic_node:
+                        counterparty_bic = bic_node[0].text
+                else:
+                    acc_nbr_node = account_node[0].xpath(
+                        './ns:Othr/ns:Id')
+                    if acc_nbr_node:
+                        counterparty_number = acc_nbr_node[0].text
+                if counterparty_bic:
+                    transaction.note += _(
+                        'Partner Account BIC') + ': %s\n' % counterparty_bic
+                if counterparty_number:
+                    transaction.note += _(
+                        'Partner Account Number') + ': %s\n' % counterparty_number
