@@ -33,6 +33,10 @@ class BankTransaction(BankTransactionBase):
         """property setter"""
         self['val_date'] = value_date
 
+    def __init__(self):
+        super(BankTransaction, self).__init__()
+        self.note = ''
+
 
 class BankStatement(BankStatementBase):
 

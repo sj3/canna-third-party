@@ -6,6 +6,7 @@ from datetime import datetime
 
 from openerp.addons.account_bank_statement_import_camt.camt \
     import CamtParser as Parser
+from openerp import _
 from .parserlib import BankStatement
 
 import logging
@@ -46,22 +47,28 @@ class CamtParserAdv(Parser):
             ns, node, transaction)
         _logger.error('parse_transaction_details, transaction=%s',
                       transaction)
+
+        self._parse_RltdPties(ns, node, transaction)
+
         """
-        # message
-        self.add_value_from_node(
-            ns, node, [
-                './ns:RmtInf/ns:Ustrd',
-                './ns:AddtlTxInf',
-                './ns:AddtlNtryInf',
-            ], transaction, 'message', join_str='\n')
-        # eref
-        self.add_value_from_node(
-            ns, node, [
-                './ns:RmtInf/ns:Strd/ns:CdtrRefInf/ns:Ref',
-                './ns:Refs/ns:EndToEndId',
-            ],
-            transaction, 'eref'
-        )
+        TODO:
+
+        - Add Bank Transaction Code
+        <BkTxCd>
+              <Prtry>
+                <Cd>NTRF+166+993205</Cd>
+                <Issr>ZKA</Issr>
+              </Prtry>
+        </BkTxCd>
+
+        - Add PAIN EndTOEnd refs to st_line payment_reference
+
+        """
+
+    def _parse_RltdPties(self, ns, node, transaction):
+        """
+        Handle RelatedParties <RltdPties> node
+        """
         # remote party values
         party_type = 'Dbtr'
         party_type_node = node.xpath(
@@ -71,8 +78,21 @@ class CamtParserAdv(Parser):
         party_node = node.xpath(
             './ns:RltdPties/ns:%s' % party_type, namespaces={'ns': ns})
         if party_node:
+            party_name_node = party_node[0].xpath(
+                './ns:Nm', namespaces={'ns': ns})
+            if party_name_node:
+                party_name = party_name_node[0].text
+                transaction.note += _('Partner Name') + ': %s\n' % party_name
+            WIP
+
+            #  import pdb; pdb.set_trace()
+            """
             self.add_value_from_node(
-                ns, party_node[0], './ns:Nm', transaction, 'remote_owner')
+                ns, party_node[0], './ns:Nm', transaction, 'note',
+                join_str=_('Partner Name') + ': ')
+            """
+
+        """
             self.add_value_from_node(
                 ns, party_node[0], './ns:PstlAdr/ns:Ctry', transaction,
                 'remote_owner_country'
@@ -102,4 +122,13 @@ class CamtParserAdv(Parser):
                     ns, account_node[0], './ns:Othr/ns:Id', transaction,
                     'remote_account'
                 )
+
+        # eref
+        self.add_value_from_node(
+            ns, node, [
+                './ns:RmtInf/ns:Strd/ns:CdtrRefInf/ns:Ref',
+                './ns:Refs/ns:EndToEndId',
+            ],
+            transaction, 'eref'
+        )
         """

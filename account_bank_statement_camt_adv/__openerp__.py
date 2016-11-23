@@ -4,7 +4,7 @@
 
 {
     'name': 'CAMT Format Bank Statements Import - Advanced',
-    'version': '8.0.0.0.2',
+    'version': '8.0.0.0.3',
     'license': 'AGPL-3',
     'author': 'Noviat',
     'website': 'http://www.noviat.com',
@@ -12,6 +12,9 @@
     'depends': [
         'account_bank_statement_import_camt',
         'account_bank_statement_advanced',
+    ],
+    'data': [
+        'wizard/account_bank_statement_import_view.xml',
     ],
     'installable': True,
 }
