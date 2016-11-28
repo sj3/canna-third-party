@@ -68,3 +68,8 @@ class AccountBankStatementImport(models.TransientModel):
         domain = [('id', 'in', self._context.get('bk_st_ids'))]
         action.update({'domain': domain})
         return action
+
+    @api.multi
+    def button_close(self):
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window_close'}
