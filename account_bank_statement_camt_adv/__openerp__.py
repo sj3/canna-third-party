@@ -3,7 +3,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 {
     'name': 'CAMT Format Bank Statements Import - Advanced',
-    'version': '8.0.0.0.4',
+    'version': '8.0.0.0.5',
     'license': 'AGPL-3',
     'author': 'Noviat',
     'website': 'http://www.noviat.com',

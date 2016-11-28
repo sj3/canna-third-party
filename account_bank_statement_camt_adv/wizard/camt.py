@@ -65,9 +65,18 @@ class CamtParserAdv(Parser):
             if party_name_node:
                 party_name = party_name_node[0].text
                 transaction.note += _('Partner Name') + ': %s\n' % party_name
-
-            # WIP - Address fields
-
+            address_node = party_node[0].xpath(
+                './ns:PstlAdr/ns:AdrLine', namespaces={'ns': ns})
+            if address_node:
+                party_address = address_node[0].text
+                transaction.note += _(
+                    'Partner Address') + ': %s\n' % party_address
+            country_node = party_node[0].xpath(
+                './ns:PstlAdr/ns:Ctry', namespaces={'ns': ns})
+            if country_node:
+                party_country = country_node[0].text
+                transaction.note += _(
+                    'Partner Country') + ': %s\n' % party_country
             # Get remote_account from iban or from domestic account:
             account_node = node.xpath(
                 './ns:RltdPties/ns:%sAcct/ns:Id' % party_type,
@@ -92,8 +101,11 @@ class CamtParserAdv(Parser):
                     if acc_nbr_node:
                         counterparty_number = acc_nbr_node[0].text
                 if counterparty_bic:
+                    transaction.counterparty_bic = counterparty_bic
                     transaction.note += _(
                         'Partner Account BIC') + ': %s\n' % counterparty_bic
                 if counterparty_number:
+                    transaction.counterparty_number = counterparty_number
                     transaction.note += _(
-                        'Partner Account Number') + ': %s\n' % counterparty_number
+                        'Partner Account Number'
+                        ) + ': %s\n' % counterparty_number
