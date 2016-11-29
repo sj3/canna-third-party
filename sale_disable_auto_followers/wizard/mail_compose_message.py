@@ -8,7 +8,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-class MailComposeMessage(models.Model):
+class MailComposeMessage(models.TransientModel):
     _inherit = 'mail.compose.message'
 
     @api.multi
