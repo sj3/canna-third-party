@@ -28,6 +28,7 @@ from openerp.osv import osv
 from openerp.tools.translate import _
 from openerp.addons.account.report.common_report_header \
     import common_report_header
+from collections import OrderedDict
 
 _logger = logging.getLogger('financial.reports.webkit')
 
@@ -130,9 +131,10 @@ class CommonReportHeaderWebkit(common_report_header):
         def recursive_sort_by_code(accounts, parent):
             sorted_accounts = []
             # add all accounts with same parent
-            level_accounts = [account for account in accounts
-                              if account['parent_id']
-                              and account['parent_id'][0] == parent['id']]
+            level_accounts = [
+                account for account in accounts
+                if account['parent_id'] and
+                account['parent_id'][0] == parent['id']]
             # add consolidation children of parent, as they are logically on
             # the same level
             if parent.get('child_consol_ids'):
@@ -194,9 +196,20 @@ class CommonReportHeaderWebkit(common_report_header):
         acc_obj = self.pool.get('account.account')
         for account_id in account_ids:
             accounts.append(account_id)
-            accounts += acc_obj._get_children_and_consol(
+            children_acc_ids = acc_obj._get_children_and_consol(
                 self.cursor, self.uid, account_id, context=context)
-        res_ids = list(set(accounts))
+            if context.get('account_level'):
+                domain = [('level', '<=', context['account_level']),
+                          ('id', 'in', children_acc_ids)]
+                accounts += self.pool['account.account'].search(
+                    self.cursor, self.uid, domain)
+            else:
+                accounts += children_acc_ids
+        # remove duplicate account IDs in accounts
+        # We don't use list(set(accounts)) to keep the order
+        # cf http://stackoverflow.com/questions/7961363/
+        # removing-duplicates-in-lists
+        res_ids = list(OrderedDict.fromkeys(accounts))
         res_ids = self.sort_accounts_with_structure(
             account_ids, res_ids, context=context)
 
@@ -241,17 +254,8 @@ class CommonReportHeaderWebkit(common_report_header):
 
     def exclude_opening_periods(self, period_ids):
         period_obj = self.pool.get('account.period')
-        # FIX by Noviat: close periods should be included
-        self.cr.execute("SELECT p.id " \
-                    "FROM account_period p " \
-                    "INNER JOIN account_fiscalyear f ON p.fiscalyear_id = f.id " \
-                    "WHERE (special = FALSE or (special = TRUE AND p.date_stop = f.date_stop)) " \
-                    "AND p.id IN %s", (tuple(period_ids),))
-        period_ids = self.cr.fetchall()
-        period_ids = [x[0] for x in period_ids]
-        return period_ids
-        # return period_obj.search(self.cr, self.uid, [['special', '=', False],
-        #                                             ['id', 'in', period_ids]])
+        return period_obj.search(self.cr, self.uid, [['special', '=', False],
+                                                     ['id', 'in', period_ids]])
 
     def get_included_opening_period(self, period):
         """Return the opening included in normal period we use the assumption
@@ -296,7 +300,6 @@ class CommonReportHeaderWebkit(common_report_header):
                                             stop_at_previous_opening=False):
         """We retrieve all periods before start period"""
         opening_period_id = False
-        close_periods = []  # Fix Npviat - remove close periods
         past_limit = []
         period_obj = self.pool.get('account.period')
         mv_line_obj = self.pool.get('account.move.line')
@@ -307,18 +310,9 @@ class CommonReportHeaderWebkit(common_report_header):
             if fiscalyear:
                 opening_search.append(('fiscalyear_id', '=', fiscalyear.id))
 
-            # Fix Noviat - remove close periods
-            special_periods = period_obj.search(self.cursor, self.uid, opening_search,
+            opening_periods = period_obj.search(self.cursor, self.uid,
+                                                opening_search,
                                                 order='date_stop desc')
-            opening_periods = []
-            for sp in special_periods:
-                period = period_obj.browse(self.cursor, self.uid, sp)
-                fy = period.fiscalyear_id
-                if period.date_stop == fy.date_stop:
-                    close_periods.append(sp)
-                else:
-                    opening_periods.append(sp)
-            # END Fix
             for opening_period in opening_periods:
                 validation_res = mv_line_obj.search(self.cursor,
                                                     self.uid,
@@ -338,26 +332,12 @@ class CommonReportHeaderWebkit(common_report_header):
         periods_search = [('date_stop', '<=', start_period.date_stop)]
         periods_search += past_limit
 
-        #if not include_opening:
-        #    periods_search += [('special', '=', False)]
+        if not include_opening:
+            periods_search += [('special', '=', False)]
 
         if fiscalyear:
             periods_search.append(('fiscalyear_id', '=', fiscalyear.id))
-
-        if not include_opening:
-            periods = period_obj.search(self.cursor, self.uid, periods_search + [('special', '=', False)])
-        else:
-            periods = period_obj.search(self.cursor, self.uid, periods_search)
-        # Fix Noviat - remove close periods
-        if not close_periods:
-            special_periods = period_obj.search(self.cursor, self.uid, periods_search + [('special', '=', True)])
-            for sp in special_periods:
-                period = period_obj.browse(self.cursor, self.uid, sp)
-                fy = period.fiscalyear_id
-                if period.date_stop == fy.date_stop:
-                    close_periods.append(sp)
-        periods += close_periods
-        # End Fix
+        periods = period_obj.search(self.cursor, self.uid, periods_search)
         if include_opening and opening_period_id:
             periods.append(opening_period_id)
         periods = list(set(periods))
