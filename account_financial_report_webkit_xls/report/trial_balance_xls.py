@@ -11,7 +11,7 @@ from openerp.tools.translate import _
 # _logger = logging.getLogger(__name__)
 
 
-class trial_balance_xls(report_xls):
+class TrialBalanceXls(report_xls):
     column_sizes = [12, 60, 17, 17, 17, 17, 17, 17]
 
     def generate_xls_report(self, _p, _xs, data, objects, wb):
@@ -301,6 +301,6 @@ class trial_balance_xls(report_xls):
                 ws, row_pos, row_data, row_style=cell_style)
 
 
-trial_balance_xls('report.account.account_report_trial_balance_xls',
-                  'account.account',
-                  parser=TrialBalanceWebkit)
+TrialBalanceXls('report.account.account_report_trial_balance_xls',
+                'account.account',
+                parser=TrialBalanceWebkit)
