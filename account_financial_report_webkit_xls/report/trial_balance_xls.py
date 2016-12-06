@@ -13,6 +13,8 @@ from openerp.tools.translate import _
 
 class TrialBalanceXls(report_xls):
     column_sizes = [12, 60, 17, 17, 17, 17, 17, 17]
+    # adapt value infra when inserting columns in inherited module
+    _debit_pos = 4
 
     def generate_xls_report(self, _p, _xs, data, objects, wb):
 
@@ -246,15 +248,14 @@ class TrialBalanceXls(report_xls):
                 ('account', account_span, 0, 'text', current_account.name),
             ]
             if _p.comparison_mode == 'no_comparison':
-
-                debit_cell = rowcol_to_cell(row_pos, 4)
-                credit_cell = rowcol_to_cell(row_pos, 5)
+                debit_cell = rowcol_to_cell(row_pos, self._debit_pos)
+                credit_cell = rowcol_to_cell(row_pos, self._debit_pos + 1)
                 bal_formula = debit_cell + '-' + credit_cell
 
                 if _p.initial_balance_mode:
-                    init_cell = rowcol_to_cell(row_pos, 3)
-                    debit_cell = rowcol_to_cell(row_pos, 4)
-                    credit_cell = rowcol_to_cell(row_pos, 5)
+                    init_cell = rowcol_to_cell(row_pos, self._debit_pos - 1)
+                    debit_cell = rowcol_to_cell(row_pos, self._debit_pos)
+                    credit_cell = rowcol_to_cell(row_pos, self._debit_pos + 1)
                     bal_formula = init_cell + '+' + \
                         debit_cell + '-' + credit_cell
                     c_specs += [('init_bal', 1, 0, 'number',
