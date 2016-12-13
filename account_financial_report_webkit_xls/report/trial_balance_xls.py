@@ -12,9 +12,12 @@ from openerp.tools.translate import _
 
 
 class TrialBalanceXls(report_xls):
-    column_sizes = [12, 60, 17, 17, 17, 17, 17, 17]
-    # adapt value infra when inserting columns in inherited module
-    _debit_pos = 4
+
+    def create(self, cr, uid, ids, data, context=None):
+        self._column_sizes = [12, 60, 17, 17, 17, 17, 17, 17]
+        self._debit_pos = 4
+        return super(TrialBalanceXls, self).create(
+            cr, uid, ids, data, context=context)
 
     def generate_xls_report(self, _p, _xs, data, objects, wb):
 
@@ -47,7 +50,7 @@ class TrialBalanceXls(report_xls):
             ws, row_pos, row_data, row_style=cell_style)
 
         # write empty row to define column sizes
-        c_sizes = self.column_sizes
+        c_sizes = self._column_sizes
         c_specs = [('empty%s' % i, 1, c_sizes[i], 'text', None)
                    for i in range(0, len(c_sizes))]
         row_data = self.xls_row_template(c_specs, [x[0] for x in c_specs])
