@@ -7,4 +7,4 @@ from openerp import fields, models
 class AccountJournal(models.Model):
     _inherit = 'account.journal'
 
-    active = fields.Boolean(select=True, default=True)
+    active = fields.Boolean(default=True)
