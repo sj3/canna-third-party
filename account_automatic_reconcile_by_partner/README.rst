@@ -12,7 +12,7 @@ Known Issues
 ============
 
 This module replaces the 'reconcile' method of the 'account.automatic.reconcile'
-wizard from the standar addons (since Odoo has not designed this method for inherit).
+wizard from the standard addons (since Odoo has not designed this method for inherit).
 
 As a consequence, customisations to this method via community modules may
 conflict or have no effect.
