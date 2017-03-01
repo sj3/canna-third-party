@@ -3,7 +3,6 @@
 #
 #    OpenERP, Open Source Management Solution
 #    This module copyright (C) 2015 Therp BV <http://therp.nl>.
-#    Copyright (C) 2016 Onestein (www.onestein.eu).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
