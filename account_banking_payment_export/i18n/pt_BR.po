@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bank-payment (8.0)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-28 11:43+0000\n"
-"PO-Revision-Date: 2016-04-27 19:49+0000\n"
+"POT-Creation-Date: 2017-03-03 11:42+0000\n"
+"PO-Revision-Date: 2017-02-17 15:35+0000\n"
 "Last-Translator: OCA Transbot <transbot@odoo-community.org>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/oca/OCA-bank-payment-8-0/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
@@ -130,7 +130,7 @@ msgstr "Débito direto"
 #: field:bank.payment.line,display_name:0 field:payment.manual,display_name:0
 #: field:payment.mode.type,display_name:0
 msgid "Display Name"
-msgstr ""
+msgstr "Nome para Mostrar"
 
 #. module: account_banking_payment_export
 #: selection:payment.mode,default_date_type:0
@@ -148,13 +148,13 @@ msgid "Entry Information"
 msgstr "Registro de informação"
 
 #. module: account_banking_payment_export
-#: code:addons/account_banking_payment_export/wizard/payment_order_create.py:152
+#: code:addons/account_banking_payment_export/wizard/payment_order_create.py:156
 #, python-format
 msgid "Entry Lines"
 msgstr "Linhas de pagamento"
 
 #. module: account_banking_payment_export
-#: code:addons/account_banking_payment_export/models/account_payment.py:74
+#: code:addons/account_banking_payment_export/models/account_payment.py:83
 #, python-format
 msgid "Error"
 msgstr "Erro"
@@ -241,7 +241,7 @@ msgstr "Manter vazio para usar todos os diários"
 #: field:payment.manual,__last_update:0
 #: field:payment.mode.type,__last_update:0
 msgid "Last Modified on"
-msgstr ""
+msgstr "Última atualização em"
 
 #. module: account_banking_payment_export
 #: field:bank.payment.line,write_uid:0 field:payment.manual,write_uid:0
@@ -328,6 +328,11 @@ msgid "Partner Bank Account"
 msgstr "Conta bancária parceiro"
 
 #. module: account_banking_payment_export
+#: field:payment.order.create,partner_ids:0
+msgid "Partners"
+msgstr "Parceiros"
+
+#. module: account_banking_payment_export
 #: selection:payment.mode.type,payment_order_type:0
 #: view:payment.order:account_banking_payment_export.view_payment_order_form
 #: selection:payment.order,payment_order_type:0
@@ -373,13 +378,13 @@ msgid "Payment Order"
 msgstr "Ordem de Pagamento"
 
 #. module: account_banking_payment_export
-#: code:addons/account_banking_payment_export/models/account_payment.py:59
+#: code:addons/account_banking_payment_export/models/account_payment.py:68
 #, python-format
 msgid "Payment Order Export"
 msgstr "Exportação da Ordem de Pagamento"
 
 #. module: account_banking_payment_export
-#: code:addons/account_banking_payment_export/wizard/payment_order_create.py:245
+#: code:addons/account_banking_payment_export/wizard/payment_order_create.py:249
 #, python-format
 msgid "Payment Orders"
 msgstr "Ordens de Pagamento"
@@ -477,7 +482,7 @@ msgid "The Ordering Customer"
 msgstr ""
 
 #. module: account_banking_payment_export
-#: code:addons/account_banking_payment_export/models/account_payment.py:152
+#: code:addons/account_banking_payment_export/models/account_payment.py:164
 #, python-format
 msgid "The amount for Partner '%s' is negative or null (%.2f) !"
 msgstr "O total para o parceiro '%s' é negativo ou nulo (%.2f) !"
@@ -528,10 +533,16 @@ msgid "Type of Date Filter"
 msgstr "Tipo de filtro de data"
 
 #. module: account_banking_payment_export
-#: code:addons/account_banking_payment_export/models/account_payment.py:75
+#: code:addons/account_banking_payment_export/models/account_payment.py:84
 #, python-format
 msgid "You can only combine payment orders of the same type"
 msgstr "Você pode combinar ordens de pagamento do mesmo tipo"
+
+#. module: account_banking_payment_export
+#: code:addons/account_banking_payment_export/models/account_payment.py:50
+#, python-format
+msgid "You cannot remove any order that is not in 'draft' or 'cancel' state."
+msgstr ""
 
 #. module: account_banking_payment_export
 #: view:payment.order:account_banking_payment_export.view_payment_order_form

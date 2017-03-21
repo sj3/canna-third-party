@@ -18,6 +18,7 @@
 #
 ##############################################################################
 
+
 def migrate(cr, version):
     cr.execute(
         'SELECT count(attname) FROM pg_attribute '
