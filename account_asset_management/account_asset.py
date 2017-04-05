@@ -433,6 +433,7 @@ class account_asset_asset(orm.Model):
     def _compute_depreciation_table(self, cr, uid, asset, context=None):
         if not context:
             context = {}
+        context = context.copy()
 
         table = []
         if not asset.method_number:
@@ -621,6 +622,7 @@ class account_asset_asset(orm.Model):
     def compute_depreciation_board(self, cr, uid, ids, context=None):
         if not context:
             context = {}
+        context = context.copy()
         depreciation_lin_obj = self.pool.get(
             'account.asset.depreciation.line')
         digits = self.pool.get('decimal.precision').precision_get(
@@ -954,18 +956,23 @@ class account_asset_asset(orm.Model):
         'purchase_value': fields.float(
             'Purchase Value', required=True, readonly=True,
             states={'draft': [('readonly', False)]},
-            help="\nThe Asset Value is calculated as follows:"
+            help="\nThe Depreciation Base is calculated as follows:"
                  "\nPurchase Value - Salvage Value."),
+        # TODO: rename 'asset_value' field to 'depreciation_base'
         'asset_value': fields.function(
-            _asset_value, method=True,
+            lambda self, cr, uid, ids, name, args, context:
+                self._asset_value(cr, uid, ids, name, args, context=context),
+            method=True,
             digits_compute=dp.get_precision('Account'),
-            string='Asset Value',
+            string='Depreciation Base',
             store={
                 'account.asset.asset': (
-                    _get_assets,
+                    lambda self, cr, uid, ids, context:
+                        self._get_assets(cr, uid, ids, context=context),
                     ['purchase_value', 'salvage_value', 'parent_id'], 10),
             },
-            help="This amount represent the initial value of the asset."),
+            help="This amount represent the depreciation base "
+                 "of the asset (Purchase Value - Salvage Value."),
         'value_residual': fields.function(
             _compute_depreciation, method=True, multi='cd',
             digits_compute=dp.get_precision('Account'),
@@ -1435,13 +1442,15 @@ class account_asset_depreciation_line(orm.Model):
             readonly=True),
         'parent_state': fields.related(
             'asset_id', 'state', type='char', string='State of Asset'),
+        # TODO: rename 'asset_value' field to 'depreciation_base'
         'asset_value': fields.related(
-            'asset_id', 'asset_value', type='float', string='Asset Value'),
+            'asset_id', 'asset_value', type='float', string='Depreciation Base'),
         'amount': fields.float(
             'Amount', digits_compute=dp.get_precision('Account'),
             required=True),
         'remaining_value': fields.function(
-            _compute,
+            lambda self, cr, uid, ids, name, args, context:
+                self._compute(cr, uid, ids, name, args, context=context),
             method=True,
             digits_compute=dp.get_precision('Account'),
             string='Next Period Depreciation',
@@ -1450,7 +1459,8 @@ class account_asset_depreciation_line(orm.Model):
             },
             multi='all'),
         'depreciated_value': fields.function(
-            _compute,
+            lambda self, cr, uid, ids, name, args, context:
+                self._compute(cr, uid, ids, name, args, context=context),
             method=True,
             digits_compute=dp.get_precision('Account'),
             string='Amount Already Depreciated',
@@ -1471,7 +1481,7 @@ class account_asset_depreciation_line(orm.Model):
                     lambda self, cr, uid, ids, c={}: ids, ['move_id'], 10),
             }),
         'type': fields.selection([
-            ('create', 'Asset Value'),
+            ('create', 'Depreciation Base'),
             ('depreciate', 'Depreciation'),
             ('remove', 'Asset Removal'),
             ], 'Type', readonly=True),
@@ -1499,7 +1509,7 @@ class account_asset_depreciation_line(orm.Model):
                 raise orm.except_orm(
                     _('Error!'),
                     _("You cannot remove an asset line "
-                      "of type 'Asset Value'."))
+                      "of type 'Depreciation Base'."))
             elif dl.move_id:
                 raise orm.except_orm(
                     _('Error!'),
@@ -1656,10 +1666,10 @@ class account_asset_depreciation_line(orm.Model):
             ctx = dict(context, allow_asset=True)
             move_line_obj.create(cr, uid, self._setup_move_line_data(
                 line, depreciation_date, period_id, depr_acc_id,
-                'depreciation', move_id, context), ctx)
+                'depreciation', move_id, context), context=ctx)
             move_line_obj.create(cr, uid, self._setup_move_line_data(
                 line, depreciation_date, period_id, exp_acc_id, 'expense',
-                move_id, context), ctx)
+                move_id, context), context=ctx)
             self.write(
                 cr, uid, line.id, {'move_id': move_id},
                 context={'allow_asset_line_update': True})

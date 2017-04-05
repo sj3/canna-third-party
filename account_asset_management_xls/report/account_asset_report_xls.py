@@ -1,9 +1,9 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    OpenERP, Open Source Management Solution
+#    Odoo, Open Source Management Solution
 #
-#    Copyright (c) 2014 Noviat nv/sa (www.noviat.com). All rights reserved.
+#    Copyright (c) 2009-2016 Noviat nv/sa (www.noviat.com).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -580,11 +580,10 @@ class asset_report_xls(report_xls):
         cr.execute(
             "SELECT id FROM account_asset_asset "
             "WHERE date_start <= %s"
-            "AND ((date_remove IS NULL) OR "
-            "(date_remove >= %s AND date_remove <= %s)) "
+            "AND (date_remove IS NULL OR date_remove >= %s) "
             "AND id IN %s AND type = 'normal' "
             "ORDER BY date_start ASC",
-            (fy.date_stop, fy.date_start, fy.date_stop, tuple(self.asset_ids))
+            (fy.date_stop, fy.date_start, tuple(self.asset_ids))
             )
         act_ids = [x[0] for x in cr.fetchall()]
 
@@ -917,5 +916,3 @@ asset_report_xls(
     'report.account.asset.xls',
     'account.asset.asset',
     parser=asset_report_xls_parser)
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
