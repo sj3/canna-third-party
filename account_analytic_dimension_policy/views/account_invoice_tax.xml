@@ -2,10 +2,10 @@
 <openerp>
   <data>
 
-    <record id="view_invoice_line_form" model="ir.ui.view">
-      <field name="name">account.invoice.line.inherit</field>
-      <field name="model">account.invoice.line</field>
-      <field name="inherit_id" ref="account.view_invoice_line_form"/>
+    <record id="view_invoice_tax_form" model="ir.ui.view">
+      <field name="name">account.invoice.tax.inherit</field>
+      <field name="model">account.invoice.tax</field>
+      <field name="inherit_id" ref="account.view_invoice_tax_form"/>
       <field name="arch" type="xml">
         <field name='account_analytic_id' position="after">
           <field name="analytic_dimension_policy" invisible="1"/>
