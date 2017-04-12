@@ -11,7 +11,6 @@ openerp.account_move_line_search_extension = function (instance) {
     instance.account_move_line_search_extension.ListSearchView = instance.web.ListView.extend({
 
         init: function() {
-            var self = this;
             this._super.apply(this, arguments);
             this.journals = [];
             this.current_account = null;
@@ -21,13 +20,13 @@ openerp.account_move_line_search_extension = function (instance) {
             this.current_period = null;
             this.current_reconcile = null;
             this.options.addable = false;
-            this.set_user_groups();
+            this.set_render_dict();
         },
 
         start: function(){
             var tmp = this._super.apply(this, arguments);
             var self = this;
-            this.$el.parent().prepend(QWeb.render('AccountMoveLineSearchExtension', self.groups_dict));
+            this.$el.parent().prepend(QWeb.render('AccountMoveLineSearchExtension', self.render_dict));
             self.set_change_events();
             return tmp;
         },
@@ -65,19 +64,12 @@ openerp.account_move_line_search_extension = function (instance) {
                 });
         },
 
-        set_user_groups: function() {
-            var self = this;
-            var result = {};
-            var action_context = this.dataset.get_context().__contexts[1];
-            _.each(action_context, function(v,k) {
-                if (k[v] && (k.slice(0, 6) === "group_")) {
-                    result[k] = true;
-                }
-                else {
-                    result[k] = false;
-                }
-            });
-            self.groups_dict = result;
+        set_render_dict: function() {
+            /*
+            Customise this function to modify the rendering dict for the qweb template.
+            By default the action context is passed as rendering dict.
+            */
+            this.render_dict = this.dataset.get_context().__contexts[1];
         },
 
         do_search: function(domain, context, group_by) {

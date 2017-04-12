@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-# Copyright 2009-2016 Noviat.
+# Copyright 2009-2017 Noviat.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
-from openerp import models
+
+from openerp import api, models
 from openerp.tools.safe_eval import safe_eval
 
 
@@ -10,7 +11,7 @@ class IrActionsActWindow(models.Model):
 
     def _get_amlse_act_id(self, cr):
         module = 'account_move_line_search_extension'
-        xml_id = 'action_account_move_line_search_extension'
+        xml_id = 'account_move_line_action_search_extension'
         cr.execute(
             "SELECT res_id from ir_model_data "
             "WHERE model = 'ir.actions.act_window' "
@@ -23,11 +24,11 @@ class IrActionsActWindow(models.Model):
         self._amlse_act_id = self._get_amlse_act_id(cr)
         super(IrActionsActWindow, self).__init__(pool, cr)
 
-    def _amlse_add_groups(self, cr, uid, context):
-        groups = {}
-        if self.pool['res.users'].has_group(
-                cr, uid, 'analytic.group_analytic_accounting'):
-            groups['group_analytic'] = 1
+    def _amlse_add_groups(self, cr, uid, context=None):
+        env = api.Environment(cr, uid, context)
+        xml_ids = env.user.groups_id.get_xml_id()
+        xml_ids_values = [v.replace('.', '_') for v in xml_ids.values()]
+        groups = {k: 1 for k in xml_ids_values}
         return groups
 
     def read(self, cr, uid, ids, fields=None,
@@ -42,6 +43,7 @@ class IrActionsActWindow(models.Model):
             amlse_act = res[0]
             if amlse_act.get('context'):
                 act_ctx = safe_eval(amlse_act['context'])
-                act_ctx.update(self._amlse_add_groups(cr, uid, context))
+                act_ctx.update(
+                    self._amlse_add_groups(cr, uid, context=context))
                 amlse_act['context'] = str(act_ctx)
         return res
