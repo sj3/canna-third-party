@@ -156,16 +156,17 @@ class StockLevelXls(report_xls):
             ctx['warehouse'] = warehouse.id
         if data['stock_level_date']:
             ctx['to_date'] = data['stock_level_date']
+        else:
+            ctx['to_date'] = fields.Datetime.now()
         product_lines = []
-        if data.get('location_ids'):
-            for location_id in data['location_ids']:
-                location = self.env['stock.location'].browse(location_id)
-                products = self.env['product.product'].with_context(
-                    dict(ctx, location=location_id)).browse(
-                    data['product_ids'])
-                for product in products:
-                    product.location = location
-                    product_lines.append(product)
+        if data['location_id']:
+            location = self.env['stock.location'].browse(data['location_id'])
+            products = self.env['product.product'].with_context(
+                dict(ctx, location=data['location_id'])).browse(
+                data['product_ids'])
+            for product in products:
+                product.location = location
+                product_lines.append(product)
         else:
             products = self.env['product.product'].with_context(ctx).browse(
                 data['product_ids'])
