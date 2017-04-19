@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2009-2017 Noviat.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+
 from openerp import api, fields, models, _
 from openerp.exceptions import Warning as UserError
 
@@ -24,8 +25,8 @@ class WizExportStockLevel(models.TransientModel):
     location_id = fields.Many2one(
         comodel_name='stock.location',
         string='Location',
-        help="Limit the export to the selected Location. "
-             "Child locactions will be included as well.")
+        domain=[('usage', '=', 'internal'), ('child_ids', '=', False)],
+        help="Limit the export to the selected Location. ")
     product_select = fields.Selection([
         ('all', 'All Products'),
         ('select', 'Selected Products'),
@@ -39,6 +40,7 @@ class WizExportStockLevel(models.TransientModel):
         default=lambda self: self.env['res.company']._company_default_get(
             'stock.inventory'))
 
+    @api.model
     def _default_product_select(self):
         if self._context.get('active_model') in ['product.product',
                                                  'product.template']:
@@ -46,16 +48,12 @@ class WizExportStockLevel(models.TransientModel):
         else:
             return 'all'
 
-    @api.onchange('import_compatible')
-    def _onchange_import_compatible(self):
-        dom = [('company_id', '=', self.company_id.id)]
-        self.warehouse_id = False
-        if self.import_compatible:
-            dom2 = [('usage', '=', 'internal')]
-        else:
-            dom2 = [('usage', 'in', ['view', 'internal'])]
-        domain = dom + dom2
-        return {'domain': {'location_id': domain}}
+    @api.one
+    @api.constrains('location_id')
+    def _check_location_id(self):
+        if self.location_id.child_ids:
+            raise UserError(
+                _("You cannot select a location which has Child Locations"))
 
     def _xls_export_domain(self):
         ctx = self._context
@@ -99,17 +97,6 @@ class WizExportStockLevel(models.TransientModel):
                 _("'\nNo records found for your selection !"))
 
         if self.location_id:
-            loc_domain = [
-                ('location_id', 'child_of', [self.location_id.id]),
-                ('usage', '=', 'internal')]
-            locations = self.env['stock.location'].search(loc_domain)
-            if locations:
-                location_ids = locations._ids
-            else:
-                raise UserError(
-                    _("No Data Available."),
-                    _("\nNo physical stock locations defined "
-                      "for your selection !"))
             warehouse_id = self.env['stock.location'].get_warehouse(
                 self.location_id)
             if not warehouse_id:
@@ -117,8 +104,6 @@ class WizExportStockLevel(models.TransientModel):
                     _("No Warehouse defined for the selected "
                       "Stock Location "))
             warehouse_ids = [warehouse_id]
-        else:
-            location_ids = []
 
         datas = {
             'model': self._name,
@@ -128,7 +113,7 @@ class WizExportStockLevel(models.TransientModel):
             'product_ids': products._ids,
             'category_id': self.categ_id.id,
             'warehouse_ids': warehouse_ids,
-            'location_ids': location_ids,
+            'location_id': self.location_id.id,
             'product_select': self.product_select,
             'import_compatible': self.import_compatible,
             'company_id': self.company_id.id,
