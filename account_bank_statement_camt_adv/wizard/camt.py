@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2009-2016 Noviat
+# Copyright 2009-2017 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from datetime import datetime
@@ -33,14 +33,38 @@ class CamtParserAdv(Parser):
             ns, node, './ns:Acct/ns:Ccy', statement, 'local_currency')
         (statement.start_balance, statement.end_balance) = (
             self.get_balance_amounts(ns, node))
+
+        # statement date equal to last transaction date
+        todt = node.xpath('./ns:FrToDt/ns:ToDtTm', namespaces={'ns': ns})
+        if todt:
+            st_date = todt[0].text
+            statement.date = st_date[:10]
+
         transaction_nodes = node.xpath('./ns:Ntry', namespaces={'ns': ns})
         for entry_node in transaction_nodes:
             transaction = statement.create_transaction()
             self.parse_transaction(ns, entry_node, transaction)
-        if statement['transactions']:
+
+        if not statement.date and statement['transactions']:
             statement.date = datetime.strptime(
-                statement['transactions'][0].execution_date, "%Y-%m-%d")
+                statement['transactions'][-1].execution_date, "%Y-%m-%d")
         return statement
+
+    def parse_transaction(self, ns, node, transaction):
+        transaction = super(CamtParserAdv, self).parse_transaction(
+            ns, node, transaction)
+        self._parse_adv_transaction(ns, node, transaction)
+        return transaction
+
+    def _parse_adv_transaction(self, ns, node, transaction):
+        try:
+            datetime.strptime(transaction.execution_date, '%Y-%m-%d')
+        except:
+            transaction.execution_date = transaction.statement_date
+        try:
+            datetime.strptime(transaction.value_date, '%Y-%m-%d')
+        except:
+            transaction.value_date = transaction.statement_date
 
     def parse_transaction_details(self, ns, node, transaction):
         super(CamtParserAdv, self).parse_transaction_details(

@@ -2,7 +2,7 @@
 # Copyright 2009-2016 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from openerp import models
+from openerp import api, models
 from .camt import CamtParserAdv as Parser
 
 import logging
@@ -23,3 +23,21 @@ class AccountBankStatementImport(models.TransientModel):
                           exc_info=True)
             return super(AccountBankStatementImport, self)._parse_file(
                 cr, uid, data_file, context=context)
+
+    @api.model
+    def _find_bank_account_id(self, account_number):
+        res = super(AccountBankStatementImport, self)._find_bank_account_id(
+            account_number)
+        if not res:
+            """
+            Some banks put the local account number as
+            identification in stead of the IBAN.
+            Such a local number tends to be a subset of the IBAN
+            """
+            company_banks = self.env['res.partner.bank'].search(
+                [('company_id', '=', self.env.user.company_id.id)])
+            bank = company_banks.filtered(
+                lambda r: account_number in r.acc_number.replace(' ', ''))
+            if bank and len(bank) == 1:
+                res = bank.id
+        return res

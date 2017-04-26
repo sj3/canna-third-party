@@ -74,4 +74,8 @@ class BankStatement(BankStatementBase):
         # Fill default id, but might be overruled
         transaction['unique_import_id'] = (
             self.statement_id + str(len(self['transactions'])).zfill(4))
+
+        # pass statement date to the transaction
+        transaction.statement_date = self.date
+
         return transaction
