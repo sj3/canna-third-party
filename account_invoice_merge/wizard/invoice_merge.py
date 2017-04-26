@@ -47,6 +47,10 @@ class InvoiceMerge(models.TransientModel):
                     if inv.journal_id != invs[0].journal_id:
                         raise UserError(
                             _('Not all invoices are at the same journal!'))
+                    if inv.partner_bank_id != invs[0].partner_bank_id:
+                        raise UserError(
+                            _('Not all invoices have the same '
+                              'Partner Bank Account!'))
 
         return {}
 

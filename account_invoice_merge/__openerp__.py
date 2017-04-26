@@ -6,7 +6,7 @@
 
 {
     'name': 'Account Invoice Merge Wizard',
-    'version': '8.0.2.0.1',
+    'version': '8.0.2.0.2',
     'category': 'Finance',
     'author': "Elico Corp, "
               "ACSONE A/V, "
