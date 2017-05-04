@@ -183,7 +183,7 @@ class AccountInvoice(models.Model, CommonAccrual):
                 if si_aml.account_id == accrual_account:
                     accrual_lines[product.id] = si_aml
                     pickings = self.purchase_order_ids.mapped('picking_ids')
-                    accruals = pickings.valuation_move_ids
+                    accruals = pickings.mapped('valuation_move_ids')
                 else:
                     accrual_account = \
                         product.recursive_accrued_expense_in_account_id
