@@ -30,7 +30,7 @@
         'operating_unit'
     ],
     'data': [
-        'view/res_users.xml',
+        'view/res_users_view.xml',
     ],
     'qweb': [
         'static/src/xml/switch_operating_unit.xml',
