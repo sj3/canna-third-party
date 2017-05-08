@@ -1,3 +1,22 @@
+/******************************************************************************
+    Based largely on: Web Easy Switch Company module for OpenERP
+    Copyright (C) 2014 GRAP (http://www.grap.coop)
+    @author Sylvain LE GAL (https://twitter.com/legalsylvain)
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+******************************************************************************/
+
 openerp.web_easy_switch_operating_unit = function (instance) {
 
     /***************************************************************************
@@ -9,7 +28,7 @@ openerp.web_easy_switch_operating_unit = function (instance) {
         template:'web_easy_switch_operating_unit.SwitchOperatingUnitWidget',
 
         /***********************************************************************
-        Overload section 
+        Overload section
         ***********************************************************************/
 
         /**
@@ -42,7 +61,7 @@ openerp.web_easy_switch_operating_unit = function (instance) {
             else{
                 this.$el.show();
                 this.$el.find('.easy_switch_operating_unit_operating_unit_item').on('click', function(ev) {
-                    var operating_unit_id = $(ev.target).data("operating.unit-id");
+                    var operating_unit_id = $(ev.target).data("operating-unit-id");
 
 
                     if (operating_unit_id != self.current_operating_unit_id){
@@ -58,7 +77,7 @@ openerp.web_easy_switch_operating_unit = function (instance) {
 
 
         /***********************************************************************
-        Custom section 
+        Custom section
         ***********************************************************************/
 
         /**
@@ -69,39 +88,56 @@ openerp.web_easy_switch_operating_unit = function (instance) {
         },
 
         /**
-         * - Load data of the operating.units allowed to the current users;
+         * - Load data of the operating_units allowed to the current users;
          * - Launch the rendering of the current widget;
          */
         _load_data: function(){
             var self = this;
             // Request for current users information
-            this._fetch('res.users',['default_operating_unit_id','operating_unit_ids'],[['id','=',this.session.uid]]).then(function(res_users){
+            this._fetch('res.users',['default_operating_unit_id'],[['id','=',this.session.uid]]).then(function(res_users){
                 self.current_operating_unit_id = res_users[0].default_operating_unit_id[0];
                 self.current_operating_unit_name = res_users[0].default_operating_unit_id[1];
-                // Request for other operating.units
 
-                new instance.web.Model("operating.unit")
-                    .query(['id','name'])
-                    .all().then(function (data) {
-                        _(data).each(function(operating_unit){
-                            var logo_state;
-                            if (operating_unit.id == self.current_operating_unit_id){
-                                logo_state = '/web_easy_switch_operating_unit/static/description/selection-on.png';
-                            }
-                            else{
-                                logo_state = '/web_easy_switch_operating_unit/static/description/selection-off.png';
-                            }
-                            if (operating_unit.id in  res_users[0].operating_unit_ids) {
-                                self.operating_units.push({
-                                    id: operating_unit.id,
-                                    name: operating_unit.name,
-                                    logo_state: logo_state
-                                });
-                            }
+                ou_logo = new instance.web.Model('operating.unit').query(["logo_topbar"]).filter([["id", "=", self.current_operating_unit_id]]).all();
+                // Do not show image if there is none
+                ou_logo.then(function(value){
+                    if (value[0]['logo_topbar']){
+                        self.logo_topbar = self.session.url(
+                                    '/web/binary/image', {
+                                        model:'operating.unit',
+                                        field: 'logo_topbar',
+                                        id: self.current_operating_unit_id
                         });
-                    self.renderElement();
-                })
+                    }
+                });
 
+                // Request for other operating_units
+                // We have to go through fields_view_get to emulate the
+                // exact (exotic) behavior of the user preferences form in
+                // fetching the allowed operating_units wrt record rules.
+                // Note: calling res.company.name_search with
+                //       user_preference=True in the context does
+                //       not work either.
+                new instance.web.Model('res.users').call('fields_view_get',{context:{'form_view_ref':'base.view_users_form_simple_modif'}}).then(function(res){
+                    var res_operating_unit = res.fields.operating_unit.selection;
+                    for ( var i=0 ; i < res_operating_unit.length; i++) {
+                        var logo_state;
+                        if (res_operating_unit[i][0] == self.current_operating_unit_name){
+                            logo_state = '/web_easy_switch_operating_unit/static/description/selection-on.png';
+                        }
+                        else{
+                            logo_state = '/web_easy_switch_operating_unit/static/description/selection-off.png';
+
+                        }
+                        self.operating_units.push({
+                            id: res_operating_unit[i][0],
+                            name: res_operating_unit[i][1],
+                            logo_state: logo_state
+                        });
+                    }
+                    // Update rendering
+                    self.renderElement();
+                });
             });
         },
 
@@ -121,4 +157,3 @@ openerp.web_easy_switch_operating_unit = function (instance) {
     });
 
 };
-
