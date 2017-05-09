@@ -68,7 +68,7 @@ openerp.web_easy_switch_operating_unit = function (instance) {
                         var func = '/web_easy_switch_operating_unit/switch/change_current_operating_unit';
                         var param = {'operating_unit_id': operating_unit_id}
                         self.rpc(func, param).done(function(res) {
-                            window.location.reload()
+                            window.location.reload();
                         });
                     }
                 });
