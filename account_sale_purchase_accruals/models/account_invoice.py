@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2009-2017 Noviat.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+
 import logging
 
 from openerp import api, fields, models, _
@@ -59,8 +60,12 @@ class AccountInvoice(models.Model, CommonAccrual):
         sp_dom = [('group_id', 'in', proc_groups._ids)]
         stock_pickings = self.env['stock.picking'].search(sp_dom)
         purchase_orders = procs.mapped('purchase_id')
+        # pass the invoice date in the context
+        # in order to retrieve the correct purchase price
+        # for the expense accruals
+        ctx_date = dict(self._context, date=self.date_invoice)
 
-        for ail in self.invoice_line:
+        for ail in self.with_context(ctx_date).invoice_line:
             product = ail.product_id
 
             if not product:
@@ -96,7 +101,7 @@ class AccountInvoice(models.Model, CommonAccrual):
                     expense_account = fpos.map_account(expense_account)
                 amount = product._get_expense_accrual_amount(
                     ail.quantity, procurement_action,
-                    company_id=self.company_id.id)
+                    company=self.company_id)
                 if self.type == 'out_refund':
                     amount = -amount
                 if not amount:
