@@ -101,7 +101,7 @@ openerp.web_easy_switch_operating_unit = function (instance) {
                 ou_logo = new instance.web.Model('operating.unit').query(["logo_topbar"]).filter([["id", "=", self.current_operating_unit_id]]).all();
                 // Do not show image if there is none
                 ou_logo.then(function(value){
-                    if (value[0]['logo_topbar']){
+                    if (value.length > 0) {
                         self.logo_topbar = self.session.url(
                                     '/web/binary/image', {
                                         model:'operating.unit',
