@@ -27,7 +27,7 @@ class AccountInvoice(models.Model):
             for org_po in todos:
                 for po_line in org_po.order_line:
                     org_ilines = po_line.mapped('invoice_lines').filtered(
-                        lambda l: l.invoice_id
+                        lambda l: l.invoice_id.id
                         in invoices_info[new_invoice_id])
                     invoice_line_ids = []
                     for org_iline in org_ilines:
