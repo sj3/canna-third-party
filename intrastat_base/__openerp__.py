@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
+#    Intrastat base module for Odoo
 #    Copyright (C) 2011-2015 Akretion (http://www.akretion.com)
-#    Copyright (C) 2009-2015 Noviat (http://www.noviat.com)
 #    @author Alexis de Lattre <alexis.delattre@akretion.com>
-#    @author Luc de Meyer <info@noviat.com>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -22,23 +21,26 @@
 ##############################################################################
 
 {
-    'name': 'Product Harmonized System Codes',
-    'version': '8.0.0.2.0',
-    'category': 'Reporting',
+    'name': 'Intrastat Reporting Base',
+    'version': '8.0.1.3.0',
+    'category': 'Intrastat',
     'license': 'AGPL-3',
-    'summary': 'Base module for Product Import/Export reports',
-    'author': 'Akretion, Noviat, Odoo Community Association (OCA)',
-    'depends': ['product'],
+    'summary': 'Base module for Intrastat reporting',
+    'author': 'Akretion,Odoo Community Association (OCA)',
+    'website': 'http://www.akretion.com',
+    'depends': ['base_vat'],
     'conflicts': ['report_intrastat'],
     'data': [
-        'security/product_hs_security.xml',
-        'security/ir.model.access.csv',
-        'views/hs_code.xml',
-        'views/product_category.xml',
+        'data/country_data.xml',
         'views/product_template.xml',
+        'views/res_partner.xml',
+        'views/res_country.xml',
+        'views/account_tax.xml',
+        'views/res_company.xml',
+        'views/intrastat.xml',
     ],
     'demo': [
-        'demo/product_demo.xml',
+        'demo/intrastat_demo.xml',
     ],
     'installable': True,
 }
