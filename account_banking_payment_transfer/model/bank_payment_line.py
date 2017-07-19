@@ -2,6 +2,7 @@
 # © 2009 EduSense BV (<http://www.edusense.nl>)
 # © 2011-2013 Therp BV (<http://therp.nl>)
 # © 2015 Akretion (www.akretion.com)
+# © 2017 Noviat (www.noviat.com)
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 from openerp import models, fields, api, _
@@ -97,4 +98,42 @@ class BankPaymentLine(models.Model):
 
             lines_to_rec += payment_line.move_line_id
 
+        # add currency diff when payment in foreign currency
+        cur_amts = lines_to_rec.mapped('amount_currency')
+        curs = lines_to_rec.mapped('currency_id')
+        if any(cur_amts) and len(curs) == 1 and sum(cur_amts) == 0.0:
+            debits = lines_to_rec.mapped('debit')
+            credits = lines_to_rec.mapped('credit')
+            diff = sum(debits) - sum(credits)
+            if diff:
+                aml_mod = self.env['account.move.line']
+                cur_line_vals = self._get_cur_line_vals(
+                    transit_move_line, diff)
+                aml1 = aml_mod.create(cur_line_vals[0])
+                lines_to_rec += aml1
+                aml_mod.create(cur_line_vals[1])
         lines_to_rec.reconcile_partial(type='auto')
+
+    def _get_cur_line_vals(self, transit_move_line, diff):
+        move = transit_move_line.move_id
+        if diff > 0:
+            exch_acc = self.company_id.income_currency_exchange_account_id
+        else:
+            exch_acc = self.company_id.expense_currency_exchange_account_id
+        vals1 = {
+            'move_id': move.id,
+            'name': _('currency rate difference'),
+            'account_id': transit_move_line.account_id.id,
+            'partner_id': transit_move_line.partner_id.id,
+            'currency_id': transit_move_line.currency_id.id,
+            'debit': diff < 0 and -diff or 0.0,
+            'credit': diff > 0 and diff or 0.0,
+        }
+        vals2 = {
+            'move_id': move.id,
+            'name': _('currency rate difference'),
+            'account_id': exch_acc.id,
+            'debit': vals1['credit'],
+            'credit': vals1['debit'],
+        }
+        return (vals1, vals2)
