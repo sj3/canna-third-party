@@ -36,11 +36,8 @@ class AccountBankStatementImport(models.TransientModel):
         for notification in notifications:
             self.note += notification['type'] + ':\n'
             self.note += notification['message'] + '\n'
-            # self.note += notification['details'] + '\n\n'
-            # HOTFIX
             for k, v in notification['details'].iteritems():
                 self.note += "{}: {}".format(k, v) + '\n\n'
-            # END HOTFIX
         self.note += _("Number of statements processed") \
             + ' : ' + str(len(statement_ids))
 
