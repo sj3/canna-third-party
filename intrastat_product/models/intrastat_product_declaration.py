@@ -236,6 +236,11 @@ class IntrastatProductDeclaration(models.Model):
     def _get_partner_country(self, inv_line):
         country = inv_line.invoice_id.src_dest_country_id \
             or inv_line.invoice_id.partner_id.country_id
+        if not country:
+            _logger.info(
+                'Skipping invoice line %s qty %s '
+                'of invoice %s. Reason: no partner country'
+                % (inv_line.name, inv_line.quantity, invoice.number))
         if not country.intrastat:
             country = False
         elif country == self.company_id.country_id:
@@ -332,15 +337,29 @@ class IntrastatProductDeclaration(models.Model):
                     self.env['product.uom']._compute_qty_obj(
                         source_uom, line_qty, pce_uom)
         else:
-            note = "\n" + _(
-                "Conversion from unit of measure '%s' to 'Kg' "
-                "is not implemented yet. It is needed for product '%s'."
-                ) % (source_uom.name, product.name_get()[0][1])
-            note += "\n" + _(
-                "Please correct the unit of measure settings and "
-                "regenerate the lines or adjust the impacted lines "
-                "manually")
-            self._note += note
+            if not product.weight_net:
+                note = "\n" + _(
+                    "Missing net weight on product %s."
+                    ) % product.name_get()[0][1]
+                note += "\n" + _(
+                    "Please correct the product record and regenerate "
+                    "the lines or adjust the impacted lines manually")
+                self._note += note
+                return weight, suppl_unit_qty
+            if invoice.type[0] == 'o':
+                coeff = product.uos_coeff or 1.0
+                qty = line_qty / coeff
+                from_unit = product.uom_id
+                to_unit = product.uom_id
+            else:
+                qty = line_qty
+                from_unit = source_uom
+                to_unit = product.uom_id
+            qty = self.env['product.uom']._compute_qty_obj(
+                from_unit, qty, to_unit)
+            # Here, I suppose that, on the product, the
+            # weight is per PCE and not per uom_id
+            weight = product.weight_net * qty
             return weight, suppl_unit_qty
 
         return weight, suppl_unit_qty
@@ -522,10 +541,6 @@ class IntrastatProductDeclaration(models.Model):
 
                 partner_country = self._get_partner_country(inv_line)
                 if not partner_country:
-                    _logger.info(
-                        'Skipping invoice line %s qty %s '
-                        'of invoice %s. Reason: no partner_country'
-                        % (inv_line.name, inv_line.quantity, invoice.number))
                     continue
 
                 if any([
@@ -553,7 +568,7 @@ class IntrastatProductDeclaration(models.Model):
                         continue
                 else:
                     _logger.info(
-                        'Skipping invoice line %s qty %s'
+                        'Skipping invoice line %s qty %s '
                         'of invoice %s. Reason: no product nor hs_code'
                         % (inv_line.name, inv_line.quantity, invoice.number))
                     continue
