@@ -31,11 +31,11 @@ class MisReportInstancePeriod(models.Model):
         if len(budget) == 0:
             raise UserError(_(
                 "No Confirmed Budget defined for "
-                "period '%s'.") % self.name)
+                "MIS Report '%s'.") % mis_report.name)
         if len(budget) > 1:
             raise UserError(_(
                 "Multiple Confirmed Budgets defined for "
-                "period '%s'") % self.name)
+                "MIS Report '%s'") % mis_report.name)
 
         res = {}
         for kpi in mis_report.kpi_ids:
