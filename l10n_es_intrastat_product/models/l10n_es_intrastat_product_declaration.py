@@ -7,7 +7,6 @@ import logging
 
 from openerp import api, fields, models, _
 from openerp.exceptions import Warning as UserError
-from openerp.exceptions import RedirectWarning
 
 _logger = logging.getLogger(__name__)
 
@@ -120,7 +119,7 @@ class L10nEsIntrastatProductDeclaration(models.Model):
             # TO DO port/airport
             rows.append((
                 # Estado destino/origen
-                line.src_dest_country_id,
+                line.src_dest_country_id.code,
                 # Provincia destino/origen # state_code
                 line.intrastat_state_id.code,
                 # Condiciones de entrega
@@ -132,7 +131,7 @@ class L10nEsIntrastatProductDeclaration(models.Model):
                 # Puerto/Aeropuerto de carga o descarga
                 False,
                 # Código mercancías CN8
-                line.hs_code_id.code,
+                line.hs_code_id.local_code,
                 # País origen
                 line.product_origin_country_id.code,
                 # Régimen estadístico
@@ -140,7 +139,7 @@ class L10nEsIntrastatProductDeclaration(models.Model):
                 # Peso
                 str(line.weight).replace('.', ','),
                 # Unidades suplementarias
-                str(line.quantity).replace('.', ','),
+                str(line.suppl_unit_qty).replace('.', ','),
                 # Importe facturado
                 str(line.amount_company_currency).replace('.', ','),
                 # Valor estadístico
@@ -148,6 +147,16 @@ class L10nEsIntrastatProductDeclaration(models.Model):
             ))
 
         csv_string = self._format_csv(rows, ';')
+        return csv_string
+
+    @api.multi
+    def _format_csv(self, rows, delimiter):
+        csv_string = ''
+        for row in rows:
+            for field in row:
+                csv_string += field and str(field) or ''
+                csv_string += delimiter
+            csv_string += '\n'
         return csv_string
 
 

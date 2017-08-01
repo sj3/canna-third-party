@@ -22,6 +22,7 @@
         'security/intrastat_security.xml',
         'security/ir.model.access.csv',
         'data/intrastat_transaction.xml',
+        'views/account_invoice.xml',
         'views/res_company.xml',
         # 'views/intrastat_installer.xml',
         'views/l10n_es_intrastat_product.xml',
