@@ -16,12 +16,17 @@ class AccountMoveLine(models.Model):
             cr, uid, view_id=view_id, view_type=view_type,
             context=context, toolbar=toolbar, submenu=False)
         if context and 'account_move_line_search_extension' in context \
-                and view_type == 'tree':
+                and view_type in ['tree', 'form']:
             doc = etree.XML(res['arch'])
-            nodes = doc.xpath("/tree")
-            for node in nodes:
+            tree = doc.xpath("/tree")
+            for node in tree:
                 if 'editable' in node.attrib:
                     del node.attrib['editable']
+            form = doc.xpath("/form")
+            for node in form:
+                node.set('edit', 'false')
+                node.set('create', 'false')
+                node.set('delete', 'false')
             res['arch'] = etree.tostring(doc)
         return res
 
@@ -30,7 +35,10 @@ class AccountMoveLine(models.Model):
         if context and 'account_move_line_search_extension' in context:
             ana_obj = self.pool['account.analytic.account']
             for arg in args:
-                if arg[0] == 'analytic_account_id':
+                if (
+                    arg[0] == 'analytic_account_id' and
+                    isinstance(arg[0], basestring)
+                ):
                     ana_dom = ['|',
                                ('name', 'ilike', arg[2]),
                                ('code', 'ilike', arg[2])]
