@@ -7,6 +7,10 @@ from openerp.exceptions import Warning as UserError
 
 
 class MisBudget(models.Model):
+    """
+    MIS Budget.
+    TODO: add controls on overlapping periods.
+    """
 
     _name = 'mis.budget'
     _description = 'MIS Budget'
@@ -98,3 +102,13 @@ class MisBudget(models.Model):
     def action_confirm(self):
         for rec in self:
             self.state = 'confirmed'
+
+    def _get_kpi_val(self, kpi, date_from, date_to):
+        self.ensure_one()
+        budget_items = self.item_ids.filtered(
+            lambda r: r.kpi_id == kpi)
+        budget_items = budget_items.filtered(
+            lambda r: r.date_from >= date_from and
+            r.date_to <= date_to)
+        amount = sum(budget_items.mapped('amount'))
+        return amount
