@@ -83,6 +83,13 @@ processed. This allows 'comment' columns on the input lines.
 
 Empty lines or lines starting with '#' will be ignored.
 
+Foreign currency support
+------------------------
+
+When the 'Currency' field is supplied without Amount Currency' than this field will be
+computed. The compute is also performed when supplying 'Amount Currency' without 'Debit' or 'Credit'.
+
+
 Input file example
 ------------------
 
