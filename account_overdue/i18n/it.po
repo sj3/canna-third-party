@@ -1,4 +1,4 @@
-# Dutch translation of Odoo 8.0.
+# Italian translation of Odoo 8.0.
 # This file contains the translation of the following modules:
 #    * account_overdue
 #
@@ -19,95 +19,120 @@ msgstr ""
 #: model:ir.model,name:account_overdue.model_overdue_payment_wizard
 #: view:overdue.payment.wizard:account_overdue.overdue_payment_wizard_view
 msgid "Print Overdue Payments"
-msgstr "Betalingsherinneringen"
+msgstr "Imprimir pagos vencidos"
 
 #. module: account_overdue
 #: view:overdue.payment.wizard:account_overdue.overdue_payment_wizard_view
 msgid "Print Overdue Payments Selection Criteria :"
-msgstr "Selectiecriteria betalingsherinneringen :"
+msgstr "Imprimir Criterios de seleccion de pagos vencidos :"
 
 #. module: account_overdue
 #: view:overdue.payment.wizard:account_overdue.overdue_payment_wizard_view
 msgid "Cancel"
-msgstr "Annuleer"
+msgstr "Annulla"
 
 #. module: account_overdue
 #: view:overdue.payment.wizard:account_overdue.overdue_payment_wizard_view
 msgid "Print"
-msgstr "Afdrukken"
+msgstr "Imprimir"
 
 #. module: account_overdue
 #: selection:overdue.payment.wizard,partner_select:0
 msgid "All Customers"
-msgstr "Alle klanten"
+msgstr "Tutti i clienti"
 
 #. module: account_overdue
 #: selection:overdue.payment.wizard,partner_select:0
 msgid "Selected Customers"
-msgstr "Geselecteerde klanten"
+msgstr "Clientes escogidos"
 
 #. module: account_overdue
 #: field:overdue.payment.wizard,account_select:0
 msgid "Selected Accounts"
-msgstr "Geselecteerde rekeningen"
+msgstr "Cuentas escogidas"
 
 #. module: account_overdue
 #: selection:overdue.payment.wizard,account_select:0
 msgid "Receivable Accounts"
-msgstr "Te ontvangen"
+msgstr "Cuentas por cobrar"
 
 #. module: account_overdue
 #: selection:overdue.payment.wizard,account_select:0
 msgid "Receivable and Payable Accounts"
-msgstr "Te ontvangen en te betalen"
+msgstr "Cuentas por cobrar y pagar"
 
 #. module: account_overdue
-#: code:addons/account_overdue/report/print_overdue_payment.py:1
+#: code:addons/account_overdue/report/print_overdue_payment.py:94
 #, python-format
 msgid "Attn."
-msgstr "T.a.v."
+msgstr "All'attenzione"
 
 #. module: account_overdue
 #: view:website:account_overdue.report_overdue_document
 msgid "Total"
-msgstr "Totaal"
+msgstr "Totale"
 
 #. module: account_overdue
 #: view:website:account_overdue.report_overdue_document
 msgid "Inv. no"
-msgstr "Fact. nr"
+msgstr "N. Fattura"
 
 #. module: account_overdue
 #: view:website:account_overdue.report_overdue_document
 msgid "Mat. Date"
-msgstr "Vervaldatum"
+msgstr "Mat. Date"
 
 #. module: account_overdue
 #: view:website:account_overdue.report_overdue_document
 msgid "Date"
-msgstr "Datum"
+msgstr "Data"
 
 #. module: account_overdue
 #: view:website:account_overdue.report_overdue_document
 msgid "Amount"
-msgstr "Bedrag"
+msgstr "Ammontare"
 
 #. module: account_overdue
 #: view:website:account_overdue.report_overdue_document
 msgid "Paid"
-msgstr "Betaald"
+msgstr "Pagado"
 
 #. module: account_overdue
 #: view:website:account_overdue.report_overdue_document
 msgid "Open"
-msgstr "Open"
+msgstr "Abrir"
 
 #. module: account_overdue
 #: view:website:account_overdue.report_overdue_document
 msgid "Days"
-msgstr "Dagen"
+msgstr "Giorni"
 
 #. module: account_overdue
 #: view:website:account_overdue.report_overdue_document
 msgid "Total amount overdue"
-msgstr "Totaal bedrag waarvoor de vervaldatum overschreden is"
+msgstr "Ammontare Totale Insoluto"
+
+#. module: account_overdue
+#: field:overdue.payment.wizard,company_id:0
+msgid "Company"
+msgstr "Azienda"
+
+#. module: account_overdue
+#: view:website:account_overdue.report_overdue_layout_footer
+msgid "Email:"
+msgstr "Email:"
+
+#. module: account_overdue
+#: view:website:account_overdue.report_overdue_layout_footer
+msgid "Fax:"
+msgstr "Fax:"
+
+#. module: account_overdue
+#: view:website:account_overdue.report_overdue_layout_footer
+msgid "Web:"
+msgstr "Web:"
+
+#. module: account_overdue
+#: view:overdue.payment.wizard:account_overdue.overdue_payment_wizard_view
+msgid "or"
+msgstr "o"

@@ -1,36 +1,30 @@
-Account Reinvoice
-=================
+.. image:: https://img.shields.io/badge/licence-AGPL--3-blue.svg
+    :alt: License
 
-Module for automatic inter-company reinvoicing.
+Overdue Payments customisation
+==============================
 
-Usage
-=====
+This module replaces the standard Overdue Payments report.
 
-Reinvoice Keys and Distributions
---------------------------------
+Features
+--------
 
-Go to **Accounting > Configuration > Miscellaneous > Reinvoice Configuration**
+* The print wizard allows to print a single payment notice as well as
+  notices for all customers.
+* The print wizard allows to select receivables or both
+  receivables and payables and hence covers the case of Partners
+  which are Customer and Supplier at the same time.
+* Outstanding amounts are displayed in invoice currency.
+* The litigation column has been replaced by an indication that
+  clearly shows the payments that are overdue.
+* The Invoice number is printed for outgoing transactions.
+* The payment notice text can be customized with html tags.
+* An "Overdue" button is added to the Customer search view to
+  facilitate the retrieval of Customers with Overdue payments.
 
-Reinvoice Distributions
------------------------
-| Use this menu entry to configure the Reinvoicing rate per target Customer.
-|
-
-Reinvoice Keys
---------------
-| The Distribution Key is the field on an accounting entry that triggers the Reinvoicing process.
-| Such a key contains key instances which are valid within a configured date range and refer to a Distribution.
-| No reinvoicing will take place for instances in 'Draft' state.
-|
-
-Accounting Entries
-------------------
-
-It is recommended to enter the 'Product' field when encoding distribution keys in accounting entries. 
-The products on the incoming entries will be copied to the corresponding outgoing Customer Invoice.
-
-In case of a multi-company setup (cf. module account_reinvoice_multi_company), these products
-will also be copied to the corresponding incoming invoice (if allowed by security settings).
-In this case, the product record accounting properties will be used to determine general accounts and
-taxes on those incoming invoices and hence allows fully automated end-to-end intercompany invoicing.
-
+Overdue message template customization
+--------------------------------------
+* %{partner_name}s: insert partner name
+* %{date}s: insert date
+* %{company_name}: insert company.name
+* %{user_signature}: insert user signature
