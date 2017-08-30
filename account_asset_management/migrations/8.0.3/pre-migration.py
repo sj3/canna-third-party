@@ -141,6 +141,8 @@ def remove_views(cr, view_refs):
 
 
 def migrate(cr, version):
+    if not version:
+        return
     remove_views(cr, view_refs)
     rename_tables(cr, table_renames)
     rename_models(cr, model_renames)
