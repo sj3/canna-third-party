@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2009-2017 Noviat.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+
 from datetime import datetime
 from openerp.osv.fields import datetime as datetime_field
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
@@ -38,8 +39,8 @@ class bank_statement_balance_report(report_sxw.rml_parse):
             "ORDER BY j_curr_id, j.code", (date_balance, tuple(journal_ids)))
         lines = cr.dictfetchall()
         [x.update(
-            {'currency': data.env['res.currency'].browse(x['j_curr_id'])}
-            ) for x in lines]
+            {'currency': data.env['res.currency'].browse(x['j_curr_id'])})
+         for x in lines]
         currencies = list(set([x['currency'] for x in lines]))
         totals = []
         for currency in currencies:
@@ -56,7 +57,7 @@ class bank_statement_balance_report(report_sxw.rml_parse):
 
         report_date = datetime_field.context_timestamp(
             cr, uid, datetime.now(), context
-            ).strftime(DEFAULT_SERVER_DATETIME_FORMAT)
+        ).strftime(DEFAULT_SERVER_DATETIME_FORMAT)
 
         self.localcontext.update({
             'lines': lines,

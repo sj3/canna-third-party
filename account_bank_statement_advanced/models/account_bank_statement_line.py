@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2009-2017 Noviat.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+
 import pickle
 
 from openerp import api, fields, models, _
@@ -13,6 +14,9 @@ class AccountBankStatementLine(models.Model):
     # new fields
     state = fields.Selection(
         related='statement_id.state', string='Statement State',
+        readonly=True, store=True)
+    statement_date = fields.Date(
+        related='statement_id.date', string='Statement Date',
         readonly=True, store=True)
     val_date = fields.Date(
         string='Value Date',  # nl: valuta datum
@@ -59,8 +63,6 @@ class AccountBankStatementLine(models.Model):
              "the <CdtrRefInf> reference is recorded in this field.")
     reconcile_get = fields.Char(
         string='Reconciled', compute='_compute_reconcile_get', readonly=True)
-    move_get = fields.Char(
-        string='Move', compute='_compute_move_get', readonly=True)
     move_state = fields.Selection(
         string='Move State', related='journal_entry_id.state', readonly=True)
 
@@ -86,18 +88,6 @@ class AccountBankStatementLine(models.Model):
                 if rec_total != self.amount or rec_partials:
                     res += ' (!)'
         self.reconcile_get = res
-
-    @api.one
-    @api.depends('journal_entry_id.state')
-    def _compute_move_get(self):
-        res = '-'
-        move = self.journal_entry_id
-        if move:
-            field_dict = self.env['account.move'].fields_get(
-                allfields=['state'])
-            result_list = field_dict['state']['selection']
-            res = filter(lambda x: x[0] == move.state, result_list)[0][1]
-        self.move_get = res
 
     @api.onchange('currency_id', 'val_date', 'date')
     def _onchange_currency_id(self):
@@ -132,7 +122,7 @@ class AccountBankStatementLine(models.Model):
             'active_id': st_line.id,
             'active_ids': [st_line.id],
             'statement_id': st_line.statement_id.id,
-            })
+        })
         module = __name__.split('addons.')[1].split('.')[0]
         view = self.env.ref(
             '%s.view_move_from_bank_form' % module)
@@ -144,7 +134,7 @@ class AccountBankStatementLine(models.Model):
             'res_model': 'account.move',
             'view_id': [view.id],
             'type': 'ir.actions.act_window',
-            }
+        }
         act_move['context'] = dict(ctx, wizard_action=pickle.dumps(act_move))
         return act_move
 

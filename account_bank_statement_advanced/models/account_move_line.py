@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2009-2017 Noviat.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+
 from openerp import api, fields, models, _
 from openerp.exceptions import Warning as UserError
 
@@ -36,8 +37,8 @@ class AccountMoveLine(models.Model):
                 ctx.update({'view_mode': 'search'})
         return super(
             AccountMoveLine, self.with_context(ctx)
-            ).fields_view_get(view_id=view_id, view_type=view_type,
-                              toolbar=toolbar, submenu=submenu)
+        ).fields_view_get(view_id=view_id, view_type=view_type,
+                          toolbar=toolbar, submenu=submenu)
 
     @api.multi
     def unlink(self, **kwargs):
