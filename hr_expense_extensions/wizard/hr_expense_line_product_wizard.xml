@@ -1,0 +1,22 @@
+<openerp>
+  <data>
+
+    <record id="hr_expense_line_product_wizard_view_form" model="ir.ui.view">
+      <field name="name">Update Product</field>
+      <field name="model">hr.expense.line.product.wizard</field>
+      <field name="arch" type="xml">
+        <form string="Update Product">
+          <group>
+            <field name="product_id"/>
+          </group>
+          <footer>
+            <button name="update" string="Confirm" type="object" class="oe_highlight"/>
+            or
+            <button string="Cancel" class="oe_link" special="cancel" />
+          </footer>
+        </form>
+      </field>
+    </record>
+
+  </data>
+</openerp>

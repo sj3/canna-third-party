@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <record id="view_expenses_form" model="ir.ui.view">
+      <field name="name">hr.expense.expense.form.nov</field>
+      <field name="model">hr.expense.expense</field>
+      <field name="inherit_id" ref="hr_expense.view_expenses_form"/>
+      <field name="arch" type="xml">
+
+        <button name="done" position="attributes">
+          <attribute name="name">generate_accounting_entries</attribute>
+          <attribute name="type">object</attribute>
+        </button>
+        <field name="journal_id" position="attributes">
+          <attribute name="domain">[('type', '=', 'general'), ('code', 'like', 'EXP')]</attribute>
+          <attribute name="attrs">{'readonly': [('state', 'in', ['done', 'paid'])]}</attribute>
+        </field>
+        <xpath expr="//field[@name='line_ids']/tree/field[@name='product_id']" position="after">
+          <field name="line_state" invisible="1"/>
+          <button name="update_product" attrs="{'invisible': [('line_state', '!=', 'accepted')]}"
+                  groups="account.group_account_manager"
+                  string="Update Product" type="object" icon="gtk-undo"/>
+        </xpath>
+      </field>
+    </record>
+
+  </data>
+</openerp>
