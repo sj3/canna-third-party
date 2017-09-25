@@ -8,7 +8,7 @@
 
 {
     'name': "Company currency in invoices",
-    'version': "8.0.1.1.0",
+    'version': "8.0.1.1.1",
     'author': "Zikzakmedia SL, Odoo Community Association (OCA), "
               "Joaquín Gutierrez, "
               "Serv. Tecnol. Avanzados - Pedro M. Baeza",
