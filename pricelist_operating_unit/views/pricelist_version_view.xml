@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+
+        <record id="product_pricelist_version_tree_view" model="ir.ui.view">
+            <field name="name">product.pricelist.version.tree</field>
+            <field name="model">product.pricelist.version</field>
+            <field name="inherit_id"
+                   ref="product.product_pricelist_version_tree_view"/>
+            <field name="arch" type="xml">
+                <field name="date_end" position="after">
+                    <field name="operating_unit_id"
+                           groups="operating_unit.group_multi_operating_unit"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="product_pricelist_version_form_view" model="ir.ui.view">
+            <field name="name">product.pricelist.version.form</field>
+            <field name="model">product.pricelist.version</field>
+            <field name="inherit_id"
+                   ref="product.product_pricelist_version_form_view"/>
+            <field name="arch" type="xml">
+                <field name="pricelist_id" position="after">
+                    <field name="operating_unit_id"
+                           groups="operating_unit.group_multi_operating_unit"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="pricelist_version_search_view" model="ir.ui.view">
+            <field name="name">pricelist.version.search</field>
+            <field name="model">product.pricelist.version</field>
+            <field name="arch" type="xml">
+                <search string="Pricelist version">
+                    <field name="name"/>
+                    <field name="pricelist_id"/>
+                    <field name="operating_unit_id"
+                           groups="operating_unit.group_multi_operating_unit"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Operating Unit"
+                                context="{'group_by':'operating_unit_id'}"
+                                groups="operating_unit.group_multi_operating_unit"/>
+                        <filter string="Pricelist"
+                                context="{'group_by':'pricelist_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+    </data>
+</openerp>
