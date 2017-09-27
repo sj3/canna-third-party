@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import models
+from openerp import models, tools
 
 
 class IrQwebAuditfileStringWidget999(models.AbstractModel):
