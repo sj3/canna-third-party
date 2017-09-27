@@ -41,7 +41,7 @@ class XafAuditfileExport(models.Model):
             ('default', 'Default'),
             ('all', 'All'),
         ], string='Data record info',
-        required=True, default='required',
+        required=True, default='default',
         help="Select 'All' in order to include "
              "optional partner details and "
              "general account history information "
