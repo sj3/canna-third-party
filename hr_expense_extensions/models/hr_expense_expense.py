@@ -30,7 +30,7 @@ class HrExpenseExpense(models.Model):
         aml_vals = super(HrExpenseExpense, self).line_get_convert(
             x, partner, date)
         if aml_vals.get('name') == '/' and x.get('ref'):
-            aml_vals['name'] = x['ref'] 
+            aml_vals['name'] = x['ref']
         return aml_vals
 
     @api.model
