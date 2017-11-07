@@ -26,6 +26,14 @@ class HrExpenseExpense(models.Model):
         return res
 
     @api.model
+    def line_get_convert(self, x, partner, date):
+        aml_vals = super(HrExpenseExpense, self).line_get_convert(
+            x, partner, date)
+        if aml_vals.get('name') == '/' and x.get('ref'):
+            aml_vals['name'] = x['ref'] 
+        return aml_vals
+
+    @api.model
     def account_move_get(self, expense_id):
         move_vals = super(HrExpenseExpense, self).account_move_get(expense_id)
         declaration = self.browse(expense_id)
