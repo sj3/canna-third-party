@@ -8,7 +8,7 @@
     "name": "Operating Unit",
     "summary": "An operating unit (OU) is an organizational entity part of a "
                "company",
-    "version": "8.0.1.1.0",
+    "version": "8.0.1.2.0",
     "author": "Eficent Business and IT Consulting Services S.L., "
               "Serpent Consulting Services Pvt. Ltd.,"
               "Noviat,"
@@ -18,9 +18,11 @@
     "depends": ["base"],
     "license": "AGPL-3",
     "data": [
-        "security/operating_unit_security.xml",
+        "security/operating_unit.xml",
+        "security/res_partner.xml",
         "security/ir.model.access.csv",
         "views/operating_unit.xml",
+        "views/res_partner.xml",
         "views/res_users.xml",
         "data/operating_unit.xml",
     ],
