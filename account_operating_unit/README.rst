@@ -1,5 +1,5 @@
-.. image:: https://img.shields.io/badge/license-AGPLv3-blue.svg
-   :target: https://www.gnu.org/licenses/agpl.html
+.. image:: https://img.shields.io/badge/license-AGPL--3-blue.png
+   :target: https://www.gnu.org/licenses/agpl
    :alt: License: AGPL-3
 
 ===============================
@@ -67,18 +67,23 @@ Usage
    :alt: Try me on Runbot
    :target: https://runbot.odoo-community.org/runbot/213/8.0
 
+Known issues / Roadmap
+======================
+
+The functionality in this modules deviates from the OCA 10.0.1.0.0 version
+as follows:
+
+- a single invoice can contain lines with different Operating Units.
+- a accounting entry can contain lines with different Operating Units.
+
 Bug Tracker
 ===========
 
 Bugs are tracked on `GitHub Issues
 <https://github.com/OCA/operating-unit/issues>`_. In case of trouble, please
 check there if your issue has already been reported. If you spotted it first,
-help us smashing it by providing a detailed and welcomed `feedback
-<https://github.com/OCA/
-operating-unit/issues/new?body=module:%20
-account_operating_unit%0Aversion:%20
-8.0%0A%0A**Steps%20to%20reproduce**%0A-%20..
-.%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
+help us smash it by providing detailed and welcomed feedback.
+
 
 Credits
 =======
@@ -94,6 +99,7 @@ Contributors
 * Eficent Business and IT Consulting Services S.L. <contact@eficent.com>
 * Xpansa Group <hello@xpansa.com>
 * Serpent Consulting Services Pvt. Ltd. <support@serpentcs.com>
+* Noviat <info@noviat.com>
 
 Maintainer
 ----------

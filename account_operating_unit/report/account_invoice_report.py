@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-# © 2016 Eficent Business and IT Consulting Services S.L.
-# - Jordi Ballester Alomar
-# © 2016 Serpent Consulting Services Pvt. Ltd. - Sudhir Arya
+# © 2016-17 Eficent Business and IT Consulting Services S.L.
+# © 2016 Serpent Consulting Services Pvt. Ltd.
+# © 2016 Onestein BV
+# © 2016-2017 Noviat
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
+
 from openerp import fields, models
 
 
@@ -10,7 +12,9 @@ class AccountInvoiceReport(models.Model):
 
     _inherit = "account.invoice.report"
 
-    operating_unit_id = fields.Many2one('operating.unit', 'Operating Unit')
+    operating_unit_id = fields.Many2one(
+        comodel_name='operating.unit',
+        string='Operating Unit')
 
     def _select(self):
         select_str = super(AccountInvoiceReport, self)._select()

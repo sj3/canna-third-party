@@ -34,7 +34,7 @@ class TestCrossOuJournalEntry(test_ou.TestAccountOperatingUnit):
                 'debit': 0,
                 'credit': 100,
                 'operating_unit_id': self.b2b.id,
-                }),
+            }),
             (0, 0, {
                 'name': 'Test',
                 'account_id': self.cash_account_id.id,

@@ -39,7 +39,7 @@ class ResUsers(models.Model):
         # This is required, because SELF_WRITEABLE_FIELDS uses 'uid = 1'
         if user.id == SUPERUSER_ID:
             return [(o.name, o.name) for o in
-                self.env['operating.unit'].search([])]
+                    self.env['operating.unit'].search([])]
         return [(o.name, o.name) for o in
                 user.operating_unit_ids]
 

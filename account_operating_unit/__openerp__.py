@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
-# © 2016 Eficent Business and IT Consulting Services S.L.
-# - Jordi Ballester Alomar
-# © 2016 Serpent Consulting Services Pvt. Ltd. - Sudhir Arya
+# © 2016-17 Eficent Business and IT Consulting Services S.L.
+# © 2016 Serpent Consulting Services Pvt. Ltd.
+# © 2016 Onestein BV
+# © 2016-2017 Noviat
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 {
     "name": 'Accounting with Operating Units',
-    "version": "8.0.1.0.0",
+    "version": "8.0.1.1.0",
     "summary": "Introduces Operating Unit fields in invoices and "
                "Accounting Entries with clearing account",
     "author": "Eficent Business and IT Consulting Services S.L., "
               "Serpent Consulting Services Pvt. Ltd.,"
+              "Noviat,"
               "Odoo Community Association (OCA)",
     "website": "http://www.eficent.com",
     "category": "Accounting & Finance",

@@ -1,31 +1,29 @@
 # -*- coding: utf-8 -*-
-# © 2016 Eficent Business and IT Consulting Services S.L.
-# - Jordi Ballester Alomar
-# @ 2016 Onestein BV
-# - André Schenkels
-# @ 2016 Noviat
-# - Luc de Meyer
-# © 2016 Serpent Consulting Services Pvt. Ltd. - Sudhir Arya
+# © 2016-17 Eficent Business and IT Consulting Services S.L.
+# © 2016 Serpent Consulting Services Pvt. Ltd.
+# © 2016 Onestein BV
+# © 2016-2017 Noviat
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
-from openerp.tools.translate import _
-from openerp import api, fields, models
-from openerp.exceptions import Warning
+
+from openerp import api, fields, models, _
+from openerp.exceptions import Warning as UserError
 
 
 class AccountMove(models.Model):
     _inherit = "account.move"
 
-    operating_unit_id = fields.Many2one('operating.unit',
-                                        'Default Operating Unit',
-                                        help="This operating unit will "
-                                             "be defaulted in the move lines.")
+    operating_unit_id = fields.Many2one(
+        comodel_name='operating.unit',
+        string='Default Operating Unit',
+        help="This operating unit will be defaulted in the move lines.")
 
     @api.multi
     def _prepare_inter_ou_balancing_move_line(self, move, ou_id,
                                               ou_balances):
         if not move.company_id.inter_ou_clearing_account_id:
-            raise Warning(_('Error!\nYou need to define an inter-operating\
-                unit clearing account in the company settings'))
+            raise UserError(_(
+                "Error!\nYou need to define an inter-operating "
+                "unit clearing account in the company settings"))
 
         res = {
             'name': 'OU-Balancing',
@@ -94,7 +92,9 @@ class AccountMove(models.Model):
                 continue
             for line in move.line_id:
                 if not line.operating_unit_id:
-                    raise Warning(_('Configuration error!\nThe operating '
-                                    'unit must be completed for each line if '
-                                    'the operating unit has been defined as '
-                                    'self-balanced at company level.'))
+                    raise UserError(_(
+                        "Configuration error!"
+                        "\nThe operating unit must be completed "
+                        "for each line if the operating unit "
+                        "has been defined as self-balanced "
+                        "at company level."))
