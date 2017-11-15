@@ -20,7 +20,6 @@ class AccountMoveLine(models.Model):
     @api.model
     def create(self, vals, **kwargs):
         if vals.get('move_id'):
-            
             if 'operating_unit_id' not in vals:
                 move = self.env['account.move'].browse(vals['move_id'])
                 if move.operating_unit_id:
