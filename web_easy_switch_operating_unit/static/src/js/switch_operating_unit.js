@@ -94,50 +94,54 @@ openerp.web_easy_switch_operating_unit = function (instance) {
         _load_data: function(){
             var self = this;
             // Request for current users information
-            this._fetch('res.users',['default_operating_unit_id'],[['id','=',this.session.uid]]).then(function(res_users){
-                self.current_operating_unit_id = res_users[0].default_operating_unit_id[0];
-                self.current_operating_unit_name = res_users[0].default_operating_unit_id[1];
+            this._fetch('res.users', ['default_operating_unit_id'], [['id', '=', this.session.uid]]).then(function (res_users) {
+                if (res_users.length === 1) {
 
-                ou_logo = new instance.web.Model('operating.unit').query(["logo_topbar"]).filter([["id", "=", self.current_operating_unit_id]]).all();
-                // Do not show image if there is none
-                ou_logo.then(function(value){
-                    if (value.length > 0) {
-                        self.logo_topbar = self.session.url(
-                                    '/web/binary/image', {
-                                        model:'operating.unit',
-                                        field: 'logo_topbar',
-                                        id: self.current_operating_unit_id
-                        });
-                    }
-                });
+                    self.current_operating_unit_id = res_users[0].default_operating_unit_id[0];
+                    self.current_operating_unit_name = res_users[0].default_operating_unit_id[1];
 
-                // Request for other operating_units
-                // We have to go through fields_view_get to emulate the
-                // exact (exotic) behavior of the user preferences form in
-                // fetching the allowed operating_units wrt record rules.
-                // Note: calling res.company.name_search with
-                //       user_preference=True in the context does
-                //       not work either.
-                new instance.web.Model('res.users').call('fields_view_get',{context:{'form_view_ref':'base.view_users_form_simple_modif'}}).then(function(res){
-                    var res_operating_unit = res.fields.operating_unit.selection;
-                    for ( var i=0 ; i < res_operating_unit.length; i++) {
-                        var logo_state;
-                        if (res_operating_unit[i][0] == self.current_operating_unit_name){
-                            logo_state = '/web_easy_switch_operating_unit/static/description/selection-on.png';
+                    ou_logo = new instance.web.Model('operating.unit').query(["logo_topbar"]).filter([["id", "=", self.current_operating_unit_id]]).all();
+                    // Do not show image if there is none
+                    ou_logo.then(function (value) {
+                        if (value.length > 0) {
+                            self.logo_topbar = self.session.url(
+                                '/web/binary/image', {
+                                    model: 'operating.unit',
+                                    field: 'logo_topbar',
+                                    id: self.current_operating_unit_id
+                                });
                         }
-                        else{
-                            logo_state = '/web_easy_switch_operating_unit/static/description/selection-off.png';
+                    });
 
+                    // Request for other operating_units
+                    // We have to go through fields_view_get to emulate the
+                    // exact (exotic) behavior of the user preferences form in
+                    // fetching the allowed operating_units wrt record rules.
+                    // Note: calling res.company.name_search with
+                    //       user_preference=True in the context does
+                    //       not work either.
+                    new instance.web.Model('res.users').call('fields_view_get', { context: { 'form_view_ref': 'base.view_users_form_simple_modif' } }).then(function (res) {
+                        var res_operating_unit = res.fields.operating_unit.selection;
+                        for (var i = 0; i < res_operating_unit.length; i++) {
+                            var logo_state;
+                            if (res_operating_unit[i][0] == self.current_operating_unit_name) {
+                                logo_state = '/web_easy_switch_operating_unit/static/description/selection-on.png';
+                            }
+                            else {
+                                logo_state = '/web_easy_switch_operating_unit/static/description/selection-off.png';
+
+                            }
+                            self.operating_units.push({
+                                id: res_operating_unit[i][0],
+                                name: res_operating_unit[i][1],
+                                logo_state: logo_state
+                            });
                         }
-                        self.operating_units.push({
-                            id: res_operating_unit[i][0],
-                            name: res_operating_unit[i][1],
-                            logo_state: logo_state
-                        });
-                    }
-                    // Update rendering
-                    self.renderElement();
-                });
+                        // Update rendering
+                        self.renderElement();
+                    });
+
+                };
             });
         },
 
