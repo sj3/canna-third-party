@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 # © 2015 Eficent Business and IT Consulting Services S.L. -
-# Jordi Ballester Alomar
-# © 2015 Serpent Consulting Services Pvt. Ltd. - Sudhir Arya
+# © 2015 Serpent Consulting Services Pvt. Ltd.
+# © 2017 Noviat
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
-from openerp import _, api, exceptions, fields, models
-from openerp.exceptions import Warning
+
+from openerp import api, fields, models, _
+from openerp.exceptions import Warning as UserError
 
 
 class PurchaseOrder(models.Model):
@@ -23,25 +24,28 @@ class PurchaseOrder(models.Model):
             res = types[:1].id
         return res
 
-    operating_unit_id = fields.Many2one('operating.unit', 'Operating Unit',
-                                        default=lambda self:
-                                        self.env['res.users'].
-                                        operating_unit_default_get(self._uid))
-    requesting_operating_unit_id =\
-        fields.Many2one('operating.unit', 'Requesting Operating Unit',
-                        default=lambda self:
-                        self.env['res.users'].
-                        operating_unit_default_get(self._uid))
+    operating_unit_id = fields.Many2one(
+        comodel_name='operating.unit',
+        string='Operating Unit',
+        default=lambda self:
+        self.env['res.users'].operating_unit_default_get(self._uid))
 
-    picking_type_id = fields.Many2one('stock.picking.type', 'Deliver To',
-                                      help="This will determine picking type "
-                                           "of incoming shipment",
-                                      required=True,
-                                      states={'confirmed':
-                                                  [('readonly', True)],
-                                              'approved': [('readonly', True)],
-                                              'done': [('readonly', True)]},
-                                      default=_get_picking_in)
+    requesting_operating_unit_id =fields.Many2one(
+        comodel_name='operating.unit',
+        string='Requesting Operating Unit',
+        default=lambda self:
+        self.env['res.users'].operating_unit_default_get(self._uid))
+
+    picking_type_id = fields.Many2one(
+        comodel_name='stock.picking.type',
+        string='Deliver To',
+        help="This will determine picking type "
+             "of incoming shipment",
+        required=True,
+        states={'confirmed': [('readonly', True)],
+        'approved': [('readonly', True)],
+        'done': [('readonly', True)]},
+        default=_get_picking_in)
 
     @api.one
     @api.constrains('operating_unit_id', 'picking_type_id')
@@ -63,8 +67,18 @@ class PurchaseOrder(models.Model):
     def _check_company_operating_unit(self):
         if self.company_id and self.operating_unit_id and\
                 self.company_id != self.operating_unit_id.company_id:
-            raise Warning(_('Configuration error!\nThe Company in the\
-            Purchase Order and in the Operating Unit must be the same.'))
+            raise UserError(_(
+                "Configuration error!\nThe Company in the "
+                "Purchase Order and in the Operating Unit must be the same."
+            ))
+
+    @api.onchange('partner_id')
+    def onchange_partner_id(self, partner_id):
+        res = super(PurchaseOrder, self).onchange_partner_id(partner_id)
+        partner = self.env['res.partner'].browse(partner_id)
+        cp = partner.commercial_partner_id
+        if cp.operating_unit_id:
+            res['value']['operating_unit_id'] = cp.operating_unit_id
 
     @api.onchange('operating_unit_id')
     def _onchange_operating_unit_id(self):
@@ -77,9 +91,9 @@ class PurchaseOrder(models.Model):
             if types:
                 self.picking_type_id = types[:1]
             else:
-                raise exceptions.Warning(_("No Warehouse found with the "
-                                           "Operating Unit indicated in the "
-                                           "Purchase Order!"))
+                raise UserError(_(
+                    "No Warehouse found with the Operating Unit "
+                    "indicated in the Purchase Order!"))
 
     @api.one
     def action_picking_create(self):
@@ -102,7 +116,7 @@ class PurchaseOrder(models.Model):
         for po in self:
             for invoice in po.invoice_ids:
                 if invoice.operating_unit_id != po.operating_unit_id:
-                    raise Warning(_('The operating unit of the purchase order '
+                    raise UserError(_('The operating unit of the purchase order '
                                     'must be the same as in the '
                                     'associated invoices.'))
 
@@ -110,9 +124,10 @@ class PurchaseOrder(models.Model):
 class PurchaseOrderLine(models.Model):
     _inherit = 'purchase.order.line'
 
-    operating_unit_id = fields.Many2one('operating.unit',
-                                        related='order_id.operating_unit_id',
-                                        string='Operating Unit', readonly=True)
+    operating_unit_id = fields.Many2one(
+        comodel_name='operating.unit',
+        related='order_id.operating_unit_id',
+        string='Operating Unit', readonly=True)
 
     @api.one
     @api.constrains('invoice_lines')
@@ -122,6 +137,7 @@ class PurchaseOrderLine(models.Model):
                 if inv_line.invoice_id and \
                     inv_line.invoice_id.operating_unit_id != \
                         line.operating_unit_id:
-                    raise Warning(_('The operating unit of the purchase order '
-                                    'must be the same as in the '
-                                    'associated invoices.'))
+                    raise UserError(_(
+                        'The operating unit of the purchase order '
+                        'must be the same as in the '
+                        'associated invoices.'))
