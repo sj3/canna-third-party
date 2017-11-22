@@ -20,7 +20,7 @@
 
 {
     'name': 'Operating Unit - Easy Switch Operating Unit',
-    'version': '8.0.1.0.0',
+    'version': '8.0.1.0.1',
     'category': 'web',
     'author': "ICTSTUDIO, André Schenkels, GRAP,Odoo Community Association (OCA)",
     'website': 'http://www.ictstudio.eu',
