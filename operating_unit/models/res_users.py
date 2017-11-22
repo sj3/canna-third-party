@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # © 2015 Eficent Business and IT Consulting Services S.L.
 # © 2015 Serpent Consulting Services Pvt. Ltd.
+# © 2017 Noviat
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 from openerp import api, fields, models, SUPERUSER_ID
@@ -17,6 +18,24 @@ class ResUsers(models.Model):
             ['operating_unit', 'default_operating_unit_id'])
         return init_res
 
+    operating_unit_ids = fields.Many2many(
+        comodel_name='operating.unit',
+        relation='operating_unit_users_rel',
+        column1='user_id',
+        column2='poid',
+        string='Operating Units',
+        default=lambda self: self._get_operating_units())
+
+    default_operating_unit_id = fields.Many2one(
+        comodel_name='operating.unit',
+        string='Default Operating Unit',
+        default=lambda self: self._get_operating_unit())
+
+    # selection field used by web_easy_switch_operating_unit module
+    operating_unit = fields.Selection(
+        selection=lambda self: self._selection_operating_unit(),
+        string='Operating Unit')
+
     @api.model
     def operating_unit_default_get(self, uid2):
         if not uid2:
@@ -32,33 +51,26 @@ class ResUsers(models.Model):
     def _get_operating_units(self):
         return self._get_operating_unit()
 
-    @api.multi
-    def _operating_units_selection(self):
+    @api.model
+    def _selection_operating_unit(self):
         user = self.browse(self._uid)
         # Allow admin to always pick all operating units.
         # This is required, because SELF_WRITEABLE_FIELDS uses 'uid = 1'
         if user.id == SUPERUSER_ID:
-            return [(o.name, o.name) for o in
+            selection = [(o.code, o.name) for o in
                     self.env['operating.unit'].search([])]
-        return [(o.name, o.name) for o in
-                user.operating_unit_ids]
-
-    operating_unit_ids = fields.Many2many('operating.unit',
-                                          'operating_unit_users_rel',
-                                          'user_id', 'poid', 'Operating Units',
-                                          default=_get_operating_units)
-    default_operating_unit_id = fields.Many2one('operating.unit',
-                                                'Default Operating Unit',
-                                                default=_get_operating_unit)
-    operating_unit = fields.Selection(_operating_units_selection,
-                                      string='Operating Unit')
+        else:
+            selection = [(o.code, o.name) for o in
+                         user.operating_unit_ids]
+        return selection
 
     @api.multi
     def write(self, vals):
-        if vals.get('operating_unit'):
-            operating_unit = self.env['operating.unit'].search(
-                [('name', '=', vals['operating_unit'])])
-            vals['default_operating_unit_id'] = operating_unit.id
-
-        res = super(ResUsers, self).write(vals)
-        return res
+        if 'operating_unit' in vals:
+            if vals.get('operating_unit'):
+                operating_unit = self.env['operating.unit'].search(
+                    [('code', '=', vals['operating_unit'])])
+                vals['default_operating_unit_id'] = operating_unit.id
+            else:
+                vals['default_operating_unit_id'] = False
+        return super(ResUsers, self).write(vals)
