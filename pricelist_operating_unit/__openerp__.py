@@ -7,7 +7,7 @@
     'name': 'Operating Unit in Pricelists',
     'summary': 'An operating unit (OU) is an organizational entity part of a '
                'company',
-    'version': '8.0.1.0.0',
+    'version': '8.0.1.1.0',
     'author': 'Onestein, Noviat, '
               'Odoo Community Association (OCA)',
     'website': 'https://github.com/OCA/operating-unit',
