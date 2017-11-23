@@ -72,13 +72,22 @@ class PurchaseOrder(models.Model):
                 "Purchase Order and in the Operating Unit must be the same."
             ))
 
-    @api.onchange('partner_id')
-    def onchange_partner_id(self, partner_id):
-        res = super(PurchaseOrder, self).onchange_partner_id(partner_id)
-        partner = self.env['res.partner'].browse(partner_id)
+    # @api.onchange('partner_id')
+    # def onchange_partner_id(self, partner_id):
+    # TODO got the following error:
+    # ValueError: "onchange_partner_id() takes exactly 2 arguments (6 given)" while evaluating
+    # Probably because the onchange is driven
+    # by an onchange declaration in the view, while the Odoo 8 API does not
+    # use this. Reverted back to the old API.
+    def onchange_partner_id(self, cr, uid, ids, partner_id, context=None):
+        res = super(PurchaseOrder, self).onchange_partner_id(
+            cr, uid, ids, partner_id, context)
+        partner = self.pool.get('res.partner').browse(cr, uid, partner_id,
+                                                      context)
         cp = partner.commercial_partner_id
         if cp.operating_unit_id:
             res['value']['operating_unit_id'] = cp.operating_unit_id
+        return res
 
     @api.onchange('operating_unit_id')
     def _onchange_operating_unit_id(self):
