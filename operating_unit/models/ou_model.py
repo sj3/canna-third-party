@@ -12,6 +12,7 @@ class OUModel(models.BaseModel):
     """Manages a dynamic domain on all fields of all models,
     so that only records related to the currently selected Operating Unit are
     shown. Let classes that require this functionality inherit this class."""
+    # TODO override all other OU classes.
     # TODO merge into operating_unit.py
     _name = None
     _auto = True  # create database backend
@@ -23,7 +24,8 @@ class OUModel(models.BaseModel):
     def fields_view_get(self, view_id=None, view_type='form', toolbar=False,
                         submenu=False):
         """
-        Override to apply the Operating Unit domain to all relevant fields.
+        Override original method to apply the Operating Unit domain to all
+        relevant fields.
         """
         def modify_domain():
             """
@@ -36,15 +38,14 @@ class OUModel(models.BaseModel):
                 doc = etree.XML(res['arch'])
                 nodes = doc.xpath("//field[@name='%s']" % relation[0])
                 # Get the related model's allowed records.
-                foreign_obj = self.env[relation[1]]
                 # Filter records based on currently set Operating Unit.
-                allowed_recs = foreign_obj.search([
-                    (foreign_column, 'in', user_ous.ids)])
+                allowed_ous = user_ous.ids
                 for node in nodes:
                     # Prepend to original domain.
                     if node.attrib.get('domain'):
                         new_domain = node.attrib['domain'][:1] + \
-                                 "('id', 'in', %s)," % allowed_recs.ids + \
+                                 "('%s', 'in', %s)," % (
+                                     foreign_column, allowed_ous) + \
                                  node.attrib['domain'][1:]
                         node.set('domain', new_domain)
                     # Add domain attribute.
@@ -53,8 +54,8 @@ class OUModel(models.BaseModel):
                             "Domain added to field for OperatingUnit. "
                             "Node: %s" % node.attrib['name']
                         )
-                        node.set('domain', "[('id', 'in', %s),"
-                                           "]" % allowed_recs.ids)
+                        node.set('domain', "[('%s', 'in', %s),]" % (
+                            foreign_column, allowed_ous))
                 res['arch'] = etree.tostring(doc)
 
         res = super(OUModel, self).fields_view_get(
