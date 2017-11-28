@@ -26,17 +26,6 @@ class SaleOrder(models.Model):
             raise UserError(_('Configuration error!\nThe Company in the\
             Sales Order and in the Operating Unit must be the same.'))
 
-    @api.one
-    @api.constrains('operating_unit_id', 'warehouse_id')
-    def _check_wh_operating_unit(self):
-        # Allow not having the Operating Unit set on the warehouse.
-        if self.operating_unit_id \
-                and self.warehouse_id.operating_unit_id \
-                and self.operating_unit_id \
-                != self.warehouse_id.operating_unit_id:
-            raise UserError(_('Configuration error!\nThe Operating Unit \
-            in the Sales Order and in the Warehouse must be the same.'))
-
     @api.onchange('partner_invoice_id')
     def _onchange_partner_invoice_id(self):
         cp = self.partner_invoice_id.commercial_partner_id
