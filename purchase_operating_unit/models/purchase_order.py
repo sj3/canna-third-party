@@ -81,9 +81,9 @@ class PurchaseOrder(models.Model):
     # use this. Reverted back to the old API.
     def onchange_partner_id(self, cr, uid, ids, partner_id, context=None):
         res = super(PurchaseOrder, self).onchange_partner_id(
-            cr, uid, ids, partner_id, context)
+            cr, uid, ids, partner_id, context=context)
         partner = self.pool.get('res.partner').browse(cr, uid, partner_id,
-                                                      context)
+                                                      context=context)
         cp = partner.commercial_partner_id
         if cp.operating_unit_id:
             res['value']['operating_unit_id'] = cp.operating_unit_id
