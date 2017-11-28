@@ -19,7 +19,6 @@
             <field name="inherit_id" ref="purchase.purchase_order_form" />
             <field name="arch" type="xml">
                 <field name="partner_ref" position="after">
-                    <field name="requesting_operating_unit_id" groups="operating_unit.group_multi_operating_unit"/>
                     <field name="operating_unit_id" groups="operating_unit.group_multi_operating_unit"/>
                 </field>
                 <xpath expr="//field[@name='order_line']"
