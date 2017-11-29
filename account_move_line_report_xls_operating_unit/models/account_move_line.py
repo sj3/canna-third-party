@@ -21,10 +21,11 @@
 ##############################################################################
 
 from openerp import api, models, _
+from openerp.addons.operating_unit.models import ou_model
 from openerp.addons.report_xls.utils import _render
 
 
-class AccountMoveLine(models.Model):
+class AccountMoveLine(ou_model.OUModel):
     _inherit = 'account.move.line'
 
     @api.model

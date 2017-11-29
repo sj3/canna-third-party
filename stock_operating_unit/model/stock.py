@@ -5,10 +5,11 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 from openerp.tools.translate import _
 from openerp import api, fields, models
+from openerp.addons.operating_unit.models import ou_model
 from openerp.exceptions import Warning
 
 
-class StockWarehouse(models.Model):
+class StockWarehouse(ou_model.OUModel):
     _inherit = "stock.warehouse"
 
     operating_unit_id = fields.Many2one('operating.unit',
@@ -18,7 +19,7 @@ class StockWarehouse(models.Model):
                                         operating_unit_default_get(self._uid))
 
 
-class StockLocation(models.Model):
+class StockLocation(ou_model.OUModel):
     _inherit = 'stock.location'
 
     operating_unit_id = fields.Many2one('operating.unit',
@@ -77,7 +78,7 @@ class StockLocation(models.Model):
                 Stock Location must belong to the same Operating Unit.'))
 
 
-class StockPicking(models.Model):
+class StockPicking(ou_model.OUModel):
     _inherit = 'stock.picking'
 
     operating_unit_id = fields.Many2one('operating.unit',
@@ -116,7 +117,7 @@ class StockPicking(models.Model):
                 that belongs to the requesting Operating Unit.'))
 
 
-class StockMove(models.Model):
+class StockMove(ou_model.OUModel):
     _inherit = 'stock.move'
 
     operating_unit_id =\

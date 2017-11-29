@@ -6,10 +6,11 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 from openerp import api, fields, models, _
+from openerp.addons.operating_unit.models import ou_model
 from openerp.exceptions import Warning as UserError
 
 
-class ResCompany(models.Model):
+class ResCompany(ou_model.OUModel):
     _inherit = 'res.company'
 
     inter_ou_clearing_account_id = fields.Many2one(

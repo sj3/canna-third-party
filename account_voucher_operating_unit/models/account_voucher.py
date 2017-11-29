@@ -5,10 +5,11 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 from openerp import api, fields, models, _
+from openerp.addons.operating_unit.models import ou_model
 from openerp.exceptions import Warning
 
 
-class AccountVoucher(models.Model):
+class AccountVoucher(ou_model.OUModel):
     _inherit = "account.voucher"
 
     @api.multi
@@ -170,7 +171,7 @@ class AccountVoucher(models.Model):
         return res
 
 
-class AccountVoucherLine(models.Model):
+class AccountVoucherLine(ou_model.OUModel):
     _inherit = "account.voucher.line"
 
     operating_unit_id = fields.Many2one(

@@ -4,9 +4,10 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from openerp import fields, models
+from openerp.addons.operating_unit.models import ou_model
 
 
-class ProductPricelist(models.Model):
+class ProductPricelist(ou_model.OUModel):
     _inherit = 'product.pricelist'
 
     operating_unit_id = fields.Many2one(
@@ -17,7 +18,7 @@ class ProductPricelist(models.Model):
     )
 
 
-class ProductPricelistVersion(models.Model):
+class ProductPricelistVersion(ou_model.OUModel):
     _inherit = 'product.pricelist.version'
 
     operating_unit_id = fields.Many2one(
@@ -27,7 +28,7 @@ class ProductPricelistVersion(models.Model):
         readonly=True)
 
 
-class ProductPricelistItem(models.Model):
+class ProductPricelistItem(ou_model.OUModel):
     _inherit = 'product.pricelist.item'
 
     operating_unit_id = fields.Many2one(

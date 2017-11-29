@@ -21,9 +21,10 @@
 ##############################################################################
 
 from openerp import api, fields, models
+from openerp.addons.operating_unit.models import ou_model
 
 
-class AccountBankStatementLine(models.Model):
+class AccountBankStatementLine(ou_model.OUModel):
     _inherit = 'account.bank.statement.line'
 
     operating_unit_id = fields.Many2one(

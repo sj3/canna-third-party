@@ -1,7 +1,7 @@
-# # -*- coding: utf-8 -*-
-# # Copyright 2009-2017 Noviat.
-# # Copyright 2009-2017 Onestein BV.
-# # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+# -*- coding: utf-8 -*-
+# Copyright 2017 Noviat.
+# Copyright 2017 Onestein BV.
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 from openerp import api, fields, models, SUPERUSER_ID
 from lxml import etree
 import logging
@@ -11,9 +11,9 @@ _logger = logging.getLogger(__name__)
 class OUModel(models.BaseModel):
     """Manages a dynamic domain on all fields of all models,
     so that only records related to the currently selected Operating Unit are
-    shown. Let classes that require this functionality inherit this class."""
-    # TODO override all other OU classes.
-    # TODO merge into operating_unit.py
+    shown. Let classes that require this functionality inherit this class.
+    Based on ideas from geoengine modules.
+    """
     _name = None
     _auto = True  # create database backend
     # Not visible in ORM registry, meant to be python-inherited only:

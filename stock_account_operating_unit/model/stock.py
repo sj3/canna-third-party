@@ -4,11 +4,12 @@
 # © 2015 Serpent Consulting Services Pvt. Ltd. - Sudhir Arya
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 from openerp import api, fields, models
+from openerp.addons.operating_unit.models import ou_model
 from openerp.tools.translate import _
 from openerp.exceptions import Warning
 
 
-class StockQuant(models.Model):
+class StockQuant(ou_model.OUModel):
     _inherit = 'stock.quant'
 
     @api.model

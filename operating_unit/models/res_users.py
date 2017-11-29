@@ -5,9 +5,10 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 from openerp import api, fields, models, SUPERUSER_ID
+from openerp.addons.operating_unit.models import ou_model
 
 
-class ResUsers(models.Model):
+class ResUsers(ou_model.OUModel):
     _inherit = 'res.users'
 
     def __init__(self, pool, cr):

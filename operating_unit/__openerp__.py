@@ -21,6 +21,7 @@
         "security/operating_unit.xml",
         "security/res_partner.xml",
         "security/ir.model.access.csv",
+        "views/ir_property.xml",
         "views/operating_unit.xml",
         "views/res_partner.xml",
         "views/res_users.xml",

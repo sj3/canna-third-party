@@ -4,9 +4,10 @@
 # © 2015 Serpent Consulting Services Pvt. Ltd. - Sudhir Arya
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 from openerp import api, models
+from openerp.addons.operating_unit.models import ou_model
 
 
-class StockMove(models.Model):
+class StockMove(ou_model.OUModel):
     _inherit = 'stock.move'
 
     @api.model

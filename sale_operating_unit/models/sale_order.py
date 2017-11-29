@@ -6,10 +6,11 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 from openerp import api, fields, models, _
+from openerp.addons.operating_unit.models import ou_model
 from openerp.exceptions import Warning as UserError
 
 
-class SaleOrder(models.Model):
+class SaleOrder(ou_model.OUModel):
     _inherit = 'sale.order'
 
     operating_unit_id = fields.Many2one(
@@ -40,7 +41,7 @@ class SaleOrder(models.Model):
         return inv_id
 
 
-class SaleOrderLine(models.Model):
+class SaleOrderLine(ou_model.OUModel):
     _inherit = 'sale.order.line'
 
     operating_unit_id = fields.Many2one(
