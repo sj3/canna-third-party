@@ -48,3 +48,12 @@ class SaleOrderLine(models.Model):
         related='order_id.operating_unit_id',
         string='Operating Unit',
         readonly=True)
+
+    @api.model
+    def _prepare_order_line_invoice_line(self, line, account_id=False):
+        vals = super(SaleOrderLine, self)._prepare_order_line_invoice_line(
+            line, account_id=account_id)
+        if not vals.get('operating_unit_id') \
+                and line.order_id.operating_unit_id:
+            vals['operating_unit_id'] = line.order_id.operating_unit_id.id
+        return vals
