@@ -3,10 +3,9 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from openerp import api, fields, models
-from openerp.addons.operating_unit.models import ou_model
 
 
-class ResPartner(ou_model.OUModel):
+class ResPartner(models.Model):
     _inherit = 'res.partner'
 
     operating_unit_id = fields.Many2one(

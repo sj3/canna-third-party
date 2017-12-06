@@ -5,11 +5,10 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 from openerp import api, fields, models, _
-from openerp.addons.operating_unit.models import ou_model
 from openerp.exceptions import Warning as UserError
 
 
-class PurchaseOrder(ou_model.OUModel):
+class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
     operating_unit_id = fields.Many2one(
@@ -39,7 +38,7 @@ class PurchaseOrder(ou_model.OUModel):
         return res
 
 
-class PurchaseOrderLine(ou_model.OUModel):
+class PurchaseOrderLine(models.Model):
     _inherit = 'purchase.order.line'
 
     operating_unit_id = fields.Many2one(

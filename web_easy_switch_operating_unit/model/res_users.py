@@ -19,10 +19,9 @@
 ##############################################################################
 
 from openerp.osv.orm import Model
-from openerp.addons.operating_unit.models import ou_model
 
 
-class res_users(ou_model.OUModel):
+class res_users(Model):
     _inherit = 'res.users'
 
     # Custom Function Section

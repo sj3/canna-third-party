@@ -6,10 +6,9 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 from openerp import api, fields, models
-from openerp.addons.operating_unit.models import ou_model
 
 
-class AccountInvoiceLine(ou_model.OUModel):
+class AccountInvoiceLine(models.Model):
     _inherit = 'account.invoice.line'
 
     operating_unit_id = fields.Many2one(

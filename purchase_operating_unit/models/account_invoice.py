@@ -5,10 +5,9 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 from openerp import api, models
-from openerp.addons.operating_unit.models import ou_model
 
 
-class AccountInvoice(ou_model.OUModel):
+class AccountInvoice(models.Model):
     _inherit = 'account.invoice'
 
     # Load all unsold PO lines
