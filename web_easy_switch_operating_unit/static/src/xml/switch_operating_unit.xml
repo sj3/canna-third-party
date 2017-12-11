@@ -12,6 +12,13 @@
                     <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu">
+                  <li>
+                    <a class="easy_switch_operating_unit_operating_unit_item"
+                       href="#">
+                       <img class="oe_topbar_avatar" src="/web/static/src/img/icons/gtk-cancel.png"/>
+                       Clear Operating Unit
+                     </a>
+                   </li>
                     <t t-foreach="widget.operating_units" t-as="operating_unit">
                         <li>
                             <a class="easy_switch_operating_unit_operating_unit_item"
@@ -27,4 +34,3 @@
         </ul>
     </t>
 </template>
-

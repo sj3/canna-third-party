@@ -26,7 +26,7 @@ class WebEasySwitchOperatingUnitController(http.Controller):
     @http.route(
         '/web_easy_switch_operating_unit/switch/change_current_operating_unit',
         type='json', auth='none')
-    def change_current_operating_unit(self, operating_unit_id):
+    def change_current_operating_unit(self, operating_unit_id=False):
         registry = openerp.modules.registry.RegistryManager.get(
             request.session.db)
         uid = request.session.uid
