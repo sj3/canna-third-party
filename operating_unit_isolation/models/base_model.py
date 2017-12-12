@@ -28,12 +28,12 @@ class BaseModelExtend(models.AbstractModel):
                             context['record']['_field']],
                         'operating_unit_isolation').split('.')
                     filter_ou = False
-                    if len(isolation) > 1:
+                    if len(isolation) == 2:
                         if isolation[0] == context[
                                 'parent_record']['_o2m']:
                             filter_ou = context[
                                 'parent_record'][isolation[1]]
-                    else:
+                    elif len(isolation) == 1:
                         filter_ou = context['record'][isolation[0]]
 
                     if filter_ou:

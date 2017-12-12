@@ -19,7 +19,9 @@ openerp.web_context_full = function (instance) {
       }
       if (this.field_manager.dataset && this.field_manager.dataset.parent_view) {
         extra_context['parent_record']['_name'] = this.field_manager.dataset.parent_view.model;
-        extra_context['parent_record']['_o2m'] = this.field_manager.dataset.o2m.name;
+        if (this.field_manager.dataset.o2m.field.relation_field) {
+          extra_context['parent_record']['_o2m'] = this.field_manager.dataset.o2m.field.relation_field;
+        }
         $.each(this.field_manager.dataset.parent_view.fields, function (key, value) {
           extra_context['parent_record'][key] = value.get_value();
         });
