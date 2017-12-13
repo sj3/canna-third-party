@@ -7,7 +7,7 @@
 
 {
     "name": 'Accounting with Operating Units',
-    "version": "8.0.1.1.0",
+    "version": "8.0.1.1.1",
     "summary": "Introduces Operating Unit fields in invoices and "
                "Accounting Entries with clearing account",
     "author": "Eficent Business and IT Consulting Services S.L., "

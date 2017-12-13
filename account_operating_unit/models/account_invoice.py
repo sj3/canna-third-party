@@ -42,4 +42,14 @@ class AccountInvoice(models.Model):
         res = super(AccountInvoice, self).line_get_convert(line, part, date)
         if 'operating_unit_id' in line:
             res['operating_unit_id'] = line['operating_unit_id']
+        else:
+            if line.get('type') == 'dest' and self.operating_unit_id:
+                res['operating_unit_id'] = self.operating_unit_id.id
+        return res
+
+    @api.multi
+    def action_move_create(self):
+        res = super(AccountInvoice, self).action_move_create()
+        for inv in self:
+            inv.move_id.operating_unit_id = inv.operating_unit_id
         return res
