@@ -43,7 +43,7 @@ class AccountInvoice(models.Model):
         if 'operating_unit_id' in line:
             res['operating_unit_id'] = line['operating_unit_id']
         else:
-            if line.get('type') == 'dest' and self.operating_unit_id:
+            if line.get('type') in ['dest', 'tax'] and self.operating_unit_id:
                 res['operating_unit_id'] = self.operating_unit_id.id
         return res
 
