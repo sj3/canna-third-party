@@ -17,10 +17,12 @@ class BaseModelExtend(models.AbstractModel):
 
             if 'operating_unit_id' in self._fields:
                 if context.get('record', {}).get('_field', False) \
+                   and self.pool.get(context['record']['_name']) \
+                   and context['record']['_field'] in self.pool.get(
+                       context['record']['_name'])._fields \
                    and getattr(
-                       self.pool.get(
-                           context['record']['_name'])._fields[
-                               context['record']['_field']],
+                       self.pool.get(context['record']['_name'])._fields[
+                           context['record']['_field']],
                        'operating_unit_isolation',
                        False):
                     isolation = getattr(
