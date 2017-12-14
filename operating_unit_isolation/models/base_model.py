@@ -34,9 +34,9 @@ class BaseModelExtend(models.AbstractModel):
                         if isolation[0] == context[
                                 'parent_record']['_o2m']:
                             filter_ou = context[
-                                'parent_record'][isolation[1]]
+                                'parent_record'].get(isolation[1], False)
                     elif len(isolation) == 1:
-                        filter_ou = context['record'][isolation[0]]
+                        filter_ou = context['record'].get(isolation[0], False)
 
                     if filter_ou:
                         args.append((
