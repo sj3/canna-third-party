@@ -45,7 +45,6 @@ class PurchaseOrderLine(models.Model):
         comodel_name='operating.unit',
         related='order_id.operating_unit_id',
         string='Operating Unit',
-        store=True,
         readonly=True)
 
     @api.one
