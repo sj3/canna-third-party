@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2009-2017 Noviat
+# Copyright 2009-2018 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from openerp import api, fields, models, _
@@ -22,7 +22,10 @@ class HrExpenseExpense(models.Model):
         exp = self.env['account.journal'].search(
             [('hr_expense', '=', True)])
         if exp:
-            res['value']['journal_id'] = exp[0].id
+            if 'value' not in res:
+                res['value'] = {'journal_id': exp[0].id}
+            else:
+                res['value']['journal_id'] = exp[0].id
         return res
 
     @api.model
