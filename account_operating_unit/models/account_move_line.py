@@ -33,4 +33,6 @@ class AccountMoveLine(models.Model):
             operating_unit_ids = self.env.context.get('operating_unit_ids')
             query += 'AND ' + obj + '.operating_unit_id in (%s)' % (
                 ','.join(map(str, operating_unit_ids)))
+        elif self.env.context.get('no_operating_unit'):
+            query += 'AND ' + obj + '.operating_unit_id IS NULL'
         return query

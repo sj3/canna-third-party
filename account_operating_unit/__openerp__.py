@@ -2,12 +2,12 @@
 # © 2016-17 Eficent Business and IT Consulting Services S.L.
 # © 2016 Serpent Consulting Services Pvt. Ltd.
 # © 2016 Onestein BV
-# © 2016-2017 Noviat
+# © 2016-2018 Noviat
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 {
     "name": 'Accounting with Operating Units',
-    "version": "8.0.1.1.2",
+    "version": "8.0.1.1.3",
     "summary": "Introduces Operating Unit fields in invoices and "
                "Accounting Entries with clearing account",
     "author": "Eficent Business and IT Consulting Services S.L., "
