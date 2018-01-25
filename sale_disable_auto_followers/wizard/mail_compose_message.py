@@ -19,7 +19,8 @@ class MailComposeMessage(models.TransientModel):
             # block auto-subscription
             ctx = dict(context,
                        mail_create_nosubscribe=True,
-                       mail_post_autofollow=False)
+                       mail_post_autofollow=False,
+                       disable_message_subscribe=True)
             if context['default_model'] == 'sale.order' \
                     and context.get('mark_so_as_sent'):
                 so = self.env['sale.order'].browse(context['default_res_id'])
