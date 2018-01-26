@@ -17,6 +17,7 @@ class BaseModelExtend(models.AbstractModel):
 
             if 'operating_unit_id' in self._fields:
                 if context.get('record', {}).get('_field', False) \
+                   and '_name' in context['record'] \
                    and self.pool.get(context['record']['_name']) \
                    and context['record']['_field'] in self.pool.get(
                        context['record']['_name'])._fields \
