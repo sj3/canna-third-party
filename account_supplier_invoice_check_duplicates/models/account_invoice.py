@@ -25,6 +25,7 @@ class AccountInvoice(models.Model):
             ('date_invoice', '=', self.date_invoice),
             ('amount_total', '=', self.amount_total),
             ('state', 'in', ['open', 'paid']),
+            ('force_encoding', '!=', True),
             ('id', '!=', self.id)]
 
     def _get_dup(self):
