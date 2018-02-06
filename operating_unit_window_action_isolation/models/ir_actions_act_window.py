@@ -13,8 +13,10 @@ class IrActionsAct_window(models.Model):
         if isinstance(res, list):
             act = res[0]
 
-        if act.get('res_model', False) and \
-           'operating_unit_id' in self.pool.get(act['res_model'])._fields:
+        if uid != SUPERUSER_ID and \
+           act.get('res_model', False) and \
+           self.pool.get(act['res_model'], False) and \
+           'operating_unit_id' in self.pool[act['res_model']]._fields:
 
             user_ou = self.pool.get('res.users').read(
                 cr, SUPERUSER_ID, uid, [
