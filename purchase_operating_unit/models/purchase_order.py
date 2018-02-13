@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # © 2015 Eficent Business and IT Consulting Services S.L. -
 # © 2015 Serpent Consulting Services Pvt. Ltd.
-# © 2017 Noviat
+# © 2017-2018 Noviat
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 from openerp import api, fields, models, _
@@ -36,6 +36,14 @@ class PurchaseOrder(models.Model):
         if order.operating_unit_id:
             res['operating_unit_id'] = order.operating_unit_id.id
         return res
+
+    @api.model
+    def _prepare_inv_line(self, account_id, order_line):
+        vals = super(PurchaseOrder, self)._prepare_inv_line(
+            account_id, order_line)
+        if order_line.operating_unit_id:
+            vals['operating_unit_id'] = order_line.operating_unit_id.id
+        return vals
 
 
 class PurchaseOrderLine(models.Model):

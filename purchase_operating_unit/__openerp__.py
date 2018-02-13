@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 # © 2015 Eficent Business and IT Consulting Services S.L. -
 # © 2015 Serpent Consulting Services Pvt. Ltd.
-# © 2017 Noviat
+# © 2017-2018 Noviat
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 {
     "name": "Operating Unit in Purchase Orders",
     "summary": "An operating unit (OU) is an organizational entity part of a\
         company",
-    "version": "8.0.1.2.0",
+    "version": "8.0.1.2.1",
     "author": "Eficent, Serpent Consulting Services Pvt. Ltd.,"
               "Noviat,"
               "Odoo Community Association (OCA)",
