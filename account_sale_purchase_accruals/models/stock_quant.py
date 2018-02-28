@@ -39,6 +39,8 @@ class StockQuant(models.Model):
                                   debit_account_id, journal_id):
         ctx = dict(self._context,
                    picking_id=move.picking_id.id,
-                   create_from_picking=True)
+                   create_from_picking=True,
+                   inventory_id=move.inventory_id.id,
+                   create_from_inventory=True)
         super(StockQuant, self.with_context(ctx))._create_account_move_line(
             quants, move, credit_account_id, debit_account_id, journal_id)
