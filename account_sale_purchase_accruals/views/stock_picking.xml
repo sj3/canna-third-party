@@ -10,7 +10,7 @@
         <notebook position="inside">
           <page string="Accounting" groups="account.group_account_manager">
             <label for="valuation_move_ids"/>
-            <field name="valuation_move_ids" nolabem="1"/>
+            <field name="valuation_move_ids" nolabel="1"/>
           </page>
         </notebook>
       </field>
