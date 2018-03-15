@@ -33,7 +33,8 @@ class AccountMove(models.Model):
             ref = vals.get('ref') or inventory.name
             vals.update({
                 'inventory_id': inventory_id,
-                'ref': ref.strip()})
+                'ref': ref.strip() if ref else '',
+            })
         if context.get('invoice'):
             ref = ''
             inv = context.get('invoice')
