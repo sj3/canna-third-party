@@ -1,0 +1,42 @@
+.navbar {
+background-color: #F38B42;
+}
+.navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > .active > a:focus {
+color: #fff;
+background-color: #C04F01;
+}
+.navbar-inverse {
+border-color: #F38B42;
+}
+
+.navbar-inverse .navbar-nav > li > a {
+color: #FFF;
+}
+
+.openerp .nav-pills > li.active > a, .openerp a.list-group-item.active > a {
+background-color: #F38B42;
+}
+.openerp .nav-pills > li.active a:hover, .openerp .nav-pills > li.active a:focus, .openerp a.list-group-item.active a:hover, .openerp a.list-group-item.active a:focus {
+background-color: #C04F01;
+}
+.openerp .oe_secondary_menu_section {
+color: #F38B42;
+}
+
+.openerp .oe_application a {
+color: #F38B42;
+}
+
+.openerp .oe_stat_button:hover {
+background: #C04F01;
+}
+.openerp .oe_view_manager table.oe_view_manager_header h2 a {
+color: #F38B42;
+}
+
+.openerp .oe_form .oe_form_required input:not([disabled]):not([readonly]), .openerp .oe_form .oe_form_required select:not([disabled]):not([readonly]), .openerp .oe_form .oe_form_required textarea:not([disabled]):not([readonly]) {
+background-color: #FFE6D2 !important;
+}
+.openerp .oe_form_editable .oe_list_editable .oe_list_content td.oe_required {
+background-color: #FFE6D2;
+}
