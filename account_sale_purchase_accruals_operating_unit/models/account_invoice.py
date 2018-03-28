@@ -10,7 +10,7 @@ class AccountInvoice(models.Model):
 
     def _accrual_hashcode_fields(self, entry):
         res = super(AccountInvoice, self)._accrual_hashcode_fields(entry)
-        res['operating_unit_id'] = entry['operating_unit_id'] or False,
+        res['operating_unit_id'] = entry.get('operating_unit_id', False)
         return res
 
     def _update_accrual_move_line_vals(self, entry):
