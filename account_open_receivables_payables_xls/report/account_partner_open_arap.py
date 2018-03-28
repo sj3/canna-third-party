@@ -5,7 +5,7 @@
 from datetime import datetime
 
 from openerp import api, fields, models, _
-from openerp.exceptions import Warning as UserError
+from openerp.exceptions import except_orm
 from openerp.report import report_sxw
 
 import logging
@@ -211,8 +211,8 @@ class AccountPartnerOpenArap(report_sxw.rml_parse):
 
         reports = filter(lambda x: x.get('partners'), reports)
         if not reports:
-            raise UserError(
-                _('No Data Available') + '\n' +
+            raise except_orm(
+                _('No Data Available'),
                 _('No records found for your selection!'))
 
         report_date = fields.Datetime.context_timestamp(wiz, datetime.now())
