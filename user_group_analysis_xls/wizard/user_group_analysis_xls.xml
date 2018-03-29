@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="user_group_analysis_xls_form" model="ir.ui.view">
+            <field name="model">user.group.analysis.xls</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group string="Generate analysis XLS" name="input_data" attrs="{'invisible': [('xlsfile', '!=', False)]}">
+                        </group>
+                        <group name="output_data" attrs="{'invisible': [('xlsfile', '=', False)]}">
+                            <field name="xlsfile" filename="xlsfile_name" />
+                            <field name="xlsfile_name" invisible="1" />
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button type="object" name="button_generate" string="Generate xls" class="oe_highlight" attrs="{'invisible': [('xlsfile', '!=', False)]}" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <act_window name="Users/Groups Analysis xls"
+                res_model="user.group.analysis.xls"
+                src_model="res.users"
+                view_mode="form"
+                target="new"
+                key2="client_action_multi"
+                id="action_user_group_analysis_xls"/>
+    </data>
+</openerp>
