@@ -4,7 +4,7 @@
 
 {
     'name': 'Overdue Payments customisation',
-    'version': '8.0.1.2.0',
+    'version': '8.0.1.2.1',
     'license': 'AGPL-3',
     'author': 'Noviat',
     'category': 'Accounting & Finance',

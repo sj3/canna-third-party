@@ -49,7 +49,8 @@ class OverduePaymentWizard(models.TransientModel):
         return self.env.user.company_id
 
     @api.multi
-    def overdue_payment_print(self, report=None):
+    def overdue_payment_print(self):
+        report = self._context.get('report_ref')
         company_id = self.company_id.id
         partner_select = self.partner_select
         account_select = self.account_select
