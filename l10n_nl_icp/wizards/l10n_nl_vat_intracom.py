@@ -73,7 +73,7 @@ class l10nNlVatIntracom(models.TransientModel):
         groupby = ['partner_id']
 
         aml_dom = self._get_move_line_date_domain()
-        S_dom, L_dom, T_dom = self._get_move_line_tax_domains()
+        S_dom, L_dom, T_dom, O_dom = self._get_move_line_tax_domains()
         S_data = self.env['account.move.line'].read_group(
             aml_dom + S_dom, flds, groupby)
         for entry in S_data:
@@ -86,9 +86,13 @@ class l10nNlVatIntracom(models.TransientModel):
             aml_dom + T_dom, flds, groupby)
         for entry in T_data:
             entry['code'] = 'T'
+        O_data = self.env['account.move.line'].read_group(
+            aml_dom + O_dom, flds, groupby)
+        for entry in O_data:
+            entry['code'] = '-'
 
         records = {}
-        for entry in S_data + L_data + T_data:
+        for entry in S_data + L_data + T_data + O_data:
             partner = self.env['res.partner'].browse(entry['partner_id'][0])
             vat = self._normalise_vat(partner.vat)
             if vat in records:
@@ -123,13 +127,14 @@ class l10nNlVatIntracom(models.TransientModel):
         dom = [('tax_code_id', 'in', tax_codes.ids)]
         S_dom = dom + [('product_id.type', '=', 'service')]
         L_dom = dom + [('product_id.type', 'in', ['product', 'consu'])]
+        O_dom = dom + [('product_id', '=', False)]
 
         tax_code = '3b-T'
         tax_codes = self.env['account.tax.code'].search(
             [('code', '=', tax_code)])
         T_dom = [('tax_code_id', 'in', tax_codes.ids)]
 
-        return S_dom, L_dom, T_dom
+        return S_dom, L_dom, T_dom, O_dom
 
     def _get_intra_list(self):
         intra_list = {}
@@ -165,7 +170,7 @@ class l10nNlVatIntracomClient(models.TransientModel):
     vat = fields.Char(
         string='VAT Number', readonly=1)
     code = fields.Selection(
-        selection=[('L', 'L'), ('S', 'S'), ('T', 'T')],
+        selection=[('L', 'L'), ('S', 'S'), ('T', 'T'), ('-', '-')],
         readonly=1)
     amount = fields.Float(
         string='Amount',
@@ -182,7 +187,7 @@ class l10nNlVatIntracomClient(models.TransientModel):
         aml_dom = self.intracom_id._get_move_line_date_domain()
         aml_dom += [('partner_id', '=', self.partner_id.id)]
         tax_doms = self.intracom_id._get_move_line_tax_domains()
-        i = ['S', 'L', 'T'].index(self.code)
+        i = ['S', 'L', 'T', '-'].index(self.code)
         act_window['domain'] = aml_dom + tax_doms[i]
         return act_window
 
@@ -287,7 +292,7 @@ class l10nNlVatIntracomXlsx(AbstractReportXlsx):
         row_pos += 1
         ws.write_string(row_pos, 1, self._('VAT Number') + ':',
                         self.format_left_bold)
-        ws.write_string(row_pos, 2, listing.company_id.vat or 'n/a')
+        ws.write_string(row_pos, 2, listing.company_id.vat or '-')
         row_pos += 1
         ws.write_string(row_pos, 1, self._('Period') + ':',
                         self.format_left_bold)

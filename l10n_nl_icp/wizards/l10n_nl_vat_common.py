@@ -166,7 +166,9 @@ class l10nNLVatCommon(models.AbstractModel):
         aml_dom = [
             ('company_id', '=', self.company_id.id),
             ('date', '>=', self.date_from),
-            ('date', '<=', self.date_to)]
+            ('date', '<=', self.date_to),
+            '|', ('debit', '>', 0), ('credit', '>', 0),
+        ]
         return aml_dom
 
     def _get_company_data(self):
