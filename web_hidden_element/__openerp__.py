@@ -14,7 +14,8 @@
     ],
     'data': [
         'security/ir.model.access.csv',
-        'views/hidden_template_view.xml'
+        'security/res_groups.xml',
+        'views/hidden_template_view.xml',
     ],
     'installable': True,
     'auto_install': False
