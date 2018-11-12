@@ -6,8 +6,8 @@
 Web Hidden Element
 ==================
 
-This module allow hide fields to all users or groups, or to a specific user or
-group, without change the views.
+This module allows to hide fields and other view elements to all users or groups, or to a specific user or
+group, without changing the view XML files.
 
 Inspired by web_hidden_element by Ignacio Ibeas <ignacio@acysos.com>
 
@@ -24,15 +24,13 @@ Don't need any special configuration.
 Usage
 =====
 
-Go to Settings -> Security -> Hidden Fields -> Hidden Fields.
-Create a new template and select the model and the fields that you want to 
+Go to Settings -> Security -> Hidden Elements -> Hidden Elements.
+Create a new template and select the model and the fields and elements that you want to 
 hide. 
-If you don't select any user or group, the field is hidden for all users. If
-you select any user the field is hidden for these users. If you select any 
-group the field is hidden for these groups. The user is more restrictive that 
+If you don't select any user or group, the field/element is hidden for all users. If
+you select any user the field is hidden for this user. If you select any 
+group the field is hidden for this group. The user is more restrictive than 
 the group.
-If the field isn't required, it is removed from view. If it's required the
-field is invisible.
 
 .. image:: https://odoo-community.org/website/image/ir.attachment/5784_f2813bd/datas
    :alt: Try me on Runbot
