@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-# Copyright 2017 Ignacio Ibeas <ignacio@acysos.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 {
-    'name': 'Web Hidden Fields',
+    'name': 'Web Hidden Element',
     'version': '8.0.1.0.0',
     'category': 'Web',
-    'author': 'Acysos S.L., Odoo Community Association (OCA)',
+    'author': 'Odoo Community Association (OCA)',
     'website': 'https://github.com/OCA/web',
     'license': 'AGPL-3',
     'depends': [
@@ -15,7 +14,7 @@
     'data': [
         'security/ir.model.access.csv',
         'security/res_groups.xml',
-        'views/hidden_template_view.xml',
+        'views/web_hidden_template_view.xml',
     ],
     'installable': True,
     'auto_install': False

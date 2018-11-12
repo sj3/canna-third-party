@@ -5,7 +5,7 @@ from openerp import models, fields
 
 
 class HiddenTemplateElement(models.Model):
-    _name = 'hidden.template.element'
+    _name = 'web.hidden.template.element'
     _description = 'Hidden template element'
     _order = 'sequence'
 
@@ -19,7 +19,7 @@ class HiddenTemplateElement(models.Model):
     users = fields.Many2many(
         comodel_name='res.users',
         string='Users',
-        relation='hidden_element_user',
+        relation='web_hidden_element_user',
         column1='hidden_element',
         column2='hidden_user',
         help="If you don't select any user, the element"
@@ -28,7 +28,7 @@ class HiddenTemplateElement(models.Model):
     groups = fields.Many2many(
         comodel_name='res.groups',
         string='Groups',
-        relation='hidden_element_group',
+        relation='web_hidden_element_group',
         column1='hidden_element',
         column2='hidden_group',
         help="If you don't select any group, the element"
@@ -46,7 +46,7 @@ class HiddenTemplateElement(models.Model):
         related='template_id.company_id')
 
     template_id = fields.Many2one(
-        comodel_name='hidden.template',
+        comodel_name='web.hidden.template',
         ondelete='cascade')
 
     hidden = fields.Boolean(

@@ -1,7 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_hidden_template_user,web.hidden.fields.template.user,model_hidden_template,,1,0,0,0
-access_hidden_template_manager,web.hidden.fields.template.manager,model_hidden_template,base.group_erp_manager,1,1,1,1
-access_hidden_template_fields_user,web.hidden.fields.template.fields.user,model_hidden_template_field,,1,0,0,0
-access_hidden_template_fields_manager,web.hidden.fields.template.fields.manager,model_hidden_template_field,base.group_erp_manager,1,1,1,1
-access_hidden_template_element_user,web.hidden.fields.template.element.user,model_hidden_template_element,,1,0,0,0
-access_hidden_template_element_manager,web.hidden.fields.template.element.manager,model_hidden_template_element,base.group_erp_manager,1,1,1,1
+access_hidden_template_user,web.hidden.fields.template.user,model_web_hidden_template,,1,0,0,0
+access_hidden_template_manager,web.hidden.fields.template.manager,model_web_hidden_template,base.group_erp_manager,1,1,1,1
+access_hidden_template_fields_user,web.hidden.fields.template.fields.user,model_web_hidden_template_field,,1,0,0,0
+access_hidden_template_fields_manager,web.hidden.fields.template.fields.manager,model_web_hidden_template_field,base.group_erp_manager,1,1,1,1
+access_hidden_template_element_user,web.hidden.fields.template.element.user,model_web_hidden_template_element,,1,0,0,0
+access_hidden_template_element_manager,web.hidden.fields.template.element.manager,model_web_hidden_template_element,base.group_erp_manager,1,1,1,1

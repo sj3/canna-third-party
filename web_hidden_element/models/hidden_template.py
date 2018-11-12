@@ -5,7 +5,7 @@ from openerp import models, fields
 
 
 class HiddenTemplate(models.Model):
-    _name = 'hidden.template'
+    _name = 'web.hidden.template'
     _description = 'Hidden template'
 
     def _default_company(self):

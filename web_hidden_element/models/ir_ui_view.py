@@ -89,12 +89,12 @@ class IrUiView(models.Model):
                         node.attrib.pop('sum')
                     node.set(
                         'groups',
-                        'web_hidden_field.group_hidden_fields_no_one')
+                        'web_hidden_element.group_hidden_fields_no_one')
             if node.tag in ['button', 'page'] and node.get('name'):
                 if self._check_hidden_element(model, node):
                     node.set(
                         'groups',
-                        'web_hidden_field.group_hidden_fields_no_one')
+                        'web_hidden_element.group_hidden_fields_no_one')
 
         fields = super(IrUiView, self).postprocess(
             model, node, view_id, in_tree_view, model_fields)
