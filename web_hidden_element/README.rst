@@ -9,7 +9,7 @@ Web Hidden Element
 This module allows to hide fields and other view elements to all users or groups, or to a specific user or
 group, without changing the view XML files.
 
-Inspired by web_hidden_element by Ignacio Ibeas <ignacio@acysos.com>
+Inspired by web_hidden_field from Ignacio Ibeas <ignacio@acysos.com>
 
 Installation
 ============
