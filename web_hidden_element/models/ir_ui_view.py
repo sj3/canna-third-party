@@ -15,7 +15,7 @@ class IrUiView(models.Model):
     _inherit = 'ir.ui.view'
 
     @api.multi
-    def _check_hidden_field(self, model_name, field_name):
+    def _check_web_hidden_field(self, model_name, field_name):
         model = self.env['ir.model'].search(
             [('model', '=', model_name)], limit=1)
         if not model:
@@ -29,7 +29,7 @@ class IrUiView(models.Model):
             #               field_name, model_name)
             return False
 
-        hidden_fields = self.env['hidden.template.field'].search(
+        hidden_fields = self.env['web.hidden.template.field'].search(
             [('name', '=', field.id),
              ('model', '=', model.id),
              ('company_id', '=', self.env.user.company_id.id),
@@ -51,7 +51,7 @@ class IrUiView(models.Model):
         return False
 
     @api.multi
-    def _check_hidden_element(self, model_name, node):
+    def _check_web_hidden_element(self, model_name, node):
         model = self.env['ir.model'].search(
             [('model', '=', model_name)], limit=1)
 
@@ -59,7 +59,7 @@ class IrUiView(models.Model):
             _logger.error("Model '%s' not found!", model_name)
             return False
 
-        hidden_fields = self.env['hidden.template.element'].search(
+        hidden_fields = self.env['web.hidden.template.element'].search(
             [('name', '=', node.get('name')),
              ('model', '=', model.id),
              ('company_id', '=', self.env.user.company_id.id),
@@ -84,14 +84,14 @@ class IrUiView(models.Model):
     def postprocess(self, model, node, view_id, in_tree_view, model_fields):
         if self._uid != SUPERUSER_ID:
             if node.tag == 'field':
-                if self._check_hidden_field(model, node.get('name')):
+                if self._check_web_hidden_field(model, node.get('name')):
                     if node.get('sum'):
                         node.attrib.pop('sum')
                     node.set(
                         'groups',
                         'web_hidden_element.group_hidden_fields_no_one')
             if node.tag in ['button', 'page'] and node.get('name'):
-                if self._check_hidden_element(model, node):
+                if self._check_web_hidden_element(model, node):
                     node.set(
                         'groups',
                         'web_hidden_element.group_hidden_fields_no_one')

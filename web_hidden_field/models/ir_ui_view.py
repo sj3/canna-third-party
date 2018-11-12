@@ -17,7 +17,7 @@ class IrUiView(models.Model):
         hidden_field = self.env['hidden.template.field'].search(
             [('name', '=', field.id), ('model', '=', model.id),
              ('company_id', '=', self.env.user.company_id.id),
-             ('active', '=', True)])
+             ('active', '=', True)], limit=1)
         if hidden_field:
             if not hidden_field.users and not hidden_field.groups:
                 return True

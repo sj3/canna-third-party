@@ -2,9 +2,9 @@
 <openerp>
   <data>
 
-    <record model="ir.ui.view" id="view_hidden_template_form">
-      <field name="name">hidden.template.form</field>
-      <field name="model">hidden.template</field>
+    <record model="ir.ui.view" id="view_web_hidden_template_form">
+      <field name="name">web.hidden.template.form</field>
+      <field name="model">web.hidden.template</field>
       <field name="arch" type="xml">
         <form string="Hidden Template">
           <sheet>
@@ -52,9 +52,9 @@
       </field>
     </record>
 
-    <record model="ir.ui.view" id="view_hidden_template_tree">
-      <field name="name">hidden.template.tree</field>
-      <field name="model">hidden.template</field>
+    <record model="ir.ui.view" id="view_web_hidden_template_tree">
+      <field name="name">web.hidden.template.tree</field>
+      <field name="model">web.hidden.template</field>
       <field name="arch" type="xml">
         <tree string="Hidden Template">
           <field name="name"/>
@@ -64,13 +64,13 @@
       </field>
     </record>
 
-    <record model="ir.actions.act_window" id="action_hidden_fields_form">
+    <record model="ir.actions.act_window" id="action_web_hidden_fields_form">
       <field name="name">Hidden Fields</field>
-      <field name="res_model">hidden.template</field>
+      <field name="res_model">web.hidden.template</field>
       <field name="type">ir.actions.act_window</field>
       <field name="view_type">form</field>
       <field name="view_mode">tree,form</field>
-      <field name="view_id" ref="view_hidden_template_tree"/>
+      <field name="view_id" ref="view_web_hidden_template_tree"/>
       <field name="help" type="html">
         <p class="oe_view_nocontent_create">
           Click to add a template with the model and hidden fields.
@@ -78,9 +78,10 @@
       </field>
     </record>
 
-    <menuitem id="menu_hidden_fields_view"
-              action="action_hidden_fields_form"
-              parent="base.menu_security"/>
+    <menuitem
+        id="menu_hidden_elements"
+        action="action_web_hidden_fields_form"
+        parent="base.menu_security"/>
 
   </data>
 </openerp>

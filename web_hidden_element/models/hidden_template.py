@@ -9,7 +9,8 @@ class HiddenTemplate(models.Model):
     _description = 'Hidden template'
 
     def _default_company(self):
-        return self.env['res.company']._company_default_get('hidden.template')
+        return self.env['res.company']._company_default_get(
+            'web.hidden.template')
 
     name = fields.Many2one(
         comodel_name='ir.model',
@@ -21,11 +22,11 @@ class HiddenTemplate(models.Model):
         default=True)
 
     hidden_fields = fields.One2many(
-        comodel_name='hidden.template.field',
+        comodel_name='web.hidden.template.field',
         inverse_name='template_id')
 
     hidden_elements = fields.One2many(
-        comodel_name='hidden.template.element',
+        comodel_name='web.hidden.template.element',
         inverse_name='template_id')
 
     company_id = fields.Many2one(
