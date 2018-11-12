@@ -10,13 +10,10 @@
           <sheet>
             <group name="hidden-template-help">
               <p>
-                Select a model and the fields that you want to hide.
-                If you select a field that isn't required, it will be removed
-                from the view, but if you select a required field, it will be
-                invisible.<br/>
-                You can hide the field to all user or all groups if you
-                don't select any user o groups. If you want to hide to a
-                specific users or specifics groups, select any user or group.
+                Select a model and the fields/elements that you want to hide.<br/>
+                You can hide the field/element to all users or all groups if you
+                don't select any user or groups. If you want to hide to
+                specific users or groups, select any user or group.
                 The user is always more restrictive that groups.
               </p>
             </group>
@@ -36,7 +33,7 @@
                 </tree>
               </field>
               <field name="hidden_elements" context="{'template_id':parent.get('name')}">
-                <tree string="Hidden Fields" editable="bottom">
+                <tree string="Hidden Elements" editable="bottom">
                   <field name="sequence"/>
                   <field name="name" domain="[('model_id', '=', model)]"/>
                   <field name="hidden"/>
@@ -65,7 +62,7 @@
     </record>
 
     <record model="ir.actions.act_window" id="action_web_hidden_fields_form">
-      <field name="name">Hidden Fields</field>
+      <field name="name">Hidden Elements</field>
       <field name="res_model">web.hidden.template</field>
       <field name="type">ir.actions.act_window</field>
       <field name="view_type">form</field>
@@ -73,7 +70,7 @@
       <field name="view_id" ref="view_web_hidden_template_tree"/>
       <field name="help" type="html">
         <p class="oe_view_nocontent_create">
-          Click to add a template with the model and hidden fields.
+          Click to add a template with the model and hidden elements.
         </p>
       </field>
     </record>
