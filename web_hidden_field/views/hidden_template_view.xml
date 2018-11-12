@@ -26,7 +26,20 @@
               <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
               <field name="hidden_fields" context="{'template_id':parent.get('name')}">
                 <tree string="Hidden Fields" editable="bottom">
+                  <field name="sequence"/>
                   <field name="name" domain="[('model_id', '=', model)]"/>
+                  <field name="hidden"/>
+                  <field name="users" widget="many2many_tags"/>
+                  <field name="groups" widget="many2many_tags"/>
+                  <field name="model" invisible="1"/>
+                  <field name="template_id" invisible="1"/>
+                </tree>
+              </field>
+              <field name="hidden_elements" context="{'template_id':parent.get('name')}">
+                <tree string="Hidden Fields" editable="bottom">
+                  <field name="sequence"/>
+                  <field name="name" domain="[('model_id', '=', model)]"/>
+                  <field name="hidden"/>
                   <field name="users" widget="many2many_tags"/>
                   <field name="groups" widget="many2many_tags"/>
                   <field name="model" invisible="1"/>
