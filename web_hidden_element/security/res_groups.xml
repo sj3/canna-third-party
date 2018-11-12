@@ -3,7 +3,7 @@
   <data noupdate="0">
 
     <record id="group_hidden_fields_no_one" model="res.groups">
-      <field name="name">Hidden Fields No One</field>
+      <field name="name">Hidden Fields/Elements No One</field>
     </record>
 
   </data>
