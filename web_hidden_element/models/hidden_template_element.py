@@ -11,8 +11,17 @@ class HiddenTemplateElement(models.Model):
 
     sequence = fields.Integer(default=100)
 
+    element_type = fields.Selection(
+        string="Element type",
+        selection=[
+            ('button', 'Button'),
+            ('page', 'Page'),
+        ],
+        default='button',
+        required=True)
+
     name = fields.Char(
-        string='Element',
+        string='Element name',
         size=256,
         required=True)
 

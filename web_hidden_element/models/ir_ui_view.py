@@ -61,6 +61,7 @@ class IrUiView(models.Model):
 
         hidden_fields = self.env['web.hidden.template.element'].search(
             [('name', '=', node.get('name')),
+             ('element_type', '=', node.tag),
              ('model', '=', model.id),
              ('company_id', '=', self.env.user.company_id.id),
              ('active', '=', True)])
