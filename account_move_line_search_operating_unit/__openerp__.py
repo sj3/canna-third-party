@@ -36,4 +36,5 @@
     'qweb': [
         'static/src/xml/account_move_line_search_operating_unit.xml',
     ],
+    'auto_install': True,
 }

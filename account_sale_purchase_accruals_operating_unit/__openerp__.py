@@ -17,5 +17,6 @@
         'purchase_operating_unit',
     ],
     'data': [],
+    'auto_install': True,
     'installable': True,
 }
