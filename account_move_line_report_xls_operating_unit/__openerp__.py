@@ -30,4 +30,5 @@
         'account_move_line_report_xls',
         'account_operating_unit',
     ],
+    'auto_install': True,
 }
