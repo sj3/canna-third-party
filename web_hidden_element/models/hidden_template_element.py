@@ -43,6 +43,8 @@ class HiddenTemplateElement(models.Model):
         help="If you don't select any group, the element"
         " is hidden for all groups")
 
+    expression = fields.Text()
+
     active = fields.Boolean(
         related='template_id.active')
 

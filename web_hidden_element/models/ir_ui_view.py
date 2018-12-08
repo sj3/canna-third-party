@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
 # Copyright 2017 Ignacio Ibeas <ignacio@acysos.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
-import json
 import logging
-
-
-from openerp import api, models, SUPERUSER_ID
-from openerp.osv import orm
+from openerp import api, models
 
 _logger = logging.getLogger(__name__)
 
@@ -25,8 +21,6 @@ class IrUiView(models.Model):
         field = self.env['ir.model.fields'].search(
             [('name', '=', field_name), ('model_id', '=', model.id)], limit=1)
         if not field:
-            # _logger.error("Field '%s' not found on model '%s'!",
-            #               field_name, model_name)
             return False
 
         hidden_fields = self.env['web.hidden.template.field'].search(
@@ -39,14 +33,14 @@ class IrUiView(models.Model):
 
             if not hidden_field.users and not hidden_field.groups:
                 # default rule
-                return hidden_field.hidden
+                return hidden_field
 
             if self.env.user in hidden_field.users:
-                return hidden_field.hidden
+                return hidden_field
 
             for group in hidden_field.groups:
                 if group in self.env.user.groups_id:
-                    return hidden_field.hidden
+                    return hidden_field
 
         return False
 
@@ -70,32 +64,47 @@ class IrUiView(models.Model):
 
             if not hidden_field.users and not hidden_field.groups:
                 # default rule
-                return hidden_field.hidden
+                return hidden_field
 
             if self.env.user in hidden_field.users:
-                return hidden_field.hidden
+                return hidden_field
 
             for group in hidden_field.groups:
                 if group in self.env.user.groups_id:
-                    return hidden_field.hidden
+                    return hidden_field
 
         return False
 
     @api.model
     def postprocess(self, model, node, view_id, in_tree_view, model_fields):
-        if self._uid != SUPERUSER_ID:
-            if node.tag == 'field':
-                if self._check_web_hidden_field(model, node.get('name')):
+        if node.tag == 'field':
+            hidden_field = self._check_web_hidden_field(
+                    model, node.get('name'))
+            if hidden_field:
+                expr = ('True' if hidden_field.expression is False else
+                        hidden_field.expression)
+                # Must be hidden apply the group to the field
+                if expr.lower() == 'true' and hidden_field.hidden:
                     if node.get('sum'):
                         node.attrib.pop('sum')
                     node.set(
                         'groups',
                         'web_hidden_element.group_hidden_fields_no_one')
-            if node.tag in ['button', 'page'] and node.get('name'):
-                if self._check_web_hidden_element(model, node):
+                # Apply expression
+                node.set('invisible_expression', expr)
+                node.set('hidden', unicode(hidden_field.hidden))
+        elif node.tag in ['button', 'page'] and node.get('name'):
+            hidden_element = self._check_web_hidden_element(model, node)
+            if hidden_element:
+                expr = ('True' if hidden_element.expression is False else
+                        hidden_element.expression)
+                if expr.lower() == 'true' and hidden_element.hidden:
                     node.set(
                         'groups',
                         'web_hidden_element.group_hidden_fields_no_one')
+                # Apply expression
+                node.set('invisible_expression', expr)
+                node.set('hidden', unicode(hidden_element.hidden))
 
         fields = super(IrUiView, self).postprocess(
             model, node, view_id, in_tree_view, model_fields)
