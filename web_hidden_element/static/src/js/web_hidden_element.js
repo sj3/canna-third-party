@@ -39,11 +39,11 @@ openerp.web_hidden_element = function(instance) {
                 var hidden = py.eval(field.hidden);
                 if (eval == hidden) {
                     record.attributes[field.name] = false;
+                    this.hidden_cells[field.name].push(eval);
                 }
-                if (!(field.name in this.hidden_cells)) {
+                else {
                     this.hidden_cells[field.name] = [];
                 }
-                this.hidden_cells[field.name].push(eval);
             }
             var res = this._super.apply(this, arguments);
             return res;
@@ -56,13 +56,7 @@ openerp.web_hidden_element = function(instance) {
          */
         hide_empty_columns: function() {
             for (var field in this.hidden_cells) {
-                var hide_column = _.every(
-                    this.hidden_cells[field],
-                    function(f) {
-                        return f;
-                    }
-                );
-
+                var hide_column = this.hidden_cells[field].length > 1 && !this.hidden_cells[field].includes(false);
                 if (hide_column) {
                     // Remove header
                     var th_rule = _.str.sprintf("th[data-id='%s'] {display: none;}", field);
