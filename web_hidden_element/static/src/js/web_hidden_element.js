@@ -1,3 +1,5 @@
+window.hidden_cells = {}; // TODO can probably make this a class property.
+
 openerp.web_hidden_element = function(instance) {
     instance.web.form.FormWidget.include({
         process_modifiers: function() {
@@ -23,8 +25,18 @@ openerp.web_hidden_element = function(instance) {
         }
     });
 
+    instance.web.ViewManager.include({
+    /**
+     * @override
+     */
+        switch_mode: function(view_type, no_store, view_options) {
+            window.hidden_cells = {};
+            var res = this._super.apply(this, arguments);
+            return res;
+        }
+    });
+
     instance.web.ListView.List.include({
-        hidden_cells: {},
         /**
          * @override
          */
@@ -37,12 +49,15 @@ openerp.web_hidden_element = function(instance) {
                 var expression = py.parse(py.tokenize(field.invisible_expression));
                 var eval = py.evaluate(expression, ctx).toJSON();
                 var hidden = py.eval(field.hidden);
-                if (eval == hidden) {
+
+                if (hidden && eval) {
                     record.attributes[field.name] = false;
-                    this.hidden_cells[field.name].push(eval);
-                }
-                else {
-                    this.hidden_cells[field.name] = [];
+                    if (!(field.name in window.hidden_cells)) {
+                        window.hidden_cells[field.name] = [];
+                    }
+                    if (!window.hidden_cells[field.name].includes(eval)){
+                        window.hidden_cells[field.name].push(eval);
+                    }
                 }
             }
             var res = this._super.apply(this, arguments);
@@ -55,18 +70,45 @@ openerp.web_hidden_element = function(instance) {
          * @private
          */
         hide_empty_columns: function() {
-            for (var field in this.hidden_cells) {
-                var hide_column = this.hidden_cells[field].length > 1 && !this.hidden_cells[field].includes(false);
+            if (!window.hidden_cells.length) {
+                console.log($("style").html());
+                $("style").html(""); // TODO remove only what we don't need?
+                // e.g. keep track of what is hidden globally?
+            }
+            for (var field in window.hidden_cells) {
+                if (window.hidden_cells[field].length > 0) {
+                    var hide_column = !window.hidden_cells[field].includes(false);
+                }
+                else {
+                    var hide_column = false;
+                }
                 if (hide_column) {
-                    // Remove header
+                    // Add "Remove header" rule
                     var th_rule = _.str.sprintf("th[data-id='%s'] {display: none;}", field);
                     if (!$("style").html().includes(th_rule)){
                         $("style").append(_.str.sprintf("th[data-id='%s'] {display: none;}", field));
                     }
-                    // Remove cells (including aggregates)
+                    // Add "Remove cells (including aggregates)" rule
                     var td_rule = _.str.sprintf("td[data-field='%s'] {display: none;}", field);
                     if (!$("style").html().includes(td_rule)){
                         $("style").append(_.str.sprintf("td[data-field='%s'] {display: none;}", field));
+                    }
+                }
+                else {
+                    // Remove "Remove header" rule
+                    var th_rule = _.str.sprintf("th[data-id='%s'] {display: none;}", field);
+                    if ($("style").html().includes(th_rule)){
+                        while ($("style").includes(th_rule)) {
+                            $("style").html($("style").html().replace(th_rule, ''));
+                        }
+
+                    }
+                    // Remove "Remove cells (including aggregates)" rule
+                    var td_rule = _.str.sprintf("td[data-field='%s'] {display: none;}", field);
+                    if ($("style").html().includes(td_rule)){
+                        while ($("style").includes(td_rule)) {
+                            $("style").html($("style").html().replace(td_rule, ''));
+                        }
                     }
                 }
             }
