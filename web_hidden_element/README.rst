@@ -40,7 +40,7 @@ the group.
 Known issues / Roadmap
 ======================
 
-*
+* Refactor (only use web.hidden.template.element and remove web.hidden.template.field)
 
 Bug Tracker
 ===========
@@ -64,6 +64,8 @@ Contributors
 ------------
 
 * Ignacio Ibeas - Acysos S.L. <ignacio@acysos.com>
+* Dennis Sluijk <d.sluijk@onestein.nl>
+* Kevin Graveman <k.graveman@onestein.nl>
 
 
 Maintainer

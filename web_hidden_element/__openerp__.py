@@ -15,6 +15,7 @@
         'security/ir.model.access.csv',
         'security/res_groups.xml',
         'views/web_hidden_template_view.xml',
+        'templates/assets.xml'
     ],
     'installable': True,
     'auto_install': False
