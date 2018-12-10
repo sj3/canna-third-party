@@ -71,7 +71,6 @@ openerp.web_hidden_element = function(instance) {
          */
         hide_empty_columns: function() {
             if (!window.hidden_cells.length) {
-                console.log($("style").html());
                 $("style").html(""); // TODO remove only what we don't need?
                 // e.g. keep track of what is hidden globally?
             }
