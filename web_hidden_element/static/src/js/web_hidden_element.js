@@ -73,8 +73,15 @@ openerp.web_hidden_element = function(instance) {
                 }
                 // hidden_cells will be used to remove columns and cells in
                 // list views.
-                if (!window.hidden_cells[field.name].includes(eval)){
-                    window.hidden_cells[field.name].push(eval);
+                /*      eval    hidden  hide(result)
+                 *      1       1       1
+                 *      1       0       0
+                 *      0       1       0
+                 *      0       0       0 (hiding only explicitly with the hidden field)
+                 */
+                var hide = hidden && eval;
+                if (!window.hidden_cells[field.name].includes(hide)){
+                    window.hidden_cells[field.name].push(hide);
                 }
             }
             var res = this._super.apply(this, arguments);
