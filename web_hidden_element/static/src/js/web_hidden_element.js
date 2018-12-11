@@ -1,4 +1,4 @@
-window.hidden_cells = {}; // TODO can probably make this a class property.
+window.hidden_cells = {};
 
 openerp.web_hidden_element = function(instance) {
     instance.web.form.FormWidget.include({
@@ -30,6 +30,20 @@ openerp.web_hidden_element = function(instance) {
      * @override
      */
         switch_mode: function(view_type, no_store, view_options) {
+            // Clear column and cell style hiding rules
+            // Note that this does not influence the values of the cells.
+            for (var field in window.hidden_cells) {
+                var th_rule = _.str.sprintf("th[data-id='%s'] {display: none;}", field);
+                var td_rule = _.str.sprintf("td[data-field='%s'] {display: none;}", field);
+                [th_rule, td_rule].forEach(function(rule) {
+                    $("style").each(function(i) {
+                        if (this.innerHTML.includes(rule)) {
+                            this.innerHTML = this.innerHTML.replace(rule, '');
+                        }
+                    });
+                });
+            }
+            // Clear hidden_cells so they don't influence the newly opened view
             window.hidden_cells = {};
             var res = this._super.apply(this, arguments);
             return res;
@@ -51,13 +65,16 @@ openerp.web_hidden_element = function(instance) {
                 var hidden = py.eval(field.hidden);
 
                 if (hidden && eval) {
+                    // Hide the values
                     record.attributes[field.name] = false;
-                    if (!(field.name in window.hidden_cells)) {
-                        window.hidden_cells[field.name] = [];
-                    }
-                    if (!window.hidden_cells[field.name].includes(eval)){
-                        window.hidden_cells[field.name].push(eval);
-                    }
+                }
+                if (!(field.name in window.hidden_cells)) {
+                    window.hidden_cells[field.name] = [];
+                }
+                // hidden_cells will be used to remove columns and cells in
+                // list views.
+                if (!window.hidden_cells[field.name].includes(eval)){
+                    window.hidden_cells[field.name].push(eval);
                 }
             }
             var res = this._super.apply(this, arguments);
@@ -70,11 +87,10 @@ openerp.web_hidden_element = function(instance) {
          * @private
          */
         hide_empty_columns: function() {
-            if (!window.hidden_cells.length) {
-                $("style").html(""); // TODO remove only what we don't need?
-                // e.g. keep track of what is hidden globally?
-            }
             for (var field in window.hidden_cells) {
+                if ($('style').length == 0) {
+                    $('head').append("<style></style>");
+                }
                 if (window.hidden_cells[field].length > 0) {
                     var hide_column = !window.hidden_cells[field].includes(false);
                 }
@@ -82,33 +98,16 @@ openerp.web_hidden_element = function(instance) {
                     var hide_column = false;
                 }
                 if (hide_column) {
-                    // Add "Remove header" rule
+                    // Add "Hide header" and "Hide cell" rules
                     var th_rule = _.str.sprintf("th[data-id='%s'] {display: none;}", field);
-                    if (!$("style").html().includes(th_rule)){
-                        $("style").append(_.str.sprintf("th[data-id='%s'] {display: none;}", field));
-                    }
-                    // Add "Remove cells (including aggregates)" rule
                     var td_rule = _.str.sprintf("td[data-field='%s'] {display: none;}", field);
-                    if (!$("style").html().includes(td_rule)){
-                        $("style").append(_.str.sprintf("td[data-field='%s'] {display: none;}", field));
-                    }
-                }
-                else {
-                    // Remove "Remove header" rule
-                    var th_rule = _.str.sprintf("th[data-id='%s'] {display: none;}", field);
-                    if ($("style").html().includes(th_rule)){
-                        while ($("style").includes(th_rule)) {
-                            $("style").html($("style").html().replace(th_rule, ''));
-                        }
-
-                    }
-                    // Remove "Remove cells (including aggregates)" rule
-                    var td_rule = _.str.sprintf("td[data-field='%s'] {display: none;}", field);
-                    if ($("style").html().includes(td_rule)){
-                        while ($("style").includes(td_rule)) {
-                            $("style").html($("style").html().replace(td_rule, ''));
-                        }
-                    }
+                    [th_rule, td_rule].forEach(function(rule) {
+                        $("style:first").each(function(i) {
+                            if (!this.innerHTML.includes(rule)) {
+                                this.innerHTML += rule;
+                            }
+                        });
+                    });
                 }
             }
         },
