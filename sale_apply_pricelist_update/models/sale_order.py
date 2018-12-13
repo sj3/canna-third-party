@@ -47,8 +47,8 @@ class SaleOrder(models.Model):
                     err_msg += _(
                         "No valid pricelist line found for product %s ! :"
                     ) % sol.product_id.name + msg + "\n\n"
-                elif round(price_unit - sol.price_unit, digits):
+                    _logger.error(err_msg)
+                price_unit = price_unit or 0.0
+                if round(price_unit - sol.price_unit, digits):
                     sol.price_unit = price_unit
-                if err_msg:
-                    raise UserError(err_msg)
         return super(SaleOrder, self).button_dummy()
