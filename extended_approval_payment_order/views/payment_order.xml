@@ -18,7 +18,7 @@
             <group name="g1" colspan="4" col="4">
               <label for="next_approver"/>
               <div>
-                <field name="next_approver" options='{"no_open":True}'/>
+                <field name="next_approver" widget="many2many_tags" options='{"no_open":True}'/>
                 <button string="=> Users"
                         help="Show Approval Group Users"
                         name="show_approval_group_users" type="object"
