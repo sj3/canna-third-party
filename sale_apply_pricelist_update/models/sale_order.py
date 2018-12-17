@@ -22,6 +22,8 @@ class SaleOrder(models.Model):
         digits = self.env['decimal.precision'].precision_get('Product Price')
         for so in self:
             for sol in so.order_line:
+                if not sol.product_id:
+                    continue
                 ctx = dict(
                     self.env.context,
                     uom=sol.product_uom.id,
