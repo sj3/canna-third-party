@@ -29,7 +29,6 @@
                   <field name="users" widget="many2many_tags"/>
                   <field name="groups" widget="many2many_tags"/>
                   <field name="model" invisible="1"/>
-                  <field name="expression"/>
                   <field name="template_id" invisible="1"/>
                 </tree>
               </field>
@@ -41,7 +40,6 @@
                   <field name="users" widget="many2many_tags"/>
                   <field name="groups" widget="many2many_tags"/>
                   <field name="model" invisible="1"/>
-                  <field name="expression"/>
                   <field name="template_id" invisible="1"/>
                 </tree>
               </field>

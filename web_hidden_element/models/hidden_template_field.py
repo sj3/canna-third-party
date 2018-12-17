@@ -33,8 +33,6 @@ class HiddenTemplateField(models.Model):
         help="If you don't select any group, the field"
         "is hidden for all groups")
 
-    expression = fields.Text()
-
     active = fields.Boolean(
         related='template_id.active')
 
