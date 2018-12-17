@@ -22,6 +22,8 @@ class PurchaseOrder(models.Model):
         digits = self.env['decimal.precision'].precision_get('Product Price')
         for po in self:
             for pol in po.order_line:
+                if not pol.product_id:
+                    continue
                 ctx = dict(
                     self.env.context,
                     uom=pol.product_uom.id,
