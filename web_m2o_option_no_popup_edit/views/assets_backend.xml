@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <template id="assets_backend" name="assets_backends" inherit_id="web.assets_backend">
+      <xpath expr="." position="inside">
+        <script type="text/javascript" src="/web_m2o_option_no_popup_edit/static/src/js/m2o_option_no_popup_edit.js"/>
+      </xpath>
+    </template>
+
+  </data>
+</openerp>
