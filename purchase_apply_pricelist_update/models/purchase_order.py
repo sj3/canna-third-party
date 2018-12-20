@@ -15,9 +15,6 @@ class PurchaseOrder(models.Model):
 
     @api.multi
     def button_dummy(self):
-        """
-        logic copied from Odoo standard 'product_id_change' method
-        """
         digits = self.env['decimal.precision'].precision_get('Product Price')
         for po in self:
             for pol in po.order_line:
@@ -27,6 +24,9 @@ class PurchaseOrder(models.Model):
         return super(PurchaseOrder, self).button_dummy()
 
     def _get_product_price_unit(self, pol):
+        """
+        logic copied from Odoo standard 'product_id_change' method
+        """
         err_msg = ''
         po = pol.order_id
         if not pol.product_id:

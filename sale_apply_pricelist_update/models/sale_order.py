@@ -15,42 +15,48 @@ class SaleOrder(models.Model):
 
     @api.multi
     def button_dummy(self):
-        """
-        logic copied from Odoo standard 'product_id_change' method
-        """
         err_msg = ''
         digits = self.env['decimal.precision'].precision_get('Product Price')
         for so in self:
             for sol in so.order_line:
-                if not sol.product_id:
-                    continue
-                ctx = dict(
-                    self.env.context,
-                    uom=sol.product_uom.id,
-                    date=so.date_order)
-                pl = so.pricelist_id.with_context(ctx)
-                price_unit = False
-                try:
-                    price_unit = pl.price_get(
-                        sol.product_id.id, sol.product_uom_qty,
-                        so.partner_id.id
-                    )[pl.id]
-                except UserError, e:
-                    err_msg += _(
-                        "Pricelist lookup failed for product %s ! : "
-                    ) % sol.product_id.name + "\n\n"
-                    _logger.error(err_msg + str(e))
-                if price_unit is False:
-                    msg = _(
-                        "Cannot find a pricelist line matching "
-                        "this product and quantity.\n"
-                        "You have to change either the product, "
-                        "the quantity or the pricelist.")
-                    err_msg += _(
-                        "No valid pricelist line found for product %s ! :"
-                    ) % sol.product_id.name + msg + "\n\n"
-                    _logger.error(err_msg)
-                price_unit = price_unit or 0.0
+                price_unit = self._get_product_price_unit(sol)
                 if round(price_unit - sol.price_unit, digits):
                     sol.price_unit = price_unit
         return super(SaleOrder, self).button_dummy()
+
+    def _get_product_price_unit(self, sol):
+        """
+        logic copied from Odoo standard 'product_id_change' method
+        """
+        err_msg = ''
+        so = sol.order_id
+        if not sol.product_id:
+            return sol.price_unit
+        ctx = dict(
+            self.env.context,
+            uom=sol.product_uom.id,
+            date=so.date_order)
+        pl = so.pricelist_id.with_context(ctx)
+        price_unit = False
+        try:
+            price_unit = pl.price_get(
+                sol.product_id.id, sol.product_uom_qty,
+                so.partner_id.id
+            )[pl.id]
+        except UserError, e:
+            err_msg += _(
+                "Pricelist lookup failed for product %s ! : "
+            ) % sol.product_id.name + "\n\n"
+            _logger.error(err_msg + str(e))
+        if price_unit is False:
+            msg = _(
+                "Cannot find a pricelist line matching "
+                "this product and quantity.\n"
+                "You have to change either the product, "
+                "the quantity or the pricelist.")
+            err_msg += _(
+                "No valid pricelist line found for product %s ! :"
+            ) % sol.product_id.name + msg + "\n\n"
+            _logger.error(err_msg)
+        price_unit = price_unit or sol.product_id.list_price or 0.0
+        return price_unit
