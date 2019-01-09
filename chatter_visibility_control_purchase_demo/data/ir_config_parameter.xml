@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <record id="chatter_visibility_control.chatter_visibility_control" model="ir.config_parameter">
+      <field name="value">['purchase.order']</field>
+    </record>
+
+  </data>
+</openerp>
