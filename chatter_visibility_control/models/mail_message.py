@@ -4,7 +4,7 @@
 
 import logging
 
-from openerp import api, models, _
+from openerp import api, fields, models, _
 from openerp.tools.safe_eval import safe_eval
 
 _logger = logging.getLogger(__name__)
@@ -12,6 +12,13 @@ _logger = logging.getLogger(__name__)
 
 class MailMessage(models.Model):
     _inherit = 'mail.message'
+
+    body_lang = fields.Char()
+
+    @api.model
+    def create(self, vals):
+        vals['body_lang'] = self.env.user.lang
+        return super(MailMessage, self).create(vals)
 
     @api.model
     def _message_read_dict(self, message, parent_id=False):
@@ -38,7 +45,9 @@ class MailMessage(models.Model):
                 removals[name] = field
 
         for f in removals:
-            field_string = removals[f].get_description(self.env)['string']
+            body_lang = message.body_lang or u'en_US'
+            env = self.with_context({'lang': body_lang}).env
+            field_string = removals[f].get_description(env)['string']
             for k in ['body', 'body_short']:
                 body = msg_dict[k][:]
                 if k == 'body':
