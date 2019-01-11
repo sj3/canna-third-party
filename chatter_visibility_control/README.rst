@@ -6,9 +6,9 @@
 Chatter visibility control
 ==========================
 
-This module allows to control the visibility of tracked fields in the chatter based upon the Odoo security groups.
+This module allows to control the visibility of tracked fields in the chatter based on the Odoo security groups.
 
-If security groups are added to the Model field definition of a tracked field, than the info in the chatter concerning
+If security groups are added to the Model field definition of a tracked field, then the info in the chatter concerning
 this field will only be visible to the users of those groups.
 
 

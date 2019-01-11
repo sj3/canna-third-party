@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
-  <data noupdate="1">
+  <data noupdate="0">
 
     <!-- Add 'chatter_visibility_control' configuration parameter -->
     <record id="chatter_visibility_control" model="ir.config_parameter">
