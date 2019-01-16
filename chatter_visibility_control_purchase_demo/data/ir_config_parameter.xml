@@ -2,9 +2,10 @@
 <openerp>
   <data>
 
-    <record id="chatter_visibility_control.chatter_visibility_control" model="ir.config_parameter">
-      <field name="value">['purchase.order']</field>
-    </record>
+    <function model="ir.config_parameter" name="write">
+      <value eval="[ref('chatter_visibility_control.chatter_visibility_control')]"/>
+      <value eval="{'value': ['purchase.order']}"/>
+    </function>
 
   </data>
 </openerp>
