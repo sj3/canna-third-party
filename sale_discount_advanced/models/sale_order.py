@@ -145,5 +145,5 @@ class SaleOrder(models.Model):
         self.with_context(ctx).write({
             'discount_amount': total_discount_amount,
             'discount_base_amount': total_base_amount,
-            'order_line': line_updates,
+            'order_line': line_updates or False,
         })
