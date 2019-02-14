@@ -7,7 +7,6 @@
       <field name="model">hr.expense.expense</field>
       <field name="inherit_id" ref="hr_expense.view_expenses_form"/>
       <field name="arch" type="xml">
-
         <button name="done" position="attributes">
           <attribute name="name">generate_accounting_entries</attribute>
           <attribute name="type">object</attribute>
@@ -15,6 +14,9 @@
         <field name="journal_id" position="attributes">
           <attribute name="domain">[('type', '=', 'general'), ('code', 'like', 'EXP')]</attribute>
           <attribute name="attrs">{'readonly': [('state', 'in', ['done', 'paid'])]}</attribute>
+        </field>
+        <field name="account_move_id" position="attributes">
+          <attribute name="domain">[('journal_id', '=', journal_id)]</attribute>
         </field>
         <xpath expr="//field[@name='line_ids']/tree/field[@name='product_id']" position="after">
           <field name="line_state" invisible="1"/>
