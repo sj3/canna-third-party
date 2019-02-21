@@ -59,4 +59,4 @@ class HiddenTemplateElement(models.Model):
         ondelete='cascade')
 
     hidden = fields.Boolean(
-        string="Field hidden?")
+        string="Element hidden?")
