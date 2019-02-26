@@ -8,8 +8,11 @@
       <field name="inherit_id" ref="account_payment.view_payment_order_form"/>
       <field name="arch" type="xml">
 
+        <xpath expr="//button[@name='open']" position="attributes">
+          <attribute name="states" eval="False"/>
+          <attribute name="attrs">{'invisible': ['|', ('state', 'not in ', ['draft', 'extended_approval']), ('approval_allowed', '!=', True)]}</attribute>
+        </xpath>
         <xpath expr="//button[@name='open']" position="after">
-          <button name="open" string="Approve" class="oe_highlight" attrs="{'invisible': ['|', ('state', '!=', 'extended_approval'), ('approval_allowed', '!=', True)]}"/>
           <button name="abort_approval" type="object" string="Cancel Approval" attrs="{'invisible': ['|', ('state', '!=', 'extended_approval'), ('approval_allowed', '!=', True)]}"/>
         </xpath>
 
