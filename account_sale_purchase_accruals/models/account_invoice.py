@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2009-2018 Noviat.
+# Copyright 2009-2019 Noviat.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
@@ -20,25 +20,21 @@ class AccountInvoice(models.Model, CommonAccrual):
         readonly=True, index=True, ondelete='set null', copy=False,
         help="Link to the automatically generated Accrual Entry.")
     purchase_order_ids = fields.Many2many(
-        comodel_name='purchase.order', compute='_compute_purchase_order_ids',
-        string="Purchase Orders")
+        comodel_name='purchase.order',
+        relation='purchase_invoice_rel',
+        column1='invoice_id',
+        column2='purchase_id',
+        string='Purchase Orders')
     sale_order_ids = fields.Many2many(
-        comodel_name='sale.order', compute='_compute_sale_order_ids',
-        string="Sale Orders")
+        comodel_name='sale.order',
+        relation='sale_order_invoice_rel',
+        column1='invoice_id',
+        column2='order_id',
+        string='Sale Orders')
 
     def _prepare_accrual_move_ref(self):
         sale_orders = self.sale_order_ids
         return ', '.join([x.name for x in sale_orders])
-
-    @api.one
-    def _compute_purchase_order_ids(self):
-        dom = [('invoice_ids', '=', self.id)]
-        self.purchase_order_ids = self.env['purchase.order'].search(dom)
-
-    @api.one
-    def _compute_sale_order_ids(self):
-        dom = [('invoice_ids', '=', self.id)]
-        self.sale_order_ids = self.env['sale.order'].search(dom)
 
     def _customer_invoice_create_expense_accruals(self):
         """
@@ -46,7 +42,7 @@ class AccountInvoice(models.Model, CommonAccrual):
         - Reconcile these entries with it's counterpart created during the
           Procurement Process in case of dropshipping
           (Purchase Order Confirmation) or
-          the Outgoing Shipment in case of delivery from stock(.
+          the Outgoing Shipment in case of delivery from stock.
         """
         aml_vals = []
         inv_accruals = {}
@@ -190,36 +186,33 @@ class AccountInvoice(models.Model, CommonAccrual):
         Purchase Invoice with it's counterpart created during the
         Purchase Order Confirmation or Incoming Picking.
         """
-        si_amls = self.move_id.line_id
+        pi_amls = self.move_id.line_id
         accrual_lines = {}
-        for si_aml in si_amls:
-            product = si_aml.product_id
+        for pi_aml in pi_amls:
+            if pi_aml.reconcile_id:
+                continue
+            product = pi_aml.product_id
             if product:
-                accrual_account = \
-                    product.recursive_property_stock_account_input
-                if si_aml.account_id == accrual_account:
+                acc_stock = product.recursive_property_stock_account_input
+                acc_buy = product.recursive_accrued_expense_in_account_id
+                accrual_accounts = acc_stock | acc_buy
+                accruals = self.env['account.move']
+                if pi_aml.account_id in accrual_accounts:
                     if product.id in accrual_lines:
-                        accrual_lines[product.id] |= si_aml
+                        accrual_lines[product.id] |= pi_aml
                     else:
-                        accrual_lines[product.id] = si_aml
-                    pickings = self.purchase_order_ids.mapped('picking_ids')
-                    accruals = pickings.mapped('valuation_move_ids')
-                else:
-                    accrual_account = \
-                        product.recursive_accrued_expense_in_account_id
-                    if accrual_account \
-                            and si_aml.account_id == accrual_account:
-                        if product.id in accrual_lines:
-                            accrual_lines[product.id] |= si_aml
-                        else:
-                            accrual_lines[product.id] = si_aml
-                        accruals = self.purchase_order_ids.mapped(
+                        accrual_lines[product.id] = pi_aml
+                    if pi_aml.account_id == acc_stock:
+                        pickings = self.purchase_order_ids.mapped(
+                            'picking_ids')
+                        accruals |= pickings.mapped('valuation_move_ids')
+                    # no elif to cope with acc_stock == acc_buy
+                    if pi_aml.account_id == acc_buy:
+                        accruals |= self.purchase_order_ids.mapped(
                             'p_accrual_move_id')
-                    else:
-                        return
                 amls = accruals.mapped('line_id')
                 for aml in amls:
-                    if aml.account_id == accrual_account \
+                    if aml.account_id in accrual_accounts \
                             and aml.product_id == product:
                         accrual_lines[product.id] |= aml
         if accrual_lines:

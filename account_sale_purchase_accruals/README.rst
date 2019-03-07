@@ -1,5 +1,5 @@
-.. image:: https://img.shields.io/badge/licence-AGPL--3-blue.svg
-   :target: http://www.gnu.org/licenses/agpl-3.0-standalone.html
+.. image:: https://img.shields.io/badge/license-AGPL--3-blue.png
+   :target: https://www.gnu.org/licenses/agpl
    :alt: License: AGPL-3
 
 ==============================
@@ -22,6 +22,10 @@ following Pull Request:
 
 You should install the patch distributed with this module if this is not the case,
 cf. doc/account_invoice.diff
+
+This module requires version 8.0.2.1.0 of the 'account_refund_original' module,
+cf. https://github.com/OCA/l10n-spain/tree/8.0
+
 
 Configuration
 =============

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2009-2017 Noviat.
+# Copyright 2009-2019 Noviat.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
@@ -16,12 +16,14 @@ class PurchaseOrder(models.Model, CommonAccrual):
     _inherit = 'purchase.order'
 
     s_accrual_move_id = fields.Many2one(
-        'account.move', string='Sales Invoice Counterpart Accrual',
+        comodel_name='account.move',
+        string='Sales Invoice Counterpart Accrual',
         readonly=True, index=True, ondelete='set null', copy=False,
         help="Link to the Accrual Entry which is the counterparty "
              " of the Sales Invoice Accrual Entry.")
     p_accrual_move_id = fields.Many2one(
-        'account.move', string='Purchase Invoice Counterpart Accrual',
+        comodel_name='account.move',
+        string='Purchase Invoice Counterpart Accrual',
         readonly=True, index=True, ondelete='set null', copy=False,
         help="Link to the 'Invoice to Receive' Accrual Entry.")
 
@@ -225,6 +227,8 @@ class PurchaseOrder(models.Model, CommonAccrual):
         si_accruals = sale_invoices.mapped('accrual_move_id')
         for si_accrual in si_accruals:
             for l in si_accrual.line_id:
+                if l.reconcile_id:
+                    continue
                 if l.product_id.id in s_po_accruals \
                         and l.account_id in po_accrual_out_accounts:
                     s_po_accruals[l.product_id.id] += l
