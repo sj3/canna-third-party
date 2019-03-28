@@ -39,7 +39,10 @@ class MailMessage(models.Model):
             visibility = getattr(field, 'track_visibility', False)
             c1 = visibility in ['always', 'onchange'] or name in model._track
             c2 = (hasattr(field, 'track_visibility_groups') and not
-                  self.env.user.user_has_groups(field.track_visibility_groups)
+                  self.pool.get('res.users').user_has_groups(
+                      self.env.cr, self.env.uid, field.track_visibility_groups,
+                      self.env.context
+                      )
                   )
             if c1 and c2:
                 removals[name] = field
