@@ -12,7 +12,8 @@ _logger = logging.getLogger(__name__)
 class AccountBankStatementImport(models.TransientModel):
     _inherit = 'account.bank.statement.import'
 
-    def _parse_file(self, cr, uid, data_file, context=None):
+    @api.model
+    def _parse_file(self, data_file):
         parser = Parser()
         try:
             _logger.debug("Try parsing with camt.")
@@ -22,13 +23,13 @@ class AccountBankStatementImport(models.TransientModel):
             _logger.debug("Statement file was not a camt file.",
                           exc_info=True)
             return super(AccountBankStatementImport, self)._parse_file(
-                cr, uid, data_file, context=context)
+                data_file)
 
     @api.model
     def _find_bank_account_id(self, account_number):
         res = super(AccountBankStatementImport, self)._find_bank_account_id(
             account_number)
-        if not res:
+        if not res and account_number:
             """
             Some banks put the local account number as
             identification in stead of the IBAN.
