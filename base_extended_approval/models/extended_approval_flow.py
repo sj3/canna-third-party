@@ -5,6 +5,7 @@ from .extended_approval_mixin import ExtendedApprovalMixin
 
 class ExtendedApprovalFlow(models.Model):
     _name = 'extended.approval.flow'
+    _inherit = ['extended.approval.config.mixin']
     _order = 'sequence'
 
     name = fields.Char(
@@ -30,6 +31,10 @@ class ExtendedApprovalFlow(models.Model):
         comodel_name='extended.approval.step',
         inverse_name='flow_id',
         string="Steps")
+
+    @api.multi
+    def get_applicable_models(self):
+        return [self.model]
 
     @api.model
     def _get_extended_approval_models(self):
