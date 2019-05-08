@@ -11,7 +11,7 @@
         'base_extended_approval',
     ],
     'data': [
-        'views/res_partner.xml',
+        'views/res_partner_views.xml',
     ],
     'installable': True,
 }
