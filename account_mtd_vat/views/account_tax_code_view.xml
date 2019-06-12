@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="view_tax_code_tree_mtd" model="ir.ui.view">
+            <field name="name">account.tax.code.tree.mtd</field>
+            <field name="model">account.tax.code</field>
+            <field name="inherit_id" ref="account.view_tax_code_tree"/>
+            <field name="field_parent">child_ids</field>
+            <field name="priority">100</field>
+            <field name="arch" type="xml">
+                <field name="sum" position="replace">
+                    <field name="sum" invisible="1"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</openerp>

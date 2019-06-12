@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!-- Main menu -->
+        <menuitem id="mtd_menu"
+            name="Making Tax Digital"
+            parent="account.menu_finance"
+            sequence="8"/>
+        <act_window id="action_mtd_hmrc_configuration"
+            name="HMRC Set-up"
+            res_model="mtd.hmrc_configuration"
+            view_mode="tree,form" />
+        <act_window id="action_mtd_hello_world"
+            name="Diagnostics"
+            res_model="mtd.hello_world"
+            view_mode="tree,form" />
+<!--
+
+        <menuitem id="menu_making_tax_digitial"
+            name="HMRC Configuration"
+            parent="account.menu_finance_reporting"
+            sequence="1"
+            action=""/>
+-->
+
+        <!-- sub menu -->
+        <menuitem id="submenu_mtd_hmrc_services"
+            name="MTD Set-up"
+            parent="mtd_menu"
+            sequence="30"
+            action="" />
+
+        <!-- sub menu for hmrc services -->
+        <menuitem id="submenu_mtd_hello_world"
+            name="Diagnostics"
+            parent="submenu_mtd_hmrc_services"
+            sequence="99"
+            action="action_mtd_hello_world"/>
+        <menuitem id="submenu_hmrc_configuration"
+            name="HMRC Set-up"
+            parent="submenu_mtd_hmrc_services"
+            sequence="1"
+            action="action_mtd_hmrc_configuration"/>
+    </data>
+</openerp>
