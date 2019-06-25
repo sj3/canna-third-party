@@ -121,7 +121,8 @@ class CamtParserAdv(Parser):
                         counterparty_bic = bic_node[0].text
                 else:
                     acc_nbr_node = account_node[0].xpath(
-                        './ns:Othr/ns:Id')
+                        './ns:Othr/ns:Id', namespaces={'ns': ns}
+                    )
                     if acc_nbr_node:
                         counterparty_number = acc_nbr_node[0].text
                 if counterparty_bic:
