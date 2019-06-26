@@ -15,7 +15,7 @@ openerp.web_m2o_option_no_popup_edit = function (instance) {
     instance.web.form.FormOpenPopup.include({
 
         show_element: function (model, row_id, context, options) {
-            var ctx = context.eval();
+            var ctx = context.hasOwnProperty('eval') ? context.eval() : context;
             if (_.has(ctx, 'no_popup_edit') && ctx.no_popup_edit) {
                 options.readonly = true;
             };
