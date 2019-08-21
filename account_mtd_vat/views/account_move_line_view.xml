@@ -25,7 +25,7 @@
                     <field name="vat"/>
                     <field name="unique_number"/>
                     <field name="vat_submission_id"/>
-                    <field name="mtd_tax_amount" invisible="1"/>
+                    <field name="mtd_tax_amount" invisible="0"/>
                 </field>
             </field>
         </record>
