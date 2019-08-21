@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <template id="assest_backend" inherit_id="web.assets_backend">
+            <xpath expr=".">
+                <script src="/mail_notify_without_partner/static/src/js/backend.js"></script>
+            </xpath>
+        </template>
+    </data>
+</openerp>
