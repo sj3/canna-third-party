@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <record id="view_order_form" model="ir.ui.view">
+      <field name="name">sale.order.inherit</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.view_order_form"/>
+      <field name="arch" type="xml">
+        <field name="pricelist_id" position="after">
+          <field name="allowed_pricelist_ids" invisible="1"/>
+        </field>
+        <field name="pricelist_id" position="attributes">
+          <attribute name="domain">[('id', 'in', allowed_pricelist_ids[0][2])]</attribute>
+        </field>
+      </field>
+    </record>
+
+  </data>
+</openerp>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <record id="view_partner_property_form" model="ir.ui.view">
+      <field name="name">res.partner.form</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="product.view_partner_property_form"/>
+      <field name="arch" type="xml">
+        <field name="property_product_pricelist" position="after">
+          <field name="sale_pricelist_ids"
+                 domain="[('type', '=', 'sale'), ('id', '!=', property_product_pricelist)]"
+                 widget="many2many_tags"
+                 options="{'no_create': True}"/>
+        </field>
+      </field>
+    </record>
+
+  </data>
+</openerp>
