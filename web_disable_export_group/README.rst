@@ -20,6 +20,9 @@ Usage
 
 Enable the group "Export Data group" to the users who are allowed to
 make use of the option 'Export'.
+Additionally you can have more fine-grained control by defining your own
+groups, assigning it to a model using the export_group_ids field on
+ir.model (see demo), and finally assigning your group to a user or group.
 
 
 Credits

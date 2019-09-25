@@ -9,10 +9,17 @@
     'author': 'Onestein',
     'website': 'http://www.onestein.eu',
     'category': 'Web',
-    'depends': ['web'],
+    'depends': [
+        'web',
+        'mail',
+    ],
     'data': [
         'security/groups.xml',
         'templates/assets.xml',
+        'views/res_groups.xml',
     ],
     'installable': True,
+    'demo': [
+        'demo/res_groups.xml',
+    ]
 }
