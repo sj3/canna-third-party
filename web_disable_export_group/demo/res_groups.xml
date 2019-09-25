@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <record id="group_a" model="res.groups">
+      <field name="name">Group A</field>
+      <field name="export_model_ids" eval="[(4, [ref('base.model_res_partner')])]"/>
+    </record>
+
+    <record id="group_b" model="res.groups">
+      <field name="name">Group B</field>
+    </record>
+
+  </data>
+</openerp>

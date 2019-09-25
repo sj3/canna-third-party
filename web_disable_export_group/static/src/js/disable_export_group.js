@@ -11,7 +11,7 @@ openerp.web_disable_export_group = function(instance) {
                 _super.apply(this, arguments);
             } else {
                 var model_res_users = new openerp.web.Model("res.users");
-                model_res_users.call("has_group", ["web_disable_export_group.group_export_data"]).done(function(can_export) {
+                model_res_users.call("may_export", [self.view.dataset.model]).done(function(can_export) {
                     if (!can_export) {
                         var export_label = _t("Export");
                         var new_items = items;
