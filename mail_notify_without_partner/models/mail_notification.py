@@ -11,7 +11,7 @@ class MailNotification(models.Model):
         email_to = self.env.context.get('email_to')
         if email_to:
             message = self.env['mail.message'].sudo().search([('id', '=', message_id)])
-            if message.type != 'comment':
+            if message.type == 'comment' and message.subtype_id == self.env.ref('mail.mt_comment'):
                 references = message.parent_id.message_id if message.parent_id else False
                 for email in email_to:
                     mail_values = {
