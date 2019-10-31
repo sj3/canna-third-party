@@ -55,7 +55,7 @@ openerp.web_easy_switch_operating_unit = function (instance) {
         renderElement: function() {
             var self = this;
             this._super();
-            if (this.operating_units.length === 1) {
+            if (this.operating_units.length < 1) {
                 this.$el.hide();
             }
             else{
