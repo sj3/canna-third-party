@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+<t t-extend="UserMenu.about">
+  <t t-jquery=".user-heading" t-operation="append">
+    <h4>Repository Version(s): </h4>
+    <t t-raw="version_info.git_version_info"/>
+    <br/><br/>
+  </t>
+</t>
+</templates>
