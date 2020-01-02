@@ -6,6 +6,9 @@ import re
 from openerp import models, fields, api, exceptions
 from datetime import datetime, timedelta
 
+from ..hmrc_vat import Box
+from ..dictutils import map_keys, restrict_with_fill_values
+
 _logger = logging.getLogger(__name__)
 
 
@@ -292,7 +295,7 @@ class MtdVATEndpoints(models.Model):
             date_to=self.date_to,
             target_move='posted',
             previous_period=self.previous_period,
-            vat_posted='no',
+            vat_posted='unposted',
             company_id=self.company_id.id))
 
         chart_of_taxes_view = wizard_rec.account_tax_chart_open_window()
@@ -324,40 +327,56 @@ class MtdVATEndpoints(models.Model):
             'vat': 'unposted'})
 
         retrieve_vat_code_ids = self.env['account.tax.code'].search([
-            ('code', 'in', ['1', '2', '3', '4', '5', '6', '7', '8', '9']),
+            ('code', 'in', list(Box.all_box_codes())),
             ('company_id', '=', self.company_id.id)
         ])
         name = 'Calculated VAT'
 
-        retrieve_sum_for_codes = retrieve_vat_code_ids.with_context(
-            date_from=date_from,
-            date_to=self.date_to,
-            period_id=period_ids,
-            fiscalyear_id=fiscalyear_ids,
-            state='posted',
-            vat='unposted',
-            company_id=self.company_id.id,
-        )._sum_period(name, context)
+        sums_for_tax_code_ids = (
+            retrieve_vat_code_ids
+            .with_context(
+                date_from=date_from,
+                date_to=self.date_to,
+                period_id=period_ids,
+                fiscalyear_id=fiscalyear_ids,
+                state='posted',
+                vat='unposted',
+                company_id=self.company_id.id,
+            )
+            ._sum_period(name, context)
+        )
 
-        code_dict = {
-            '1': 'vat_due_sales_submit',
-            '2': 'vat_due_acquisitions_submit',
-            '3': 'total_vat_due_submit',
-            '4': 'vat_reclaimed_submit',
-            '5': 'net_vat_due_submit',
-            '6': 'total_value_sales_submit',
-            '7': 'total_value_purchase_submit',
-            '8': 'total_value_goods_supplied_submit',
-            '9': 'total_acquisitions_submit',
+        def tax_code_id_to_box_code(tax_code_id):
+            return retrieve_vat_code_ids\
+                .filtered(lambda c: c.id == tax_code_id)\
+                .code
+
+        # _sum_period doesn't always return all boxes, and the ones it does
+        #  are account.tax.code ids not the box codes themselves
+        base_box_sums = restrict_with_fill_values(
+            map_keys(tax_code_id_to_box_code, sums_for_tax_code_ids),
+            wanted_keys=(Box.all_box_codes() - Box.computed_box_codes()),
+            fill_value=0,
+        )
+        box_values = Box.compute_all(base_box_sums)
+        field_box_map = {
+            'vat_due_sales_submit': Box.VAT_DUE_SALES,
+            'vat_due_acquisitions_submit': Box.VAT_DUE_ACQUISITIONS,
+            'total_vat_due_submit': Box.TOTAL_VAT_DUE,
+            'vat_reclaimed_submit': Box.VAT_RECLAIMED_ON_INPUTS,
+            'net_vat_due_submit': Box.NET_VAT_DUE,
+            'total_value_sales_submit': Box.TOTAL_VALUE_SALES,
+            'total_value_purchase_submit': Box.TOTAL_VALUE_PURCHASES,
+            'total_value_goods_supplied_submit': Box.TOTAL_VALUE_GOODS_SUPPLIED,
+            'total_acquisitions_submit': Box.TOTAL_VALUE_ACQUISITIONS,
         }
         if len(retrieve_period) > 0:
+            # TODO this if doesn't encompass everything it should
             self.submit_vat_flag = True
-            for item in retrieve_vat_code_ids:
-                if item.id in retrieve_sum_for_codes.keys() and item.code in code_dict.keys():
-                    setattr(self, code_dict[item.code], retrieve_sum_for_codes[item.id])
-            self.total_vat_due_submit = (self.vat_due_sales_submit + self.vat_due_acquisitions_submit)
-            # HMRC does not take negative value therefore need to change the negative value for Net vat due field
-            # self.net_vat_due_submit = abs(self.net_vat_due_submit)
+            self.update({
+                field: box_values[boxcode]
+                for (field, boxcode) in field_box_map.items()
+            })
         else:
             self.submit_vat_flag = False
             self.show_response_flag = True
@@ -414,32 +433,33 @@ class MtdVATEndpoints(models.Model):
 
         return self.process_connection()
 
-    def _handle_vat_submit_returns_endpoint(self):
-        # Check to see if we have HMRC Posting record We can not submit VAT witout a
-        # HMRC posting template for the company
-        hmrc_posting_config = self.env['mtd_vat.hmrc_posting_configuration'].search([
-            ('name', '=', self.company_id.id)])
+    def _obligation_fulfilled(self):
+        # TODO resync with HMRC first
+        return self.select_vat_obligation.is_fulfilled()
 
-        if not hmrc_posting_config:
+    def _we_think_we_have_previously_submitted_successfully(self):
+        # Because HMRC, at least on the sandbox, doesn't return back the
+        # right obligation status on the obligations endpoint after submitting.
+        return self.select_vat_obligation.have_sent_submission_successfully
+
+    def _handle_vat_submit_returns_endpoint(self):
+        if self._obligation_fulfilled() \
+                or self._we_think_we_have_previously_submitted_successfully():
+            raise exceptions.Warning(
+                "VAT return has already been submitted for this obligation."
+            )
+        hmrc_posting_template_for_company = (
+            self.env['mtd_vat.hmrc_posting_configuration']
+            .search([('name', '=', self.company_id.id)])
+        )
+        if not hmrc_posting_template_for_company:
             raise exceptions.Warning(
                 "Chart of Taxes can not be generated!\n " +
-                "Please create HMRC Posting Templae record first"
+                "Please create HMRC Posting Template record first"
             )
-        for rec in hmrc_posting_config:
-            if not rec.output_account.reconcile:
-                raise exceptions.Warning(
-                    "The account {} is not marked as reconciliable !".format(rec.output_account.name)
-                )
-            elif not rec.input_account.reconcile:
-                raise exceptions.Warning(
-                    "The account {} is not marked as reconciliable !".format(rec.output_account.name)
-                )
-
         vrn = self.get_vrn(self.vrn)
-        period_key = urllib.quote_plus(self.select_vat_obligation.period_key)
         self.path = "/organisations/vat/{vrn}/returns".format(vrn=vrn)
         self.endpoint_name = "submit-vat-returns"
-
         return self.process_connection()
 
     def get_vrn(self, vrn):
@@ -475,7 +495,6 @@ class MtdVATEndpoints(models.Model):
                 "We have no access token and refresh token found"
             )
             authorisation_tracker = self.env['mtd.api_request_tracker'].search([
-                ('api_id', '=', self.api_id.id),
                 ('closed', '=', False)
             ])
         create_date = fields.Datetime.from_string(authorisation_tracker.create_date)
@@ -497,6 +516,13 @@ class MtdVATEndpoints(models.Model):
                 )
         else:
             return self.env['mtd.user_authorisation'].get_user_authorisation(self._name, self)
+
+    @api.one
+    def handle_user_authorisation_error(self, record):
+        # The user authorisation failed therfore we need to handle the display of the response by setting the flags
+        # so that the response is displaed tot he user.
+        record.show_response_flag = True
+        record.view_vat_flag = False
 
     def connection_button_clicked_log_message(self):
         return "Connection button Clicked - endpoint name {name}, redirect URL:- {redirect}, Path url:- {path}".format(
