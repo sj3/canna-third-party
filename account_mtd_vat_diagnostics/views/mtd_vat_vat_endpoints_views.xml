@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <record id="mtd_vat_endpoints_view" model="ir.ui.view">
+      <field name="name">mtd_vat.vat_endpoints.form</field>
+      <field name="model">mtd_vat.vat_endpoints</field>
+      <field name="inherit_id" ref="account_mtd_vat.mtd_vat_endpoints_view"/>
+      <field name="arch" type="xml">
+        <field name="date_from" position="before">
+          <field name="offline_calc" attrs="{'invisible': [('name', '!=', 'Submit a VAT Return')]}"/>
+        </field>
+        <field name="date_from" position="attributes">
+          <attribute name="attrs">
+            {'invisible': [('name', '=', 'View VAT Returns')],
+             'required': [('offline_calc', '=', True)],
+             'readonly': [('offline_calc', '=', False)]}
+          </attribute>
+        </field>
+        <field name="date_to" position="attributes">
+          <attribute name="attrs">
+            {'invisible': [('name', '=', 'View VAT Returns')],
+             'required': [('offline_calc', '=', True)],
+             'readonly': [('offline_calc', '=', False)]}
+          </attribute>
+        </field>
+        <field name="previous_period" position="attributes">
+          <attribute name="attrs">
+            {'invisible': ['|', ('name', '!=', 'Submit a VAT Return'), ('offline_calc', '=', True)]}
+          </attribute>
+        </field>
+        <button name="action_retrieve_vat" position="attributes">
+          <attribute name="attrs">
+            {'invisible': ['|', ('name', '!=', 'Submit a VAT Return'), ('offline_calc', '=', True)]}
+          </attribute>
+        </button>
+        <button name="action_retrieve_vat" position="before">
+          <button name="action_calc_offline"
+                  type="object"
+                  string="Calculate VAT Offline"
+                  class="oe_highlight"
+                  attrs="{'invisible': [('offline_calc', '=', False)]}"/>
+        </button>
+      </field>
+    </record>
+
+  </data>
+</openerp>

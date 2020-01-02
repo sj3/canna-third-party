@@ -18,7 +18,9 @@ class MtdUserAuthorisation(models.Model):
     @api.multi
     def get_user_authorisation(self, module_name=None, record=None):
         tracker_api = self.create_tracker_record(module_name, record)
-        redirect_uri = "{}/auth-redirect".format(record.hmrc_configuration.redirect_url)
+        normalised_redirect_url = \
+            record.hmrc_configuration.redirect_url.rstrip('/')
+        redirect_uri = "{}/auth-redirect".format(normalised_redirect_url)
         state = ""
         # State is optional
         if record.hmrc_configuration.state:
@@ -61,6 +63,9 @@ class MtdUserAuthorisation(models.Model):
             record.response_from_hmrc = error_message
             # close the request so a new request can be made.
             tracker.closed = 'response'
+            # Handle user authorisation error for VAT view endpoints
+            if hasattr(record, 'handle_user_authorisation_error'):
+                record.handle_user_authorisation_error(record)
 
             return werkzeug.utils.redirect(
                 '/web#id={id}&view_type=form&model=mtd.hello_world&menu_id={menu}&action={action}'.format(
