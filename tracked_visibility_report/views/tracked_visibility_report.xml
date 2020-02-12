@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+    <record id="tracked_visibility_view_search" model="ir.ui.view">
+      <field name="name">tracked.visibility.search</field>
+      <field name="model">tracked.visibility.report</field>
+      <field name="arch" type="xml">
+        <search string="Search Tracked Fields">
+          <field name="body" string="Tracked Fields"
+            filter_domain="['|', ('body', 'ilike', self), ('record_name', 'ilike', self)]"/>
+          <separator/>
+          <filter string="Partners" name="res_partner"
+            domain="[('model', '=', 'res.partner')]"/>
+          <filter string="Products" name="product_template"
+            domain="[('model', '=', 'product.template')]"/>
+          <filter string="Bank Accounts" name="res_partner_bank"
+            domain="[('model', '=', 'res.partner.bank')]"/>
+          <filter string="Invoices" name="invoices"
+            domain="[('model', '=', 'account.invoice')]"/>
+          <separator/>
+          <filter string="Last Week" name="last_week"
+            domain="[('date', '&gt;=', (context_today() - datetime.timedelta(7)).strftime('%%Y-%%m-%%d'))]" help="7 days"/>
+          <filter string="Last Two Weeks" name="last_two_weeks"
+            domain="[('date', '&gt;=', (context_today() - datetime.timedelta(14)).strftime('%%Y-%%m-%%d'))]" help="14 days"/>
+          <filter string="Last Month" name="last_month"
+            domain="[('date', '&gt;=', (context_today() - datetime.timedelta(30)).strftime('%%Y-%%m-%%d'))]" help="30 days"/>
+          <filter string="Last Quarter" name="last_quarter"
+            domain="[('date', '&gt;=', (context_today() - datetime.timedelta(90)).strftime('%%Y-%%m-%%d'))]" help="90 days"/>
+          <filter string="Last Year" name="last_year"
+            domain="[('date', '&gt;=', (context_today() - datetime.timedelta(365)).strftime('%%Y-%%m-%%d'))]" help="365 days"/>
+					<group string="Group By">
+						<filter name="group_by_model" string="Document Type" context="{'group_by':'model'}"/>
+						<filter name="group_by_author_id" string="User" context="{'group_by':'author_id'}"/>
+					</group>
+        </search>
+      </field>
+    </record>
+
+    <record id="view_tracked_visibility_tree" model="ir.ui.view">
+      <field name="name">trackedVisibilityReportTree</field>
+      <field name="model">tracked.visibility.report</field>
+      <field name="arch" type="xml">
+        <tree string="Tracked Fields" edit="False" create="False" delete="False">
+          <field name="record_name" string="Document Name"/>
+          <field name="author_id" string="User" help="Partner related to the user that made the changes."/>
+          <field name="date"/>
+        </tree>
+      </field>
+    </record>
+
+    <record id="view_tracked_visibility_form" model="ir.ui.view">
+      <field name="name">tracked.visibility.report.form</field>
+      <field name="model">tracked.visibility.report</field>
+      <field name="arch" type="xml">
+        <form string="Tracked field" edit="False" create="False" delete="False">
+          <group>
+            <field name="author_id" string="User" help="Partner related to the user that made the changes."/>
+            <field name="date" string="Timestamp"/>
+            <field name="body" string="Tracked Info" help="Information on all tracked fields. This includes fields that were not changed, but are marked to be always tracked."/>
+            <field name="message_id" invisible="1"/>
+            <field name="model" string="Document Type"/>
+          </group>
+        </form>
+      </field>
+    </record>
+
+    <record id="tracked_visibility_action" model="ir.actions.act_window">
+      <field name="name">Tracked Changes</field>
+      <field name="res_model">tracked.visibility.report</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+  </data>
+</openerp>
