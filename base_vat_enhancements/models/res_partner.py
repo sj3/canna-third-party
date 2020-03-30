@@ -54,6 +54,8 @@ class ResPartner(models.Model):
         if online:
             check_func = self.pool['res.partner'].vies_vat_check
         else:
+            # Bypass simple vat checking because it is unmaintained.
+            return True
             check_func = self.pool['res.partner'].simple_vat_check
         vat_country, vat_number = self._split_vat(vat)
         return check_func(self._cr, self._uid,
@@ -107,6 +109,9 @@ class ResPartner(models.Model):
     @api.multi
     def button_check_vat(self):
         self.ensure_one()
+        # Bypass simple vat checking because it is unmaintained.
+        if not self.env.user.company_id.vat_check_vies:
+            return True
         if not self.check_vat():
             msg = self._vat_check_errmsg(
                 self.vat, self.name or "")
