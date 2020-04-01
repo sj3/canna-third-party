@@ -6,13 +6,14 @@ from odoo import api, fields, models
 class ResPartner(models.Model):
     _inherit = "res.partner"
 
-    visit_ids = fields.One2many(comodel_name='crm.visit',
-                                inverse_name='partner_id',
-                                string='Visits')
-    visits_count = fields.Integer(string='Number of visits',
-                                  compute='_get_visits_count')
+    visit_ids = fields.One2many(
+        comodel_name="crm.visit", inverse_name="partner_id", string="Visits"
+    )
+    visits_count = fields.Integer(
+        string="Number of visits", compute="_get_visits_count"
+    )
 
-    @api.depends('visit_ids')
+    @api.depends("visit_ids")
     def _get_visits_count(self):
         visit_count = len(self.visit_ids) or 0
         child_count = 0
