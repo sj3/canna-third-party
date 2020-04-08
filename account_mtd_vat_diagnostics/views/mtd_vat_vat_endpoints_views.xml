@@ -41,6 +41,36 @@
                   class="oe_highlight"
                   attrs="{'invisible': [('offline_calc', '=', False)]}"/>
         </button>
+
+        <!-- make calculated field editable -->
+        <field name="vat_due_sales_submit" position="attributes">
+          <attribute name="readonly">0</attribute>
+        </field>
+        <field name="vat_due_acquisitions_submit" position="attributes">
+          <attribute name="readonly">0</attribute>
+        </field>
+        <field name="total_vat_due_submit" position="attributes">
+          <attribute name="readonly">0</attribute>
+        </field>
+        <field name="vat_reclaimed_submit" position="attributes">
+          <attribute name="readonly">0</attribute>
+        </field>
+        <field name="net_vat_due_submit" position="attributes">
+          <attribute name="readonly">0</attribute>
+        </field>
+        <field name="total_value_sales_submit" position="attributes">
+          <attribute name="readonly">0</attribute>
+        </field>
+        <field name="total_value_purchase_submit" position="attributes">
+          <attribute name="readonly">0</attribute>
+        </field>
+        <field name="total_value_goods_supplied_submit" position="attributes">
+          <attribute name="readonly">0</attribute>
+        </field>
+        <field name="total_acquisitions_submit" position="attributes">
+          <attribute name="readonly">0</attribute>
+        </field>
+
       </field>
     </record>
 
