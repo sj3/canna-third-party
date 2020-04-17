@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+  <data>
+    <template id="xaf_template_extra" inherit_id="l10n_nl_xaf_auditfile_export.xaf_template_all">
+      <xpath expr="//transactions/journal/transaction/amnt" position="after">
+        <userID><t t-esc="m.create_uid.login" /></userID>
+      </xpath>
+    </template>
+  </data>
+</openerp>
