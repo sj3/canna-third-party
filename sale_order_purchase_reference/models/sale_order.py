@@ -1,9 +1,9 @@
 # Copyright 2015 Onestein BV (www.onestein.eu).
-# Copyright (C) 2020-TODAY Serpent Consulting Services Pvt. Ltd. (<http://www.serpentcs.com>).
+# Copyright (C) 2020-TODAY SerpentCS Pvt. Ltd. (<http://www.serpentcs.com>).
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import api, fields, models, _
-from odoo.exceptions import Warning
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 
 class SaleOrder(models.Model):
@@ -20,7 +20,7 @@ class SaleOrder(models.Model):
     )
 
     def _compute_purchase_order_ids(self):
-        procs = self.env["procurement.group"].search([("sale_id", "=", self.id),])
+        procs = self.env["procurement.group"].search([("sale_id", "=", self.id)])
         self.purchase_order_ids = procs.mapped("purchase_id")
         self.purchase_order_count = len(self.purchase_order_ids)
 
@@ -36,7 +36,7 @@ class SaleOrder(models.Model):
             )
             return [("id", "in", so_ids)]
         else:
-            raise Warning(_("Unsupported operand for search!"))
+            raise UserError(_("Unsupported operand for search!"))
 
     def view_purchase_order(self):
         self.ensure_one()
@@ -45,9 +45,7 @@ class SaleOrder(models.Model):
         ).read()[0]
         po_ids = [x.id for x in self.purchase_order_ids]
         if po_ids:
-            action.update(
-                {"domain": [("id", "in", po_ids)],}
-            )
+            action.update({"domain": [("id", "in", po_ids)]})
             if len(po_ids) == 1:
                 action.update(
                     {
