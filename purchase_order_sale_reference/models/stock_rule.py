@@ -1,11 +1,13 @@
 # Copyright 2009-2018 Noviat.
-# Copyright (C) 2020-TODAY Serpent Consulting Services Pvt. Ltd. (<http://www.serpentcs.com>).
+# Copyright (C) 2020-TODAY SerpentCS Pvt. Ltd. (<http://www.serpentcs.com>).
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from collections import defaultdict
-from dateutil.relativedelta import relativedelta
 from itertools import groupby
-from odoo import api, models, _
+
+from dateutil.relativedelta import relativedelta
+
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 
@@ -34,7 +36,10 @@ class StockRule(models.Model):
 
             if not supplier:
                 msg = _(
-                    "There is no matching vendor price to generate the purchase order for product %s (no vendor defined, minimum quantity not reached, dates not valid, ...). Go on the product form and complete the list of vendors."
+                    "There is no matching vendor price to generate the "
+                    "purchase order for product %s (no vendor defined,"
+                    " minimum quantity not reached, dates not valid, ...). "
+                    "Go on the product form and complete the list of vendors."
                 ) % (procurement.product_id.display_name)
                 raise UserError(msg)
 
@@ -59,7 +64,7 @@ class StockRule(models.Model):
             procurements, rules = zip(*procurements_rules)
 
             # Get the set of procurement origin for the current domain.
-            origins = set([p.origin for p in procurements])
+            origins = {p.origin for p in procurements}
             # Check if a PO exists for the current domain.
             po = (
                 self.env["purchase.order"]
