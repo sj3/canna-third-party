@@ -1,15 +1,16 @@
 # Copyright 2009-2017 Noviat.
-# Copyright (C) 2020-TODAY Serpent Consulting Services Pvt. Ltd. (<http://www.serpentcs.com>).
+# Copyright (C) 2020-TODAY SerpentCS Pvt. Ltd. (<http://www.serpentcs.com>).
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 import io
 import json
-import xlsxwriter
-from odoo import api, fields, models, _
 from datetime import datetime
-from odoo.tools import date_utils
+
+import xlsxwriter
+
+from odoo import _, api, fields, models
 from odoo.exceptions import Warning as UserError
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, date_utils
 
 
 class WizExportStockLevel(models.TransientModel):
@@ -38,7 +39,7 @@ class WizExportStockLevel(models.TransientModel):
         help="Limit the export to the selected Location. ",
     )
     product_select = fields.Selection(
-        [("all", "All Products"), ("select", "Selected Products"),],
+        [("all", "All Products"), ("select", "Selected Products")],
         string="Products",
         default=lambda self: self._default_product_select(),
     )
@@ -151,9 +152,7 @@ class WizExportStockLevel(models.TransientModel):
         product_obj = self.env["product.product"]
         context = dict(self._context)
         wanted_list = product_obj._stock_level_export_xls_fields()
-        context.update(
-            {"wanted_list": wanted_list,}
-        )
+        context.update({"wanted_list": wanted_list})
         warehouse = data.get("warehouse_ids")
         warehouse = self.env["stock.warehouse"].search([("id", "=", warehouse)])
 
@@ -175,7 +174,7 @@ class WizExportStockLevel(models.TransientModel):
             }
         )
         record_format = workbook.add_format(
-            {"font_name": "Arial", "font_size": 11, "border": True,}
+            {"font_name": "Arial", "font_size": 11, "border": True}
         )
 
         row = 0
@@ -282,9 +281,6 @@ class WizExportStockLevel(models.TransientModel):
 
         cost_pos = "cost" in wanted_list and wanted_list.index("cost")
         quantity_pos = "quantity" in wanted_list and wanted_list.index("quantity")
-        stock_value_pos = "stock_value" in wanted_list and wanted_list.index(
-            "stock_value"
-        )
         if not (cost_pos and quantity_pos) and "stock_value" in wanted_list:
             raise UserError(
                 _("Customization Error !"),
@@ -320,9 +316,9 @@ class WizExportStockLevel(models.TransientModel):
         row = 0
         col = 0
         header_format = workbook.add_format(
-            {"font_name": "Arial", "font_size": 14, "bold": True,}
+            {"font_name": "Arial", "font_size": 14, "bold": True}
         )
-        record_format = workbook.add_format({"font_name": "Arial", "font_size": 11,})
+        record_format = workbook.add_format({"font_name": "Arial", "font_size": 11})
         total_format = workbook.add_format(
             {
                 "font_name": "Arial",

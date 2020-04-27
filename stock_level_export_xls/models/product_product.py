@@ -1,5 +1,5 @@
 # Copyright 2009-2017 Noviat.
-# Copyright (C) 2020-TODAY Serpent Consulting Services Pvt. Ltd. (<http://www.serpentcs.com>).
+# Copyright (C) 2020-TODAY SerpentCS Pvt. Ltd. (<http://www.serpentcs.com>).
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo import api, models
@@ -13,7 +13,6 @@ class ProductProduct(models.Model):
         """
         return cost at date for cost_method != 'real'
         """
-        company_id = self._context.get("force_company") or self.env.user.company_id.id
         valuation_layer = self.env["stock.valuation.layer"].search(
             [("create_date", "=", dt)]
         )
@@ -111,7 +110,7 @@ class ProductProduct(models.Model):
                     if move_ids:
                         query = """
                             SELECT quantity, value
-                            FROM stock_valuation_layer 
+                            FROM stock_valuation_layer
                             WHERE id in %s
                             """
                         if context.get("location"):

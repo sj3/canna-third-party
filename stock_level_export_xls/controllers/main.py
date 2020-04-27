@@ -1,12 +1,14 @@
 # Copyright 2009-2017 Noviat.
-# Copyright (C) 2020-TODAY Serpent Consulting Services Pvt. Ltd. (<http://www.serpentcs.com>).
+# Copyright (C) 2020-TODAY SerpentCS Pvt. Ltd. (<http://www.serpentcs.com>).
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 import json
+
 from odoo import http
 from odoo.http import content_disposition, request
-from odoo.addons.web.controllers.main import _serialize_exception
 from odoo.tools import html_escape
+
+from odoo.addons.web.controllers.main import _serialize_exception
 
 
 class XLSXReportController(http.Controller):
