@@ -142,7 +142,8 @@ class AccountInvoice(models.Model, CommonAccrual):
                 aml_vals.append(accrual_vals)
 
         if aml_vals:
-            am_id, inv_accruals = self._create_accrual_move(aml_vals)
+            am_id, inv_accruals = self._create_accrual_move(
+                aml_vals, date=self.date_invoice, period_id=self.period_id.id)
             self.write({'accrual_move_id': am_id})
 
         # reconcile with Stock Valuation or PO accruals

@@ -15,7 +15,8 @@ class CommonAccrual(object):
     def _prepare_accrual_move_ref(self):
         return self.name
 
-    def _prepare_accrual_move_vals(self, aml_vals, journal_id):
+    def _prepare_accrual_move_vals(
+            self, aml_vals, journal_id, date, period_id):
         if not journal_id:
             journal_id = self.company_id.accrual_journal_id.id
         if not journal_id:
@@ -28,7 +29,8 @@ class CommonAccrual(object):
         move_vals = {
             'ref': ref,
             'journal_id': journal_id,
-            'date': fields.Date.today(),
+            'date': date,
+            'period_id': period_id,
             'company_id': self.company_id.id,
         }
         return move_vals
@@ -54,9 +56,13 @@ class CommonAccrual(object):
         """
         pass
 
-    def _create_accrual_move(self, aml_vals, journal_id=False):
+    def _create_accrual_move(
+            self, aml_vals, journal_id=False, date=False, period_id=False):
+        if not date:
+            date = fields.Date.today()
         accrual_move_id = self.env['account.move'].create(
-            self._prepare_accrual_move_vals(aml_vals, journal_id))
+            self._prepare_accrual_move_vals(
+                aml_vals, journal_id, date, period_id))
 
         grouped = {}
         fields_to_sum = self._accrual_fields_to_sum()
