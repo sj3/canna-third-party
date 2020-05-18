@@ -5,7 +5,7 @@
 import logging
 
 from openerp import fields, _
-from openerp.exceptions import RedirectWarning
+from openerp.exceptions import Warning as UserError, RedirectWarning
 
 _logger = logging.getLogger(__name__)
 
@@ -25,7 +25,24 @@ class CommonAccrual(object):
             raise RedirectWarning(
                 msg, action.id,
                 _('Go to company configuration screen'))
+        if not date:
+            date = fields.Date.today()
         ref = self._prepare_accrual_move_ref()
+        if not period_id:
+            # period search i.s.o. account.period, find
+            # to avoid special periods
+            pdom = [
+                ('date_start', '<=', date), ('date_stop', '>=', date),
+                ('company_id', '=', self.company_id.id),
+                ('special', '=', False),
+            ]
+            period = self.env['account.period'].search(pdom)
+            if len(period) != 1:
+                raise UserError(_(
+                    "Error detected while creating accrual for %s. "
+                    "No period found for date %s"
+                ) % (self, date))
+            period_id = period.id
         move_vals = {
             'ref': ref,
             'journal_id': journal_id,
@@ -58,8 +75,6 @@ class CommonAccrual(object):
 
     def _create_accrual_move(
             self, aml_vals, journal_id=False, date=False, period_id=False):
-        if not date:
-            date = fields.Date.today()
         accrual_move_id = self.env['account.move'].create(
             self._prepare_accrual_move_vals(
                 aml_vals, journal_id, date, period_id))
