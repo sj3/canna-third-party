@@ -59,7 +59,8 @@ def message_post(
             "res_id": mail_message.res_id,
             "record_name": mail_message.record_name or mail_message.model,
         }
-        self.pool.get("tracked.visibility.report").create(cr, uid, vals,
+        if self.pool.get("tracked.visibility.report"):
+            self.pool["tracked.visibility.report"].create(cr, uid, vals,
                                                           context=context)
     return msg_id
 
