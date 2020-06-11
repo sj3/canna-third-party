@@ -13,7 +13,9 @@ class SaleOrder(models.Model):
         comodel_name='sale.order.group',
         string='Sale Order Group',
         ondelete='set null',
-        copy=False)
+        copy=False,
+        readonly=True)
+
     sale_order_group_state = fields.Selection(
         related='sale_order_group_id.state',
         string='Sale Order Group State')
