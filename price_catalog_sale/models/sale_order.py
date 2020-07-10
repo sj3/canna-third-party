@@ -10,13 +10,32 @@ class SaleOrder(models.Model):
 
     _inherit = "sale.order"
 
-    currency_id = fields.Many2one(related="price_catalog_id.currency_id")
     price_catalog_id = fields.Many2one(
         string="Price Catalog",
         comodel_name="price.catalog",
         domain=[("catalog_type", "=", "sale")],
         required=True,
+        default=lambda r: r._default_price_catalog_id(),
     )
+    currency_id = fields.Many2one(
+        string="Currency", compute="_compute_currency_id", required=True
+    )
+
+    @api.depends("price_catalog_id", "pricelist_id")
+    def _compute_currency_id(self):
+        for so in self:
+            so.currency_id = (
+                so.price_catalog_id.currency_id
+                or so.pricelist_id.currency_id
+                or so.company_id.currency_id
+            )
+
+    def _default_price_catalog_id(self):
+        return (
+            self.env.ref("price_catalog.price_catalog_default", False)
+            and self.env.ref("price_catalog.price_catalog_default")
+            or self.env["price.catalog"]
+        )
 
     @api.onchange("partner_id")
     def onchange_partner_id(self):
