@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <menuitem name="Reporting" id="menu_reporting" sequence="115"
+    <menuitem name="Reporting" id="base.menu_reporting" sequence="115"
               web_icon="module_list_readonly,static/description/reporting.png"/>
 
     <menuitem id="ir_module_module_menu_info" name="Module Info"
-          parent="menu_reporting"
+          parent="base.menu_reporting"
           sequence="1000"/>
 
     <record id="ir_module_module_tree_info" model="ir.ui.view">
