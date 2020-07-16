@@ -17,7 +17,11 @@ class MailMessage(models.Model):
 
     @api.model
     def create(self, vals):
-        vals['body_lang'] = self.env.user.lang
+        # When the record is created by admin, but triggered by a real user,
+        # use the language from the context, as the created message will also
+        # be in that language. If the languages do not match the value will not
+        # be hidden.
+        vals["body_lang"] = self._context["lang"] or self.env.user.lang
         return super(MailMessage, self).create(vals)
 
     @api.model
