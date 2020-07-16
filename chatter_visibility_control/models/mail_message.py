@@ -30,8 +30,7 @@ class MailMessage(models.Model):
             message, parent_id=parent_id
         )
         chatter_control_models = safe_eval(
-            self.env["ir.config_parameter"].get_param("chatter_visibility_control")
-            or "[]"
+            self.env["ir.config_parameter"].get_param("chatter_visibility_control", [])
         )
         if msg_dict["model"] in chatter_control_models:
             msg_dict = self._message_control_visibility(message, msg_dict)
