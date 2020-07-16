@@ -21,7 +21,7 @@ class MailMessage(models.Model):
         # use the language from the context, as the created message will also
         # be in that language. If the languages do not match the value will not
         # be hidden.
-        vals["body_lang"] = self._context["lang"] or self.env.user.lang
+        vals["body_lang"] = self.env.context["lang"] or self.env.user.lang
         return super(MailMessage, self).create(vals)
 
     @api.model
@@ -30,8 +30,7 @@ class MailMessage(models.Model):
             message, parent_id=parent_id
         )
         chatter_control_models = safe_eval(
-            self.env["ir.config_parameter"].get_param("chatter_visibility_control")
-            or "[]"
+            self.env["ir.config_parameter"].get_param("chatter_visibility_control", [])
         )
         if msg_dict["model"] in chatter_control_models:
             msg_dict = self._message_control_visibility(message, msg_dict)
