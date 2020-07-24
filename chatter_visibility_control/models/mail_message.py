@@ -21,7 +21,7 @@ class MailMessage(models.Model):
         # use the language from the context, as the created message will also
         # be in that language. If the languages do not match the value will not
         # be hidden.
-        vals["body_lang"] = self._context["lang"] or self.env.user.lang
+        vals["body_lang"] = self.env.context.get("lang") or self.env.user.lang
         return super(MailMessage, self).create(vals)
 
     @api.model
