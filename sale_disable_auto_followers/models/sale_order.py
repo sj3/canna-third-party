@@ -28,7 +28,9 @@ class SaleOrder(models.Model):
 
     @api.multi
     def message_subscribe(self, partner_ids, subtype_ids=None):
-        if self._context.get('disable_message_subscribe'):
+        if self.env.context.get("disable_message_subscribe") or self.env.context.get(
+            "fetchmail_server_id"
+        ):
             return True
         else:
             return super(SaleOrder, self).message_subscribe(
