@@ -5,11 +5,12 @@
 from openerp import models, api
 
 import logging
+
 _logger = logging.getLogger(__name__)
 
 
 class SaleOrder(models.Model):
-    _inherit = 'sale.order'
+    _inherit = "sale.order"
 
     @api.model
     def create(self, vals, **kwargs):
@@ -28,15 +29,19 @@ class SaleOrder(models.Model):
 
     @api.multi
     def message_subscribe(self, partner_ids, subtype_ids=None):
-        if self._context.get('disable_message_subscribe'):
+        if self.env.context.get("disable_message_subscribe") or self.env.context.get(
+            "fetchmail_server_id"
+        ):
             return True
         else:
             return super(SaleOrder, self).message_subscribe(
-                partner_ids, subtype_ids=subtype_ids)
+                partner_ids, subtype_ids=subtype_ids
+            )
 
     @api.model
     def _message_get_auto_subscribe_fields(
-            self, updated_fields, auto_follow_fields=None):
+        self, updated_fields, auto_follow_fields=None
+    ):
         """
         Turn off standard behavior (adding of 'user_id' partner)
         """
@@ -45,5 +50,4 @@ class SaleOrder(models.Model):
     @api.model
     def _make_invoice(self, order, lines):
         ctx = dict(self._context, disable_message_subscribe=True)
-        return super(SaleOrder, self.with_context(ctx))._make_invoice(
-            order, lines)
+        return super(SaleOrder, self.with_context(ctx))._make_invoice(order, lines)

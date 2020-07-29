@@ -5,17 +5,17 @@
 from openerp import models, api
 
 import logging
+
 _logger = logging.getLogger(__name__)
 
 
 class AccountInvoice(models.Model):
-    _inherit = 'account.invoice'
+    _inherit = "account.invoice"
 
     @api.model
     def create(self, vals, **kwargs):
         ctx = dict(self._context, mail_create_nosubscribe=True)
-        return super(AccountInvoice, self.with_context(ctx)).create(
-            vals, **kwargs)
+        return super(AccountInvoice, self.with_context(ctx)).create(vals, **kwargs)
 
     @api.multi
     def invoice_validate(self):
@@ -29,15 +29,19 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def message_subscribe(self, partner_ids, subtype_ids=None):
-        if self._context.get('disable_message_subscribe'):
+        if self.env.context.get("disable_message_subscribe") or self.env.context.get(
+            "fetchmail_server_id"
+        ):
             return True
         else:
             return super(AccountInvoice, self).message_subscribe(
-                partner_ids, subtype_ids=subtype_ids)
+                partner_ids, subtype_ids=subtype_ids
+            )
 
     @api.model
     def _message_get_auto_subscribe_fields(
-            self, updated_fields, auto_follow_fields=None):
+        self, updated_fields, auto_follow_fields=None
+    ):
         """
         Turn off standard behavior (adding of 'user_id' partner)
         """
