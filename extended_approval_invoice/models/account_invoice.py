@@ -13,3 +13,16 @@ class AccountInvoice(models.Model):
     def action_cancel(self):
         self.cancel_approval()
         return super(AccountInvoice, self).action_cancel()
+
+    @api.multi
+    def approve_step(self):
+        """
+        Validate taxes before entering approval, not only on last step.
+        """
+        self.ensure_one()
+        if self.state == 'draft':
+            compute_taxes = self.env['account.invoice.tax'].compute(
+                self.with_context(lang=self.partner_id.lang))
+            self.check_tax_lines(compute_taxes)
+
+        return super(AccountInvoice, self).approve_step()
