@@ -21,7 +21,7 @@ def fill_product_catalog_prices(env):
             })
             if line.product_id:
                 price = pricelist.get_product_price(line.product_id, 1.0, False)
-                items = env['price.catalog.item'].create({
+                env['price.catalog.item'].create({
                     'product_id': line.product_id.id,
                     'subcatalog_id': subcatalog.id,
                     'price': price
