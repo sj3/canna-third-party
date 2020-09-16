@@ -30,5 +30,6 @@
     ],
     'data': [
         'account_move_line_view.xml',
+        'views/assets_backend.xml',
     ],
 }

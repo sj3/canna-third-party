@@ -60,7 +60,9 @@ class account_move_line(orm.Model):
                         credit_pos = pos
             if not done and credit_pos:
                 absolute_balance_node = etree.Element(
-                    'field', name='absolute_balance')
+                        'field',
+                        {'name': 'absolute_balance',
+                            'balance': "Balance"})
                 aml_tree.insert(credit_pos, absolute_balance_node)
                 absolute_balance_dict = self.fields_get(
                     cr, uid, ['absolute_balance'], context=context
