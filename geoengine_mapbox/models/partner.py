@@ -3,6 +3,7 @@
 
 import logging
 import urllib.parse
+import pycountry
 
 from odoo import api, exceptions, fields, models
 from odoo.tools.translate import _
@@ -63,10 +64,15 @@ class ResPartner(models.Model):
                 url += urllib.parse.quote(
                     partner.state_id.name or "" + ',') \
                     if partner.state_id else ""
-                url += urllib.parse.quote(
-                    partner.country_id.name or "") if \
-                    partner.country_id else ""
-                url += '.json?' + access_token
+                url_country = ''
+                if partner.country_id:
+                    country_code = pycountry.countries.get(
+                        name=partner.country_id.name)
+                    if country_code:
+                        url_country = 'country=%s&' % (country_code.alpha_2)
+                url += '.json?' + url_country
+                url += 'autocomplete=false&'
+                url += access_token
                 request_result = requests.get(url)
                 try:
                     request_result.raise_for_status()
