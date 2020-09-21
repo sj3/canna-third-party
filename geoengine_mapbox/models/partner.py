@@ -21,67 +21,61 @@ class ResPartner(models.Model):
 
     _inherit = "res.partner"
 
-    date_localization = fields.Datetime(string='Geolocation Date')
+    date_localization = fields.Datetime(string="Geolocation Date")
     partner_latitude = fields.Float(tracking=True)
     partner_longitude = fields.Float(tracking=True)
     mapbox_error = fields.Text()
 
     def send_mapbox_fail_mail(self, error):
-        template = self.env.ref(
-            'geoengine_mapbox.email_template_mapbox_call_fail')
-        feedback_email = \
-            self.env['ir.config_parameter'].sudo().get_param(
-                'mapbox.feedback_email')
+        template = self.env.ref("geoengine_mapbox.email_template_mapbox_call_fail")
+        feedback_email = (
+            self.env["ir.config_parameter"].sudo().get_param("mapbox.feedback_email")
+        )
         for partner in self:
-            partner.write({
-                "mapbox_error": error,
-            })
-            template.write({
-                'email_to': feedback_email,
-            })
+            partner.write(
+                {"mapbox_error": error,}
+            )
+            template.write(
+                {"email_to": feedback_email,}
+            )
             template.send_mail(partner, force_send=False)
 
     @api.model
     def get_mapbox_client_id(self):
-        return self.env['ir.config_parameter'].sudo().get_param(
-            'mapbox.client_id')
+        return self.env["ir.config_parameter"].sudo().get_param("mapbox.client_id")
 
     def get_mapbox_location(self):
         try:
             mapbox_client_id = self.get_mapbox_client_id()
-            access_token = 'access_token=' + mapbox_client_id
+            access_token = "access_token=" + mapbox_client_id
             url = "https://api.mapbox.com/geocoding/v5/mapbox.places/"
 
             for partner in self:
-                url += urllib.parse.quote(
-                    partner.street or "") + ','
-                url += urllib.parse.quote(
-                    partner.street2 or "") + ','
-                url += urllib.parse.quote(
-                    partner.city or "") + ','
-                url += urllib.parse.quote(
-                    partner.zip or "") + ','
-                url += urllib.parse.quote(
-                    partner.state_id.name or "" + ',') \
-                    if partner.state_id else ""
-                url_country = ''
+                url += urllib.parse.quote(partner.street or "") + ","
+                url += urllib.parse.quote(partner.street2 or "") + ","
+                url += urllib.parse.quote(partner.city or "") + ","
+                url += urllib.parse.quote(partner.zip or "") + ","
+                url += (
+                    urllib.parse.quote(partner.state_id.name or "" + ",")
+                    if partner.state_id
+                    else ""
+                )
+                url_country = ""
                 if partner.country_id:
-                    country_code = pycountry.countries.get(
-                        name=partner.country_id.name)
+                    country_code = pycountry.countries.get(name=partner.country_id.name)
                     if country_code:
-                        url_country = 'country=%s&' % (country_code.alpha_2)
-                url += '.json?' + url_country
-                url += 'autocomplete=false&'
+                        url_country = "country=%s&" % (country_code.alpha_2)
+                url += ".json?" + url_country
+                url += "autocomplete=false&"
                 url += access_token
                 request_result = requests.get(url)
                 try:
                     request_result.raise_for_status()
                 except Exception as e:
                     _logger.exception("Geocoding error")
-                    raise exceptions.UserError(
-                        _("Geocoding error. \n %s") % str(e))
+                    raise exceptions.UserError(_("Geocoding error. \n %s") % str(e))
                 vals = request_result.json() or {}
-                vals = vals and vals.get('features')[0] or {}
+                vals = vals and vals.get("features")[0] or {}
                 partner.write(
                     {
                         "partner_latitude": vals.get("center")[0] or 0,
@@ -105,20 +99,18 @@ class ResPartner(models.Model):
                     "postalCode": partner.zip or "",
                     "city": partner.city or "",
                     "state": partner.state_id and partner.state_id.name or "",
-                    "country":
-                        partner.country_id and partner.country_id.name or "",
-                    "countryCodes":
-                        partner.country_id and partner.country_id.code or "",
+                    "country": partner.country_id and partner.country_id.name or "",
+                    "countryCodes": partner.country_id
+                    and partner.country_id.code
+                    or "",
                 }
 
-                request_result = requests.get(
-                    url, params=pay_load, headers=headers)
+                request_result = requests.get(url, params=pay_load, headers=headers)
                 try:
                     request_result.raise_for_status()
                 except Exception as e:
                     _logger.exception("Geocoding error")
-                    raise exceptions.UserError(
-                        _("Geocoding error. \n %s") % str(e))
+                    raise exceptions.UserError(_("Geocoding error. \n %s") % str(e))
                 vals = request_result.json()
                 vals = vals and vals[0] or {}
                 partner.write(
