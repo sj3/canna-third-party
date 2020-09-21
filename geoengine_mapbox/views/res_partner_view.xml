@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record model="ir.ui.view" id="geoengine_mapbox.geo_partner_view_form_inherited">
+    <record model="ir.ui.view" id="geo_partner_view_form_inherited">
         <field name="name">geo_partner_form</field>
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="geoengine_partner.geo_partner_view_form"/>
