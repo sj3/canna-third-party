@@ -21,9 +21,6 @@
 ##############################################################################
 
 from openerp.osv import fields, orm
-from lxml import etree
-# import logging
-# _logger = logging.getLogger(__name__)
 
 
 class account_move_line(orm.Model):
@@ -36,42 +33,20 @@ class account_move_line(orm.Model):
             (tuple(ids),))
         return dict(cr.fetchall())
 
+    def _signed_balance(self, cr, uid, ids, name, arg, context=None):
+        cr.execute(
+            "SELECT id, debit-credit "
+            "FROM account_move_line WHERE id IN %s",
+            (tuple(ids),))
+        return dict(cr.fetchall())
+
     _columns = {
         'absolute_balance': fields.function(
             _absolute_balance,
             string='Absolute Amount', store=True,
             help="Absolute Amount in Company Currency"),
+        'signed_balance': fields.function(
+            _signed_balance,
+            string='Balance', store=True,
+            help="Balance in Company Currency"),
     }
-
-    def fields_view_get(self, cr, uid, view_id=None, view_type='form',
-                        context=None, toolbar=False, submenu=False):
-        res = super(account_move_line, self).fields_view_get(
-            cr, uid, view_id=view_id, view_type=view_type,
-            context=context, toolbar=toolbar, submenu=submenu)
-        if view_type == 'tree':
-            aml_tree = etree.XML(res['arch'])
-            pos = 0
-            credit_pos = False
-            done = False
-            for el in aml_tree:
-                pos += 1
-                if el.tag == 'field':
-                    if el.get('name') == 'credit':
-                        credit_pos = pos
-            if not done and credit_pos:
-                absolute_balance_node = etree.Element(
-                    'field', name='absolute_balance')
-                aml_tree.insert(credit_pos, absolute_balance_node)
-                absolute_balance_dict = self.fields_get(
-                    cr, uid, ['absolute_balance'], context=context
-                    )['absolute_balance']
-                orm.setup_modifiers(
-                    absolute_balance_node, absolute_balance_dict,
-                    context=context, in_tree_view=True)
-                res['fields']['absolute_balance'] = absolute_balance_dict
-                done = True
-            if done:
-                res['arch'] = etree.tostring(aml_tree, pretty_print=True)
-            # _logger.warn('arch=%s', res['arch'])
-            # _logger.warn('fields=%s', res['fields'])
-        return res
