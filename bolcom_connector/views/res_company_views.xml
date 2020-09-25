@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_company_form" model="ir.ui.view">
+            <field name="name">res.company.form.bolcom</field>
+            <field name="inherit_id" ref="base.view_company_form"/>
+            <field name="model">res.company</field>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook" position="inside">
+                    <page name="bolcom_settings" string="bol.com Settings">
+                        <group name="bolcom_credentials" string="bol.com Credentials">
+                            <field name="bolcom_client_id"/>
+                            <field name="bolcom_secret"/>
+                            <field name="bolcom_url"/>
+                        </group>
+                        <group name="bolcom_import" string="bol.com Import Settings">
+                            <field name="bolcom_fiscal_position_id"/>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</openerp>

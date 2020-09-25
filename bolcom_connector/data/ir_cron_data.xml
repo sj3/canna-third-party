@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="1">
+        <record forcecreate="True" id="ir_cron_scheduler_bolcom_import" model="ir.cron">
+            <field name="name">Bolcom Import</field>
+            <field name="model" eval="'sale.order'"/>
+            <field name="function">import_bolcom_order</field>
+            <field name="type">ir.action.server</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+        </record>
+    </data>
+</openerp>

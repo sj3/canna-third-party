@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!--  for use in Odoo 13.0 version of this module
+        <record id="product.product_normal_form_view" model="ir.ui.view">
+            <field name="name">Bol.com settings</field>
+            <field name="model">product.product</field>
+            <field name="priority" eval="20"/>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="arch" type="xml">
+                <notebook position="inside">
+                    <page name="bolcom" string="bol.com">
+                        <group id="grp_bolcom_1">
+                            <field name="is_bolcom"/>
+                            <field name="to_bolcom"/>
+                        </group>
+                        <group id="in_bolcom_offers">
+                            <field name="bolcom_offer_ref"/>
+                            <field name="bolcom_condition_name"/>
+                            <field name="bolcom_condition_category"/>
+                            <field name="bolcom_condition_comment"/>
+                            <field name="bolcom_bundle_prices_price"/>
+                            <field name="bolcom_fulfilment_delivery_code"/>
+                            <field name="bolcom_on_hold_by_retailer"/>
+                            <field name="bolcom_fulfilment_type"/>
+                            <field name="bolcom_reference_code"/>
+                            <field name="bolcom_stock_amount"/>
+                        </group>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+
+        <record id="product_product_action_set_bolcom_sellable" model="ir.actions.server">
+            <field name="name">bol.com sellable</field>
+            <field name="model_id" ref="product.model_product_product"/>
+            <field name="binding_model_id" ref="product.model_product_product"/>
+            <field name="state">code</field>
+            <field name="code">action = records.set_bolcom_sellable()</field>
+        </record>
+
+        <record id="product_product_action_unset_bolcom_sellable" model="ir.actions.server">
+            <field name="name">bol.com not sellable</field>
+            <field name="model_id" ref="product.model_product_product"/>
+            <field name="binding_model_id" ref="product.model_product_product"/>
+            <field name="state">code</field>
+            <field name="code">action = records.unset_bolcom_sellable()</field>
+        </record>
+        -->
+
+    </data>
+</openerp>
