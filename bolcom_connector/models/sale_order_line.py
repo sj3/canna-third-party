@@ -44,6 +44,16 @@ class SaleOrderLine(models.Model):
         if len(product_ids) > 0:
             product_id = product_ids[0]
             vals["product_id"] = product_id.id
+        if not product_ids:
+            _logger.error(
+                "No corresponding product found for orderItem %s",
+                order_item
+            )
+        elif len(product_ids > 1):
+            _logger.error(
+                "Multiple product records found ean %s",
+                order_item.get("ean")
+            )
         return name_fields
 
     def _bolcom_handle_qt_price(self, key, order_item, vals):
