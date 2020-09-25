@@ -1,5 +1,5 @@
-# -*- encoding: utf-8 -*-
-from openerp import SUPERUSER_ID, api
+# -*- coding: utf-8 -*-
+from openerp import api
 
 
 def migrate(cr, version):
