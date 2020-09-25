@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_sales_config" model="ir.ui.view">
+            <field name="name">bol.com settings</field>
+            <field name="model">sale.config.settings</field>
+            <field name="priority" eval="20"/>
+            <field name="inherit_id" ref="sale.view_sales_config"/>
+            <field name="arch" type="xml">
+                <group name="Sale" position="after">
+                    <group>
+                        <field name="company_id" invisible="1"/>
+                        <label for="id" string="bol.com Credentials"/>
+                        <div id="bolcom_credentials" class="row o_settings_container">
+                            <div id="bolcom_client_id" class="o_setting_box">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_righ_pane">
+                                    <label for="bolcom_client_id"/>
+                                    <field name="bolcom_client_id" class="oe_inline"/>
+                                </div>
+                            </div>
+                            <div id="bolcom_secret" class="o_setting_box">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_righ_pane">
+                                    <label for="bolcom_secret"/>
+                                    <field name="bolcom_secret" class="oe_inline"/>
+                                </div>
+                            </div>
+                            <div id="bolcom_url" class="o_setting_box">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_righ_pane">
+                                    <label for="bolcom_url"/>
+                                    <field name="bolcom_url" class="oe_inline"/>
+                                </div>
+                            </div>
+                        </div>
+                        <label for="id" string="bol.com Import Settings"/>
+                        <div id="bolcom_import" class="row o_settings_container">
+                            <div id="bolcom_fiscal_position_id" class="o_setting_box">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_righ_pane">
+                                    <label for="bolcom_fiscal_position_id"/>
+                                    <field name="bolcom_fiscal_position_id" class="oe_inline"/>
+                                </div>
+                            </div>
+                        </div>
+                    </group>
+                </group>
+            </field>
+        </record>
+
+    </data>
+</openerp>

@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+bolcom_authentication_admin,bolcom_authentication_admin,model_bolcom_authentication,group_bolcom_manager,1,1,1,1

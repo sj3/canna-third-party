@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <menuitem id="bolcom_so_import_menu"
+                  name="Import Orders from bol.com"
+                  parent="base.menu_sales"
+                  action="bolcom_so_import_action"
+                  sequence="10"
+                  groups="group_bolcom_manager"
+        />
+
+    </data>
+</openerp>

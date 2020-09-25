@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="bolcom_so_import_view_form_result" model="ir.ui.view">
+            <field name="name">Import orders from Bolcom</field>
+            <field name="model">bolcom.so.import</field>
+            <field name="priority">2</field>
+            <field name="arch" type="xml">
+                <form string="Import Orders from bol.com">
+                    <separator colspan="4" string="Results :"/>
+                    <field name="note" readonly="1" colspan="4" nolabel="1" width="850" height="500"/>
+                    <footer>
+                        <button name="button_close"  string="Close"/>
+                        <button name="view_sale_orders"
+                                string="View Sale Orders"
+                                type="object" class="oe_highlight"
+                                invisible="not context.get('sale_order_ids')"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="bolcom_so_import_view_form" model="ir.ui.view">
+            <field name="name">Import orders from Bolcom</field>
+            <field name="model">bolcom.so.import</field>
+            <field name="priority">1</field>
+            <field name="arch" type="xml">
+                <form string="Import SO from Bolcom">
+                    <group>
+                        <field name="action" required="True"/>
+                    </group>
+                    <footer>
+                        <button name="import_bolcom_order" string="Import" type="object" class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="bolcom_so_import_action" model="ir.actions.act_window">
+            <field name="name">Import Orders from bol.com</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">bolcom.so.import</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="bolcom_so_import_view_form"/>
+        </record>
+
+    </data>
+</openerp>
