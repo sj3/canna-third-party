@@ -49,7 +49,7 @@ class SaleOrderLine(models.Model):
                 "No corresponding product found for orderItem %s",
                 order_item
             )
-        elif len(product_ids > 1):
+        elif len(product_ids) > 1:
             _logger.error(
                 "Multiple product records found ean %s",
                 order_item.get("ean")
@@ -91,6 +91,7 @@ class SaleOrderLine(models.Model):
                     vals[mapping["field"]] = value
                     handled.append(key)
 
+        # ../.. sale_order.fiscal_position is set to false => bug
         extra_vals = self.product_id_change(
             sale_order.pricelist_id.id,
             vals['product_id'],

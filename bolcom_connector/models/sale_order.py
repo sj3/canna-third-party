@@ -131,6 +131,7 @@ class SaleOrder(models.Model):
         shipment_partner = shipment_partners or ResPartner
         shipment_partner = shipment_partner.bolcom_synchronize(shipment_details)
         vals["partner_id"] = shipment_partner.id
+        vals['commercial_partner_id'] = shipment_partner.id
         return name_fields
 
     def _bolcom_create_sale_order_lines(self, order_items):
