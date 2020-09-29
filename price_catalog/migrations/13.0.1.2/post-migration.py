@@ -12,20 +12,28 @@ def fill_product_catalog_prices(env):
             'catalog_type': 'sale',
             'company_id': pricelist.company_id.id
         })
+        subcatalog = env['price.subcatalog'].create({
+            'name': catalog.name + str(catalog.id),
+            'catalog_id': catalog.id
+        })
         for line in pricelist.item_ids:
-            subcatalog = env['price.subcatalog'].create({
-                'name': catalog.name,
-                'start_date': line.date_start,
-                'end_date': line.date_end,
-                'catalog_id': catalog.id
-            })
-            if line.product_id:
-                price = pricelist.get_product_price(line.product_id, 1.0, False)
-                env['price.catalog.item'].create({
-                    'product_id': line.product_id.id,
-                    'subcatalog_id': subcatalog.id,
-                    'price': price
-                })
+            product_id = False
+            if line.applied_on == '0_product_variant' and line.product_id:
+                product_id = line.product_id
+            if line.applied_on == '1_product' and line.product_tmpl_id:
+                product_id = env['product.product'].search([
+                    ('product_tmpl_id', '=', line.product_tmpl_id.id)])
+            if product_id:
+                item = env['price.catalog.item'].search([
+                    ('product_id', '=', product_id.id), 
+                    ('subcatalog_id', '=', subcatalog.id)])
+                if not item:
+                    price = pricelist.get_product_price(product_id, 1.0, False)
+                    env['price.catalog.item'].create({
+                        'product_id': product_id.id,
+                        'subcatalog_id': subcatalog.id,
+                        'price': price
+                    })
 
 
 @openupgrade.migrate()
