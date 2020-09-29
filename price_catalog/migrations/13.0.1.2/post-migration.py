@@ -25,7 +25,7 @@ def fill_product_catalog_prices(env):
                     ('product_tmpl_id', '=', line.product_tmpl_id.id)])
             if product_id:
                 item = env['price.catalog.item'].search([
-                    ('product_id', '=', product_id.id), 
+                    ('product_id', '=', product_id.id),
                     ('subcatalog_id', '=', subcatalog.id)])
                 if not item:
                     price = pricelist.get_product_price(product_id, 1.0, False)
