@@ -5,7 +5,7 @@
 
 {
     "name": "account.move.line balance",
-    "version": "8.0.0.1.0",
+    "version": "8.0.1.0.0",
     "license": "AGPL-3",
     "author": "Noviat",
     "category": "Accounting & Finance",
