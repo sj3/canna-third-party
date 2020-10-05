@@ -21,14 +21,18 @@ class AccountInvoiceLine(models.Model):
         product = self.product_id
         if product.type in ('product', 'consu'):
             if self.invoice_id.type == 'out_refund' and self.origin_line_ids:
-                if len(self.origin_line_ids) > 1:
+                origin_line_ids = self.origin_line_ids.filtered(
+                    lambda r: r.invoice_id.move_id)
+                if len(origin_line_ids) > 1:
                     module = __name__.split('addons.')[1].split('.')[0]
                     raise UserError(_(
-                        "Programming Error detected in %s"
+                        "Programming Error detected in %s.\n"
+                        "Multiple invoices linked to this refund, cf. %s.\n"
                         "Please report this error via your Odoo "
                         "support channel."
-                    ) % ', '.join([module, self._name]))
-                proc_inv_line = self.origin_line_ids
+                    ) % (', '.join([module, self._name]),
+                         origin_line_ids.mapped('invoice_id.number')))
+                proc_inv_line = origin_line_ids or self
             else:
                 proc_inv_line = self
             dom = [
