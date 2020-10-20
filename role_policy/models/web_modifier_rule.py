@@ -238,7 +238,7 @@ class WebModifierRule(models.Model):
             dom += ["|", ("view_id", "=", view_id), ("view_id", "=", False)]
         if view_type:
             dom += ["|", ("view_type", "=", view_type), ("view_type", "=", False)]
-        all_rules = self.env["web.modifier.rule"].search(dom)
+        all_rules = self.env["web.modifier.rule"].sudo().search(dom)
         all_rules = all_rules.sorted(
             key=lambda r: (
                 r.element or "",

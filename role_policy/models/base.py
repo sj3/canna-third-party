@@ -21,8 +21,10 @@ class BaseModel(models.AbstractModel):
             return super().user_has_groups(groups)
 
         role_groups = []
+        print ("=========groups=========", groups)
         for group_ext_id in groups.split(","):
             xml_id = group_ext_id[0] == "!" and group_ext_id[1:] or group_ext_id
+            print ("========group------", group_ext_id, xml_id)
             if xml_id in [
                 "base.group_no_one",
                 "base.group_erp_manager",
@@ -31,10 +33,11 @@ class BaseModel(models.AbstractModel):
                 "base.group_public",
             ]:
                 role_groups.append(group_ext_id)
-            else:
-                group = self.env.ref(xml_id)
-                if group.role:
-                    role_groups.append(group_ext_id)
+#             else:
+#                 group = self.env.ref(xml_id)
+#                 print ("==========self=====", self.env.user.name, group.name)
+#                 if group.role:
+#                     role_groups.append(group_ext_id)
         if not role_groups:
             return True
         else:
