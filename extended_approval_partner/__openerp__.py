@@ -9,6 +9,7 @@
     'depends': [
         'base',
         'base_extended_approval',
+        'base_action_rule',
     ],
     'data': [
         'data/ir_filters_data.xml',
