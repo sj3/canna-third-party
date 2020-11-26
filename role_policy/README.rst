@@ -103,6 +103,34 @@ check the syntax with autocorrection where feasible.
 
 |
 
+View Type Attribute rules
+-------------------------
+
+With this feature the view type attributes such as create, edit, delete, duplicate, import, export_xlsx become role based.
+Any such attribute can be replaced with these rules (e.g. role based decoration-%).
+
+|
+
+View Model Operation rules
+--------------------------
+
+With this feature a number of operations for the selected models become role based.
+Defining these operations will have an effect on all views defined on the model.
+
+You can also set defaults for all models by specifying 'default' as the model name.
+
+Supported Operations:
+
+- create
+- edit
+- delete
+- duplicate
+- export
+- import
+- archive
+
+|
+
 Model Methods
 -------------
 
@@ -232,8 +260,11 @@ Cf. role_policy_sale as an example.
 Roadmap
 -------
 
-- Web modifier rules syntax check button
+- Rules syntax checker button
 - Allow a user with multiple roles to select wich roles are active
+- Clean-up/adapt standard user & groups screens for Roles
+- Generate clear "role" error message when hitting e.g. ACL error
 - Role Policy traceability
 - Unit tests
 - Record rules
+

@@ -18,6 +18,8 @@ class RolePolicyExportXls(models.AbstractModel):
             "act_server",
             "act_report",
             "modifier_rule",
+            "view_type_attribute",
+            "model_operation",
             "model_method",
         ]:
             method = getattr(self, "_get_ws_params_{}".format(entry))
@@ -93,7 +95,6 @@ class RolePolicyExportXls(models.AbstractModel):
         self._set_column_width(ws, ws_params)
 
         row_pos = 0
-        # row_pos = self._write_ws_title(ws, row_pos, ws_params)
         row_pos = self._write_line(
             ws,
             row_pos,
@@ -148,7 +149,6 @@ class RolePolicyExportXls(models.AbstractModel):
         self._set_column_width(ws, ws_params)
 
         row_pos = 0
-        # row_pos = self._write_ws_title(ws, row_pos, ws_params)
         row_pos = self._write_line(
             ws,
             row_pos,
@@ -204,7 +204,6 @@ class RolePolicyExportXls(models.AbstractModel):
         self._set_column_width(ws, ws_params)
 
         row_pos = 0
-        # row_pos = self._write_ws_title(ws, row_pos, ws_params)
         row_pos = self._write_line(
             ws,
             row_pos,
@@ -260,7 +259,6 @@ class RolePolicyExportXls(models.AbstractModel):
         self._set_column_width(ws, ws_params)
 
         row_pos = 0
-        # row_pos = self._write_ws_title(ws, row_pos, ws_params)
         row_pos = self._write_line(
             ws,
             row_pos,
@@ -316,7 +314,6 @@ class RolePolicyExportXls(models.AbstractModel):
         self._set_column_width(ws, ws_params)
 
         row_pos = 0
-        # row_pos = self._write_ws_title(ws, row_pos, ws_params)
         row_pos = self._write_line(
             ws,
             row_pos,
@@ -372,7 +369,7 @@ class RolePolicyExportXls(models.AbstractModel):
             },
             "remove": {
                 "header": {"value": "Remove"},
-                "data": {"value": self._render("rule.remove and 1 or ''")},
+                "data": {"value": self._render("rule.remove and 1 or 0")},
                 "width": 6,
             },
             "invisible": {
@@ -422,7 +419,6 @@ class RolePolicyExportXls(models.AbstractModel):
         self._set_column_width(ws, ws_params)
 
         row_pos = 0
-        # row_pos = self._write_ws_title(ws, row_pos, ws_params)
         row_pos = self._write_line(
             ws,
             row_pos,
@@ -433,6 +429,159 @@ class RolePolicyExportXls(models.AbstractModel):
         ws.freeze_panes(row_pos, 0)
 
         for rule in role.modifier_rule_ids:
+            row_pos = self._write_line(
+                ws,
+                row_pos,
+                ws_params,
+                col_specs_section="data",
+                render_space={"rule": rule},
+                default_format=self.format_tcell_left,
+            )
+
+    def _get_ws_params_view_type_attribute(self, data, role):
+
+        view_type_attribute_template = {
+            "priority": {
+                "header": {"value": "Prio"},
+                "data": {"value": self._render("rule.priority")},
+                "width": 4,
+            },
+            "view": {
+                "header": {"value": "View"},
+                "data": {"value": self._render("rule.view_id.name or ''")},
+                "width": 20,
+            },
+            "view_xml_id": {
+                "header": {"value": "View External Identifier"},
+                "data": {"value": self._render("rule.view_xml_id or ''")},
+                "width": 50,
+            },
+            "view_type": {
+                "header": {"value": "View Type"},
+                "data": {"value": self._render("rule.view_id.type or ''")},
+                "width": 10,
+            },
+            "attrib": {
+                "header": {"value": "Attribute"},
+                "data": {"value": self._render("rule.attrib or ''")},
+                "width": 20,
+            },
+            "attrib_val": {
+                "header": {"value": "Attribute Value"},
+                "data": {"value": self._render("rule.attrib_val or ''")},
+                "width": 50,
+            },
+            "active": {
+                "header": {"value": "Active"},
+                "data": {"value": self._render("rule.active and 1 or 0")},
+                "width": 6,
+            },
+            "sequence": {
+                "header": {"value": "Sequence"},
+                "data": {"value": self._render("rule.sequence")},
+                "width": 8,
+            },
+        }
+
+        params = {
+            "ws_name": "View Type Attributes",
+            "generate_ws_method": "_export_view_type_attribute",
+            "title": "View Type Attributes",
+            "wanted_list": [k for k in view_type_attribute_template],
+            "col_specs": view_type_attribute_template,
+        }
+
+        return params
+
+    def _export_view_type_attribute(self, workbook, ws, ws_params, data, role):
+
+        ws.set_portrait()
+        ws.fit_to_pages(1, 0)
+        ws.set_header(self.xls_headers["standard"])
+        ws.set_footer(self.xls_footers["standard"])
+
+        self._set_column_width(ws, ws_params)
+
+        row_pos = 0
+        row_pos = self._write_line(
+            ws,
+            row_pos,
+            ws_params,
+            col_specs_section="header",
+            default_format=self.format_theader_yellow_left,
+        )
+        ws.freeze_panes(row_pos, 0)
+
+        for rule in role.view_type_attribute_ids:
+            row_pos = self._write_line(
+                ws,
+                row_pos,
+                ws_params,
+                col_specs_section="data",
+                render_space={"rule": rule},
+                default_format=self.format_tcell_left,
+            )
+
+    def _get_ws_params_model_operation(self, data, role):
+
+        model_operation_template = {
+            "model": {
+                "header": {"value": "Model"},
+                "data": {"value": self._render("rule.model or ''")},
+                "width": 20,
+            },
+            "priority": {
+                "header": {"value": "Prio"},
+                "data": {"value": self._render("rule.priority")},
+                "width": 4,
+            },
+            "operation": {
+                "header": {"value": "Operation"},
+                "data": {"value": self._render("rule.operation or ''")},
+                "width": 20,
+            },
+            "disable": {
+                "header": {"value": "Disable"},
+                "data": {"value": self._render("rule.disable and 1 or 0")},
+                "width": 6,
+            },
+            "active": {
+                "header": {"value": "Active"},
+                "data": {"value": self._render("rule.active and 1 or 0")},
+                "width": 6,
+            },
+        }
+
+        params = {
+            "ws_name": "View Model Operations",
+            "generate_ws_method": "_export_model_operation",
+            "title": "View Model Operations",
+            "wanted_list": [k for k in model_operation_template],
+            "col_specs": model_operation_template,
+        }
+
+        return params
+
+    def _export_model_operation(self, workbook, ws, ws_params, data, role):
+
+        ws.set_portrait()
+        ws.fit_to_pages(1, 0)
+        ws.set_header(self.xls_headers["standard"])
+        ws.set_footer(self.xls_footers["standard"])
+
+        self._set_column_width(ws, ws_params)
+
+        row_pos = 0
+        row_pos = self._write_line(
+            ws,
+            row_pos,
+            ws_params,
+            col_specs_section="header",
+            default_format=self.format_theader_yellow_left,
+        )
+        ws.freeze_panes(row_pos, 0)
+
+        for rule in role.model_operation_ids:
             row_pos = self._write_line(
                 ws,
                 row_pos,
@@ -477,7 +626,6 @@ class RolePolicyExportXls(models.AbstractModel):
         self._set_column_width(ws, ws_params)
 
         row_pos = 0
-        # row_pos = self._write_ws_title(ws, row_pos, ws_params)
         row_pos = self._write_line(
             ws,
             row_pos,
