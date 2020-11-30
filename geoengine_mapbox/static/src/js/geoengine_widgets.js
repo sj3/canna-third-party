@@ -16,7 +16,7 @@ odoo.define('geoengine_mapbox.mapbox_geoengine_widgets', function (require) {
                     console.log("Trying to load the map using MapBox API");
                     var partner_longitude = this.record.data.partner_longitude;
                     var partner_latitude = this.record.data.partner_latitude;
-                    var coordinates = [partner_latitude, partner_longitude];
+                    var coordinates = [partner_longitude, partner_latitude];
                     this._rpc({
                         model: 'res.partner',
                         method: 'get_mapbox_client_id',
