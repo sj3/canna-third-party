@@ -21,10 +21,8 @@ class BaseModel(models.AbstractModel):
             return super().user_has_groups(groups)
 
         role_groups = []
-        print ("=========groups=========", groups)
         for group_ext_id in groups.split(","):
             xml_id = group_ext_id[0] == "!" and group_ext_id[1:] or group_ext_id
-            print ("========group------", group_ext_id, xml_id)
             if xml_id in [
                 "base.group_no_one",
                 "base.group_erp_manager",
