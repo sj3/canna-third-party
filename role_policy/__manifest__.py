@@ -18,6 +18,7 @@
         "views/assets_backend.xml",
         "views/ir_action_views.xml",
         "views/ir_ui_menu_views.xml",
+        "views/res_config_settings_views.xml",
         "views/res_groups_views.xml",
         "views/res_role_views.xml",
         "views/res_role_acl_views.xml",
