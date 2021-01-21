@@ -1,8 +1,12 @@
 # Copyright 2020 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+import logging
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+
+_logger = logging.getLogger(__name__)
 
 
 class ResRole(models.Model):
@@ -117,9 +121,10 @@ class ResRole(models.Model):
     @api.model
     def create(self, vals):
         if len(self.search([], limit=1)) == 0:
-            self.env["ir.config_parameter"].sudo().set_param(
-                "role_policy_enforced", "True"
-            )
+            _logger.warn("Enforcing role policy")
+            # self.env["ir.config_parameter"].sudo().set_param(
+            #    "role_policy_enforced", "True"
+            # )
         self = self.with_context(dict(self.env.context, role_policy_init=True))
         role_group = self._create_role_group(vals)
         vals["group_id"] = role_group.id
