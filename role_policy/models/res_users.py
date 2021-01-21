@@ -31,6 +31,7 @@ class ResUsers(models.Model):
         compute="_compute_exclude_from_role_policy", store=True
     )
 
+    @api.depends("enabled_role_ids")
     def _compute_exclude_from_role_policy(self):
         enforced = self.env.get("ir.config_parameter").get_param("role_policy_enforced")
         for user in self:
