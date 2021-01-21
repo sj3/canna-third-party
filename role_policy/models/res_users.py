@@ -31,7 +31,6 @@ class ResUsers(models.Model):
         compute="_compute_exclude_from_role_policy", store=True
     )
 
-    @api.depends("groups_id")
     def _compute_exclude_from_role_policy(self):
         enforced = self.env.get("ir.config_parameter").get_param("role_policy_enforced")
         for user in self:
@@ -39,7 +38,6 @@ class ResUsers(models.Model):
                 user
                 in (self.env.ref("base.user_admin"), self.env.ref("base.user_root"))
                 or not enforced
-                or self.env.ref("base.group_system") in self.groups_id
             ):
                 user.exclude_from_role_policy = True
             else:

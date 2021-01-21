@@ -116,6 +116,10 @@ class ResRole(models.Model):
 
     @api.model
     def create(self, vals):
+        if len(self.search([], limit=1)) == 0:
+            self.env["ir.config_parameter"].sudo().set_param(
+                "role_policy_enforced", "True"
+            )
         self = self.with_context(dict(self.env.context, role_policy_init=True))
         role_group = self._create_role_group(vals)
         vals["group_id"] = role_group.id

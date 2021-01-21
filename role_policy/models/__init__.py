@@ -1,5 +1,6 @@
 from . import base
 from . import ir_actions
+from . import ir_config_parameter
 from . import ir_http
 from . import ir_model_access
 from . import ir_ui_menu
