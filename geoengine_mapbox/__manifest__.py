@@ -8,7 +8,6 @@
     "license": "AGPL-3",
     "website": "https://serpentcs.com",
     "depends": ["geoengine_partner"],
-    "external_dependencies": {"python": ["pycountry"]},
     "data": [
         "data/mail_template_data.xml",
         "views/res_config_settings_views.xml",

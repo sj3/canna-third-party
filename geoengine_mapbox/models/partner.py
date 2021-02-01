@@ -35,7 +35,7 @@ class ResPartner(models.Model):
         for partner in self:
             partner.write({"mapbox_error": error})
             template.write({"email_to": feedback_email})
-            template.send_mail(partner, force_send=False)
+            template.send_mail(partner.id, force_send=True)
 
     @api.model
     def get_mapbox_client_id(self):
@@ -46,98 +46,98 @@ class ResPartner(models.Model):
     def get_geo_vals_osm(self):
         """Get the latitude and longitude from nominatim.
         """
-        for partner in self:
-            result = {
-                "partner_latitude": 0,
-                "partner_longitude": 0,
-                "date_localization": fields.Date.today(),
+        result = {
+            "partner_latitude": 0,
+            "partner_longitude": 0,
+            "date_localization": fields.Date.today(),
+        }
+
+        territory_to_country_code = {
+            "PF": "FR",
+        }
+
+        def get_state():
+            if not partner.state_id:
+                return ""
+            return partner.state_id.name
+
+        def get_countrycodes():
+            if not self.country_id:
+                return ""
+
+            code = self.country_id.code
+
+            return territory_to_country_code.get(
+                code, code)
+
+        url = "https://nominatim.openstreetmap.org/search"
+        pay_loads = [
+            {
+                "street": self.street or "",
+                "postalcode": self.zip or "",
+                "city": self.city or "",
+                "state": self.state_id and self.state_id.name or "",
+                "countrycodes": get_countrycodes(),
+            },
+            {
+                "city": self.city or "",
+                "state": self.state_id and self.state_id.name or "",
+                "countrycodes": get_countrycodes(),
+            },
+            {
+                "city": self.city or "",
+                "countrycodes": get_countrycodes(),
+            },
+        ]
+        vals = []
+        headers = requests.utils.default_headers()
+        headers.update(
+            {
+                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) snap "
+                "Chromium/80.0.3987.100 Chrome/80.0.3987.100 Safari/537.36"
             }
+        )
+        for pay_load in pay_loads:
+            try:
+                session = requests.Session()
+                adapter = HTTPAdapter(max_retries=0)
+                session.mount("http://", adapter)
+                session.mount("https://", adapter)
+                pay_load.update(
+                    {"limit": 1, "format": "json", "addressdetails": 1}
+                )
+                request_result = session.get(
+                    url, params=pay_load, timeout=5.0, headers=headers
+                )
+                request_result.raise_for_status()
+                vals = request_result.json()
+                if len(vals):
+                    result.update({
+                        "partner_latitude":
+                        vals[0].get("lat") or 0,
+                        "partner_longitude":
+                        vals[0].get("lon") or 0,
+                    })
 
-            territory_to_country_code = {
-                "PF": "FR",
-            }
+            except Timeout:
+                continue
+            except ConnectionError as e:
+                _logger.exception("Geocoding error: %s" % e)
+                raise exceptions.UserError(_("Please check your internet connection!"))
+                #                raise exceptions.Warning(_(
+                #                    "Geocoding error.\n"
+                #                    "Try pressing save again.\n\n"
+                #                    "If it still doesn't work open a ticket "
+                #                    "with the following information. \n"
+                #                    "%s") % e.message)
+                continue
+            except HTTPError:
+                continue
 
-            def get_state():
-                if not partner.state_id:
-                    return ""
-                return partner.state_id.name
-
-            def get_countrycodes():
-                if not partner.country_id:
-                    return ""
-
-                code = partner.country_id.code
-
-                return territory_to_country_code.get(
-                    code, code)
-
-            url = "https://nominatim.openstreetmap.org/search"
-            pay_loads = [
-                {
-                    "street": partner.street or "",
-                    "postalcode": partner.zip or "",
-                    "city": partner.city or "",
-                    "state": get_state(),
-                    "countrycodes": get_countrycodes(),
-                },
-                {
-                    "city": partner.city or "",
-                    "state": get_state(),
-                    "countrycodes": get_countrycodes(),
-                },
-                {
-                    "city": partner.city or "",
-                    "countrycodes": get_countrycodes(),
-                },
-            ]
-            vals = []
-            headers = requests.utils.default_headers()
-            headers.update(
-                {
-                    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) "
-                    "AppleWebKit/537.36 (KHTML, like Gecko) snap "
-                    "Chromium/80.0.3987.100 Chrome/80.0.3987.100 Safari/537.36"
-                }
-            )
-            for pay_load in pay_loads:
-                try:
-                    session = requests.Session()
-                    adapter = HTTPAdapter(max_retries=0)
-                    session.mount("http://", adapter)
-                    session.mount("https://", adapter)
-                    pay_load.update(
-                        {"limit": 1, "format": "json", "addressdetails": 1}
-                    )
-                    request_result = session.get(
-                        url, params=pay_load, timeout=5.0, headers=headers
-                    )
-                    request_result.raise_for_status()
-                    vals = request_result.json()
-                    if len(vals):
-                        result.update({
-                            "partner_latitude":
-                            vals[0].get("lat") or 0,
-                            "partner_longitude":
-                            vals[0].get("lon") or 0,
-                        })
-
-                except Timeout:
-                    continue
-                except ConnectionError as e:
-                    _logger.exception("Geocoding error: %s" % e)
-                    #                raise exceptions.Warning(_(
-                    #                    "Geocoding error.\n"
-                    #                    "Try pressing save again.\n\n"
-                    #                    "If it still doesn't work open a ticket "
-                    #                    "with the following information. \n"
-                    #                    "%s") % e.message)
-                    continue
-                except HTTPError:
-                    continue
-
-                if result['partner_latitude'] != 0:
-                    break
-            partner.write(result)
+            if result['partner_latitude'] != 0:
+                break
+        self.write(result)
 
     def get_mapbox_location(self):
         def get_state():
@@ -151,82 +151,81 @@ class ResPartner(models.Model):
             "date_localization": fields.Date.today(),
         }
 
-        try:
-            mapbox_client_id = self.get_mapbox_client_id()
+        mapbox_client_id = self.get_mapbox_client_id()
 
-            for partner in self:
 
-                pay_loads = [
-                    [",".join(filter(None, [
-                        partner.street or "",
-                        partner.street2 or "",
-                        partner.city or "",
-                        partner.zip or "",
-                        get_state(),
-                    ]))],
-                    [",".join(filter(None, [
-                        partner.city or "",
-                        get_state(),
-                    ]))],
-                    [",".join(filter(None, [
-                        get_state(),
-                    ]))],
-                ]
+        pay_loads = [
+            [",".join(filter(None, [
+                self.street or "",
+                self.street2 or "",
+                self.city or "",
+                self.zip or "",
+                self.state_id and self.state_id.name or "",
+            ]))],
+            [",".join(filter(None, [
+                self.city or "",
+                self.state_id and self.state_id.name or "",
+            ]))],
+            [",".join(filter(None, [
+                self.state_id and self.state_id.name or "",
+            ]))],
+        ]
 
-                result_vals = []
-                headers = requests.utils.default_headers()
-                headers.update(
-                    {
-                        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) "
-                        "AppleWebKit/537.36 (KHTML, like Gecko) snap "
-                        "Chromium/80.0.3987.100 Chrome/80.0.3987.100 Safari/537.36"
-                    }
+        result_vals = []
+        headers = requests.utils.default_headers()
+        headers.update(
+            {
+                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) snap "
+                "Chromium/80.0.3987.100 Chrome/80.0.3987.100 Safari/537.36"
+            }
+        )
+
+        for pay_load in pay_loads:
+            session = requests.Session()
+            adapter = HTTPAdapter(max_retries=0)
+            session.mount("http://", adapter)
+            session.mount("https://", adapter)
+
+            url = "https://api.mapbox.com/geocoding/v5/mapbox.places/"
+            url += pay_load[0] + ".json"
+            lang_code = self.lang or "en_US"
+            mb_params = {
+                "country": self.country_id.code
+                if self.country_id else "",
+                "autocomplete": False,
+                "access_token": mapbox_client_id,
+                "limit": 1,
+                "language": lang_code.split('_')[0],
+            }
+
+            try:
+                request_result = session.get(
+                    url, params=mb_params,
+                    timeout=5.0, headers=headers
                 )
 
-                for pay_load in pay_loads:
-                    session = requests.Session()
-                    adapter = HTTPAdapter(max_retries=0)
-                    session.mount("http://", adapter)
-                    session.mount("https://", adapter)
+                if request_result.status_code == 401:
+                    _logger.exception("Geocoding error: Wrong Mapbox key")
+                    self.send_mapbox_fail_mail("Wrong Mapbox key")
+                    self.get_geo_vals_osm()
+                    break
 
-                    url = "https://api.mapbox.com/geocoding/v5/mapbox.places/"
-                    url += pay_load[0] + ".json"
-                    lang_code = self.lang or "en_US"
-                    mb_params = {
-                        "country": self.country_id.code
-                        if self.country_id else "",
-                        "autocomplete": False,
-                        "access_token": mapbox_client_id,
-                        "limit": 1,
-                        "language": lang_code.split('_')[0],
-                    }
+                result_vals = request_result.json()
+                if len(result_vals.get('features', [])):
+                    feature = result_vals['features'][0]
+                    result.update({
+                        "partner_latitude":
+                        feature.get("center", [0, 0])[1],
+                        "partner_longitude":
+                        feature.get("center", [0, 0])[0],
+                    })
+            except Exception as e:
+                # Fallback to nominatim and mail the error
+                _logger.exception("Geocoding error", str(e))
+                self.send_mapbox_fail_mail(str(e))
+                self.get_geo_vals_osm()
+            if result['partner_latitude'] != 0:
+                break
 
-                    try:
-                        request_result = session.get(
-                            url, params=mb_params,
-                            timeout=5.0, headers=headers
-                        )
-                        result_vals = request_result.json()
-                        if len(result_vals.get('features', [])):
-                            feature = result_vals['features'][0]
-                            result.update({
-                                "partner_latitude":
-                                feature.get("center", [0, 0])[1],
-                                "partner_longitude":
-                                feature.get("center", [0, 0])[0],
-                            })
-                    except Exception as e:
-                        # Fallback to nominatim and mail the error
-                        _logger.exception("Geocoding error", str(e))
-                        self.send_mapbox_fail_mail(str(e))
-                        self.get_geo_vals_osm()
-                    if result['partner_latitude'] != 0:
-                        break
-                partner.write(result)
-
-        except Exception as e:
-            # Fallback to nominatim and mail the error
-            _logger.exception("Geocoding error", str(e))
-            raise exceptions.UserError(_("Geocoding error"), str(e))
-            self.send_mapbox_fail_mail(str(e))
-            self.get_geo_vals_osm()
+        self.write(result)
