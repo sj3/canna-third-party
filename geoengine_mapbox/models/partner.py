@@ -22,12 +22,31 @@ class ResPartner(models.Model):
 
     _inherit = "res.partner"
 
+    @api.depends("partner_latitude", "partner_longitude")
+    def _compute_geo_point(self):
+        """
+        Set the `geo_point` of the partner depending of its `partner_latitude`
+        and its `partner_longitude`
+        **Notes**
+        If one of those parameters is not set then reset the partner's
+        geo_point and do not recompute it
+        """
+        for partner in self:
+            if not partner.partner_latitude or not partner.partner_longitude:
+                partner.geo_point = False
+            else:
+                partner.geo_point = fields.GeoPoint.from_latlon(
+                    partner.env.cr, partner.partner_latitude,
+                    partner.partner_longitude
+                )
+
     date_localization = fields.Datetime(string="Geolocation Date")
     partner_latitude = fields.Float(tracking=True)
     partner_longitude = fields.Float(tracking=True)
     mapbox_error = fields.Text()
+    geo_point = fields.GeoPoint(compute="_compute_geo_point")
 
-    def send_mapbox_fail_mail(self, error):
+    def send_mapbox_fail_mail(self, error=""):
         template = self.env.ref("geoengine_mapbox.email_template_mapbox_call_fail")
         feedback_email = (
             self.env["ir.config_parameter"].sudo().get_param("mapbox.feedback_email")
@@ -57,9 +76,7 @@ class ResPartner(models.Model):
         }
 
         def get_state():
-            if not partner.state_id:
-                return ""
-            return partner.state_id.name
+            return partner.state_id.name or ""
 
         def get_countrycodes():
             if not self.country_id:
@@ -67,8 +84,7 @@ class ResPartner(models.Model):
 
             code = self.country_id.code
 
-            return territory_to_country_code.get(
-                code, code)
+            return self.country_id.code and territory_to_country_code.get(code, code) or ""
 
         url = "https://nominatim.openstreetmap.org/search"
         pay_loads = [
@@ -141,9 +157,7 @@ class ResPartner(models.Model):
 
     def get_mapbox_location(self):
         def get_state():
-            if not partner.state_id:
-                return ""
-            return partner.state_id.name
+            return partner.state_id.name or ""
 
         result = {
             "partner_latitude": 0,
@@ -208,7 +222,7 @@ class ResPartner(models.Model):
                 if request_result.status_code == 401:
                     _logger.exception("Geocoding error: Wrong Mapbox key")
                     self.send_mapbox_fail_mail("Wrong Mapbox key")
-                    self.get_geo_vals_osm()
+                    return self.get_geo_vals_osm()
                     break
 
                 result_vals = request_result.json()
@@ -224,7 +238,7 @@ class ResPartner(models.Model):
                 # Fallback to nominatim and mail the error
                 _logger.exception("Geocoding error", str(e))
                 self.send_mapbox_fail_mail(str(e))
-                self.get_geo_vals_osm()
+                return self.get_geo_vals_osm()
             if result['partner_latitude'] != 0:
                 break
 
