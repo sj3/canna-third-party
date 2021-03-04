@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- SALES TARGETS SEARCH VIEW -->
+    <record id="view_sales_target_search" model="ir.ui.view">
+        <field name="name">view.sales.target.search</field>
+        <field name="model">sales.target</field>
+        <field name="arch" type="xml">
+            <search string="Search View">
+                <field name="date_range_id" string="Sales Target"/>
+                <field name="product_category_id" string="Product Category"/>
+                <newline/>
+                <filter name="current_year" string="Current Year"
+                    domain="[('date_start', '&gt;=', datetime.datetime.now().strftime('%Y-01-01')),('date_end', '&lt;=', datetime.datetime.now().strftime('%Y-12-31'))]"/>
+                <group expand="0" string="Group By...">
+                    <filter name="group_by_sales_target" string="Sales Target"
+                        domain="[]" context="{'group_by':'date_range_id'}" />
+                    <filter name="group_by_category" string="Product Category"
+                        domain="[]" context="{'group_by':'product_category_id'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- SALES TARGETS GRAPH VIEW -->
+    <record id="view_sales_target_graph" model="ir.ui.view">
+        <field name="name">sales.target.graph</field>
+        <field name="model">sales.target</field>
+        <field name="arch" type="xml">
+            <graph string="Sales Targets" type="bar" stacked="True">
+                <field name="product_category_id" type="row"/>
+                <field name="date_range_id" type="col"/>
+                <field name="target_in_currency" type="measure" string="Target"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- SALES TARGETS LIST VIEW -->
+    <record id="sales_targets_view_tree" model="ir.ui.view">
+        <field name="name">sales.target.tree</field>
+        <field name="model">sales.target</field>
+        <field name="arch" type="xml">
+            <tree string="Sales Targets">
+                <field name="date_range_id" />
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="product_category_id" domain="[('parent_id','=', False)]"/>
+                <field name="currency_id"/>
+                <field name="target_in_currency"/>
+                <field name="target_in_liter"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- SALES TARGETS PIVOT VIEW -->
+    <record id="view_sales_targets_pivot" model="ir.ui.view">
+        <field name="name">sales.targets.pivot</field>
+        <field name="model">sales.target</field>
+        <field name="arch" type="xml">
+            <pivot string="Sales Targets">
+                <field name="product_category_id" type="row"/>
+                <field name="date_range_id" type="col"/>
+                <field name="target_in_currency" type="measure" string="Target"/>
+                <field name="target_in_liter" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- SALES TARGETS FORM VIEW -->
+    <record id="sales_target_form_view" model="ir.ui.view">
+        <field name="name">sales.target.form.view</field>
+        <field name="model">sales.target</field>
+        <field name="arch" type="xml">
+            <form string="Sales Target">
+                <header>
+                    <button name="target_approval" string="Approval" type="object"
+                        attrs="{'invisible': ['|', ('state', '!=', 'draft'), ('approval_allowed', '!=', True)]}"
+                        class="oe_highlight"/>
+                    <button name="target_confirm" string="Confirm" type="object" class="oe_highlight"
+                        attrs="{'invisible': ['|', ('state', '!=', 'approval'), ('approval_allowed', '!=', True)]}"
+                        />
+                    <button name="target_set_to_draft" string="Set to Draft" type="object"
+                        attrs="{'invisible': ['|', ('state', 'not in', ('approval', 'confirmed')), ('approval_allowed', '!=', True)]}"
+                        />
+                    <field name="state" widget="statusbar"></field>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Sales">
+                            <field name="date_range_id" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="product_category_id" domain="[('parent_id','=', False)]"/>
+                        </group>
+                        <group string="Targets and Currency">
+                            <field name="currency_id"/>
+                            <field name="target_in_currency"/>
+                            <field name="target_in_liter"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Approvals" name="approval">
+                            <group name="g1" colspan="4" col="4">
+                                <label for="next_approver" />
+                                <div>
+                                    <field name="next_approver" widget="many2many_tags"
+                                        options='{"no_open":True}' />
+                                    <button string="=> Users"
+                                        help="Show Approval Group Users" name="show_approval_group_users"
+                                        type="object" class="oe_link" />
+                                </div>
+                                <field name="approval_allowed" />
+                            </group>
+                            <group name="g2" colspan="4">
+                                <field colspan="4" name="approval_history_ids"
+                                    readonly="1">
+                                    <tree string="Approval History">
+                                        <field name="date" />
+                                        <field name="requested_group_ids" />
+                                        <field name="approver_id" />
+                                    </tree>
+                                </field>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_ids" widget="mail_thread"/>
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="sales_target_action" model="ir.actions.act_window">
+        <field name="name">Sales Targets</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">sales.target</field>
+        <field name="view_mode">tree,form,pivot,graph</field>
+        <field name="search_view_id" ref="view_sales_target_search"/>
+        <field name="context">{'search_default_group_by_sales_target': 1, 'search_default_group_by_category': 1}</field>
+        <field name="view_id" ref="sales_targets_view_tree"/>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to add a new Sales Target.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="sales_target_parent"
+        parent="sale.sale_menu_root"
+        name="Sales Targets"
+        sequence="5"/>
+
+    <menuitem id="main_sales_target_parent"
+        parent="sales_target_parent"
+        name="Sales Targets"
+        action="sales_target_action"/>
+
+</odoo>
