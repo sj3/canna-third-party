@@ -27,9 +27,8 @@ class SalesTarget(models.Model):
         'product.category', string="Product Category", copy=False,
         readonly=True, states={'draft': [('readonly', False)]})
     currency_id = fields.Many2one(
-        'res.currency', string="Currency", copy=False, readonly=True,
-        default=lambda self: self.env.ref('base.EUR'),
-        states={'draft': [('readonly', False)]})
+        'res.currency', string='Currency', readonly=True,
+        default=lambda self: self.env.company.currency_id)
     target_in_currency = fields.Monetary(
         string='Target in Currency', copy=False, readonly=True,
         states={'draft': [('readonly', False)]})
