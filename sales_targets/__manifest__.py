@@ -8,11 +8,8 @@
     "website": "https://serpentcs.com",
     "category": "Sales",
     "summary": "Sales Targets with product category",
-    "depends": ["sale_management", "date_range", "base_extended_approval"],
-    "data": [
-        "security/ir.model.access.csv",
-        "views/sales_target_view.xml",
-    ],
+    "depends": ["sale_management", "date_range"],
+    "data": ["security/ir.model.access.csv", "views/sales_target_view.xml"],
     "installable": True,
     "application": True,
 }

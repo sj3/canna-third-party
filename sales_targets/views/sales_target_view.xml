@@ -74,14 +74,11 @@
         <field name="arch" type="xml">
             <form string="Sales Target">
                 <header>
-                    <button name="target_approval" string="Approval" type="object"
-                        attrs="{'invisible': ['|', ('state', '!=', 'draft'), ('approval_allowed', '!=', True)]}"
-                        class="oe_highlight"/>
                     <button name="target_confirm" string="Confirm" type="object" class="oe_highlight"
-                        attrs="{'invisible': ['|', ('state', '!=', 'approval'), ('approval_allowed', '!=', True)]}"
+                        attrs="{'invisible': [('state', '!=', 'draft')]}"
                         />
                     <button name="target_set_to_draft" string="Set to Draft" type="object"
-                        attrs="{'invisible': ['|', ('state', 'not in', ('approval', 'confirmed')), ('approval_allowed', '!=', True)]}"
+                        attrs="{'invisible': [('state', '!=', 'confirmed')]}"
                         />
                     <field name="state" widget="statusbar"></field>
                 </header>
@@ -100,29 +97,6 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Approvals" name="approval">
-                            <group name="g1" colspan="4" col="4">
-                                <label for="next_approver" />
-                                <div>
-                                    <field name="next_approver" widget="many2many_tags"
-                                        options='{"no_open":True}' />
-                                    <button string="=> Users"
-                                        help="Show Approval Group Users" name="show_approval_group_users"
-                                        type="object" class="oe_link" />
-                                </div>
-                                <field name="approval_allowed" />
-                            </group>
-                            <group name="g2" colspan="4">
-                                <field colspan="4" name="approval_history_ids"
-                                    readonly="1">
-                                    <tree string="Approval History">
-                                        <field name="date" />
-                                        <field name="requested_group_ids" />
-                                        <field name="approver_id" />
-                                    </tree>
-                                </field>
-                            </group>
-                        </page>
                     </notebook>
                 </sheet>
                 <div class="oe_chatter">

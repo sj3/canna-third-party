@@ -16,7 +16,7 @@ class ExtendedApprovalWorkflowMixin(models.AbstractModel):
     _description = "Mixin class for extended approval workflow"
 
     # signal to start the approval flow
-    workflow_signal = "draft"
+    workflow_signal = "confirmed"
     # field used to track the approval flow. Must be a selection field
     workflow_state_field = "state"
     # value of the workflow_state_field for the approval
