@@ -176,16 +176,16 @@ class ExtendedApprovalMixin(models.AbstractModel):
         return {}
 
     def show_approval_group_users(self):
-        a_partners = self.next_approver.mapped("users.partner_id")
-        ptree = self.env.ref("base.view_partner_tree")
+        a_user_ids = self.next_approver.mapped("users.id")
+        ptree = self.env.ref("base.view_users_tree")
         action = {
             "name": _("Approval Group Users"),
             "type": "ir.actions.act_window",
-            "res_model": "res.partner",
+            "res_model": "res.users",
             "view_type": "form",
             "view_mode": "tree",
             "view_id": ptree.id,
-            "domain": [("id", "in", a_partners._ids)],
+            "domain": [("id", "in", a_user_ids)],
             "context": self._context,
         }
         return action

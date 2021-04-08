@@ -72,7 +72,7 @@
                         <field colspan="4" name="approval_history_ids" readonly="1">
                             <tree string="Approval History">
                                 <field name="date"/>
-                                <field name="requested_group_ids"/>
+                                <field name="requested_group_ids" widget="many2many_tags"/>
                                 <field name="approver_id"/>
                             </tree>
                         </field>
