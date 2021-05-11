@@ -47,11 +47,11 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
     @api.model
     def _search_approval_allowed(self, operator, value):
-        if operator in "=":
+        if operator in ["=", "!="]:
             return [
                 (
                     "current_step.group_ids",
-                    "in",
+                    "in" if operator == "=" else "not in",
                     self.env.user.mapped("groups_id.trans_implied_ids.id")
                     + self.env.user.mapped("groups_id.id"),
                 )

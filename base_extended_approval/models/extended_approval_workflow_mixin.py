@@ -2,7 +2,8 @@
 # Copyright (C) Noviat 2020
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import api, models
+from odoo import _, api, models, registry
+from odoo.exceptions import UserError
 
 
 class ExtendedApprovalWorkflowMixin(models.AbstractModel):
@@ -64,9 +65,34 @@ class ExtendedApprovalWorkflowMixin(models.AbstractModel):
             wstate = vals.get(self[0].workflow_state_field)
             if wstate == self[0].workflow_signal:
                 for rec in self:
-                    rec.approve_step()
-                    if rec.current_step:
-                        vals[rec.workflow_state_field] = rec.workflow_state
+                    with api.Environment.manage():
+                        with registry(self.env.cr.dbname).cursor() as new_cr:
+                            new_env = api.Environment(
+                                new_cr, self.env.uid, self.env.context
+                            )
+                            new_rec = rec.with_env(new_env)
+                            r = new_rec.approve_step()
+
+                            if r is not False:
+                                new_rec.write(
+                                    {rec.workflow_state_field: rec.workflow_state}
+                                )
+                                new_cr.commit()
+
+                                # Must raise exception to abort transaction and undo
+                                # changes in call stack.
+                                raise UserError(
+                                    r.get("warning", {}).get(
+                                        "message",
+                                        _(
+                                            "You do not have the required "
+                                            "access to approve!"
+                                        ),
+                                    )
+                                )
+
+                            new_cr.commit()
                     super(ExtendedApprovalWorkflowMixin, rec).write(vals)
                 return True
+
         return super().write(vals)
