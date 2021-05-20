@@ -67,9 +67,9 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
     @api.model
     def recompute_all_next_approvers(self):
-        if hasattr(self, "workflow_start_state"):
+        if hasattr(self, "ea_state_field") and hasattr(self, "ea_start_state"):
             self.search(
-                [(self.workflow_state_field, "in", [self.workflow_start_state])]
+                [(self.ea_state_field, "in", [self.ea_start_state])]
             )._recompute_next_approvers()
 
     def _recompute_next_approvers(self):

@@ -13,47 +13,12 @@ class ExtendedApprovalWorkflowMixin(models.AbstractModel):
     """
 
     _name = "extended.approval.workflow.mixin"
-    _inherit = "extended.approval.mixin"
+    _inherit = ["extended.approval.mixin", "extended.approval.state_field.mixin"]
+
     _description = "Mixin class for extended approval workflow"
 
-    # signal to start the approval flow
-    workflow_signal = "draft"
-    # field used to track the approval flow. Must be a selection field
-    workflow_state_field = "state"
-    # value of the workflow_state_field for the approval
-    workflow_state = "extended_approval"
-    # fallback state when the approval is rejected
-    workflow_start_state = "draft"
-
-    @api.model
-    def _setup_complete(self):
-        """
-        Insert extra  approval state in the workflow_state_field selection just before
-        the workflow_signal or at the end if there is no workflow_signal is the
-        selection
-        """
-        super()._setup_complete()
-        field = self.fields_get().get(self.workflow_state_field)
-        if field:
-            try:
-                state_names = [t[0] for t in field["selection"]]
-                if self.workflow_state not in state_names:
-                    if self.workflow_start_state in state_names:
-                        field["selection"].insert(
-                            state_names.index(self.workflow_signal),
-                            (self.workflow_state, "Approval"),
-                        )
-                    else:
-                        field["selection"].append((self.workflow_state, "Approval"))
-            except TypeError:
-                # probably a callable selection attribute
-                # TODO: decorated callable
-                pass
-
-    def ea_abort_approval(self):
-        super().ea_abort_approval()
-        self.write({self.workflow_state_field: self.workflow_start_state})
-        return {}
+    # The state which, when written to ea_state_field triggers approval
+    ea_signal = "confirmed"
 
     def write(self, vals):
         """
@@ -61,9 +26,9 @@ class ExtendedApprovalWorkflowMixin(models.AbstractModel):
         clean mailthread trying to limit the conversion of multi write to multiple
         one-writes at most.
         """
-        if self and self[0].workflow_state_field in vals:
-            wstate = vals.get(self[0].workflow_state_field)
-            if wstate == self[0].workflow_signal:
+        if self and self[0].ea_state_field in vals:
+            wstate = vals.get(self[0].ea_state_field)
+            if wstate == self[0].ea_signal:
                 for rec in self:
                     with api.Environment.manage():
                         with registry(self.env.cr.dbname).cursor() as new_cr:
@@ -74,9 +39,7 @@ class ExtendedApprovalWorkflowMixin(models.AbstractModel):
                             r = new_rec.approve_step()
 
                             if r is not False:
-                                new_rec.write(
-                                    {rec.workflow_state_field: rec.workflow_state}
-                                )
+                                new_rec.write({rec.ea_state_field: rec.ea_state})
                                 new_cr.commit()
 
                                 # Must raise exception to abort transaction and undo
