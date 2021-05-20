@@ -1,10 +1,10 @@
-# © 2017-TODAY ForgeFlow S.L.
+# © 2021 Startx BV
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl.html)
 
-from odoo.exceptions import UserError
-from odoo.tests import common
+from odoo.tests import common, tagged
 
 
+@tagged("-at_install", "post_install")
 class ExtendedApprovalPartnerUnit(common.TransactionCase):
     def setUp(self):
         super().setUp()
@@ -58,27 +58,29 @@ class ExtendedApprovalPartnerUnit(common.TransactionCase):
             {"name": "unittest partner approval", "model": "res.partner"}
         )
         step = self.env["extended.approval.step"].create(
-            {
-                "flow_id": flow.id,
-                # 'condition': '',
-                "group_ids": [self.group1.id],
-            }
+            {"flow_id": flow.id, "group_ids": [self.group1.id]}
         )
 
         test_partner = self.env["res.partner"].create({"name": "test 1"})
 
-        with self.assertRaises(UserError):
-            test_partner.with_user(self.user0.id).write({"state": "confirmed"})
+        test_partner.with_user(self.user0.id).set_state_to_confirmed()
+        self.assertEqual(
+            test_partner.state,
+            "extended_approval",
+            "Partner should be in state extended_approval",
+        )
 
-        test_partner.with_user(self.user1.id).write({"state": "confirmed"})
-
+        test_partner.with_user(self.user1.id).set_state_to_confirmed()
         self.assertEqual(
             test_partner.state, "confirmed", "Partner should be in state confirmed"
         )
+
+        # trigger recompute
+        test_partner._compute_history_ids()
         self.assertEqual(
             len(test_partner.approval_history_ids),
             1,
-            "Partner should be in state confirmed",
+            "Partner should have one approval record",
         )
 
         step.unlink()
@@ -107,36 +109,58 @@ class ExtendedApprovalPartnerUnit(common.TransactionCase):
 
         test_partner = self.env["res.partner"].create({"name": "test 2"})
 
-        with self.assertRaises(UserError):
-            test_partner.with_user(self.user0.id).write({"state": "confirmed"})
-        with self.assertRaises(UserError):
-            test_partner.with_user(self.user2.id).write({"state": "confirmed"})
-        self.assertEqual(
-            len(test_partner.approval_history_ids),
-            0,
-            "Partner should not have approval history",
-        )
-
-        test_partner.with_user(self.user1.id).write({"state": "confirmed"})
-        self.assertEqual(
-            len(test_partner.approval_history_ids),
-            1,
-            "Partner should be in state confirmed",
-        )
-
+        test_partner.with_user(self.user0.id).set_state_to_confirmed()
         self.assertEqual(
             test_partner.state,
             "extended_approval",
             "Partner should be in state extended_approval",
         )
-        test_partner.with_user(self.user2.id).write({"state": "confirmed"})
+        # trigger recompute
+        test_partner._compute_history_ids()
+        self.assertEqual(
+            len(test_partner.approval_history_ids),
+            0,
+            "Partner should have 0 approval record",
+        )
+
+        test_partner.with_user(self.user2.id).set_state_to_confirmed()
+        self.assertEqual(
+            test_partner.state,
+            "extended_approval",
+            "Partner should be in state extended_approval",
+        )
+        # trigger recompute
+        test_partner._compute_history_ids()
+        self.assertEqual(
+            len(test_partner.approval_history_ids),
+            0,
+            "Partner should have 0 approval record",
+        )
+
+        test_partner.with_user(self.user1.id).set_state_to_confirmed()
+        self.assertEqual(
+            test_partner.state,
+            "extended_approval",
+            "Partner should be in state extended_approval",
+        )
+        # trigger recompute
+        test_partner._compute_history_ids()
+        self.assertEqual(
+            len(test_partner.approval_history_ids),
+            1,
+            "Partner should have 1 approval record",
+        )
+
+        test_partner.with_user(self.user2.id).set_state_to_confirmed()
         self.assertEqual(
             test_partner.state, "confirmed", "Partner should be in state confirmed"
         )
+        # trigger recompute
+        test_partner._compute_history_ids()
         self.assertEqual(
             len(test_partner.approval_history_ids),
             2,
-            "Partner should be in state confirmed",
+            "Partner should have 2 approval records",
         )
 
         step1.unlink()
