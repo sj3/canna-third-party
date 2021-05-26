@@ -22,7 +22,7 @@ class SaleOrderLine(models.Model):
         relation="sale_line_applied_sale_discount_rel",
         column1="sale_line_id",
         column2="discount_id",
-        string="Discount Engine(s)",
+        string="Applied Discount Engine(s)",
         readonly=True,
         help="This field contains the subset of the discount enginges "
         "with a calculated discount amount > 0.",
