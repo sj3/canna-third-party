@@ -47,11 +47,11 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
     @api.model
     def _search_approval_allowed(self, operator, value):
-        if operator in "=":
+        if operator in ["=", "!="]:
             return [
                 (
                     "current_step.group_ids",
-                    "in",
+                    "in" if operator == "=" else "not in",
                     self.env.user.mapped("groups_id.trans_implied_ids.id")
                     + self.env.user.mapped("groups_id.id"),
                 )
@@ -67,9 +67,9 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
     @api.model
     def recompute_all_next_approvers(self):
-        if hasattr(self, "workflow_start_state"):
+        if hasattr(self, "ea_state_field") and hasattr(self, "ea_start_state"):
             self.search(
-                [(self.workflow_state_field, "in", [self.workflow_start_state])]
+                [(self.ea_state_field, "in", [self.ea_start_state])]
             )._recompute_next_approvers()
 
     def _recompute_next_approvers(self):
