@@ -13,6 +13,8 @@ class ResPartner(models.Model):
     state = fields.Selection(
         selection=[("draft", "Draft"), ("confirmed", "Confirmed")],
         default="draft",
+        copy=False,
+        readonly=True,
         string="Approval State",
     )
 
