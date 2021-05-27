@@ -17,11 +17,8 @@ class PurchaseOrder(models.Model):
     """
 
     _name = "purchase.order"
-    _inherit = ["purchase.order", "extended.approval.workflow.mixin"]
+    _inherit = ["purchase.order", "extended.approval.method.field.mixin"]
 
-    workflow_signal = "purchase"
-    workflow_start_state = "draft"
-
-    def action_cancel(self):
+    def button_cancel(self):
         self.ea_cancel_approval()
-        return super().action_cancel()
+        return super().button_cancel()

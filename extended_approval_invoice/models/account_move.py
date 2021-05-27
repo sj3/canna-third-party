@@ -6,11 +6,10 @@ from odoo import models
 
 class AccountInvoice(models.Model):
     _name = "account.move"
-    _inherit = ["account.move", "extended.approval.workflow.mixin"]
+    _inherit = ["account.move", "extended.approval.method.field.mixin"]
 
-    workflow_signal = "posted"
-    workflow_state = "extended_approval"
+    ea_signal = "action_post"
 
-    def action_cancel(self):
+    def button_cancel(self):
         self.ea_cancel_approval()
-        return super(AccountInvoice, self).action_cancel()
+        return super().button_cancel()

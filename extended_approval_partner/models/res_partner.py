@@ -6,10 +6,9 @@ from odoo import fields, models
 
 class ResPartner(models.Model):
     _name = "res.partner"
-    _inherit = ["res.partner", "extended.approval.workflow.mixin"]
+    _inherit = ["res.partner", "extended.approval.method.field.mixin"]
 
-    workflow_signal = "confirmed"
-    workflow_state = "extended_approval"
+    ea_method_name = "set_state_to_confirmed"
 
     state = fields.Selection(
         selection=[("draft", "Draft"), ("confirmed", "Confirmed")],
@@ -20,7 +19,6 @@ class ResPartner(models.Model):
     )
 
     def set_state_to_confirmed(self):
-        # self.approve_step()
         self.state = "confirmed"
         return
 
