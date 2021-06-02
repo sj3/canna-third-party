@@ -35,7 +35,7 @@ class ExtendedApprovalStateFieldMixin(models.AbstractModel):
                 if self.ea_state not in state_names:
                     if self.ea_start_state in state_names:
                         field["selection"].insert(
-                            state_names.index(self.ea_start_state),
+                            state_names.index(self.ea_start_state) + 1,
                             (self.ea_state, "Approval"),
                         )
                     else:
