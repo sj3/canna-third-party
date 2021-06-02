@@ -189,3 +189,15 @@ class ExtendedApprovalMixin(models.AbstractModel):
             "context": self._context,
         }
         return action
+
+    def _get_approval_user(self):
+        self.ensure_one()
+        history = self.env["extended.approval.history"].search(
+            [("source", "=", "{},{}".format(self._name, self.id))],
+            order="date desc, id desc",
+        )
+        for rec in history:
+            if rec.step_id.use_sudo:
+                return rec.approver_id
+
+        return False

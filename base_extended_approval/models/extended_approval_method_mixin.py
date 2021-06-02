@@ -24,7 +24,12 @@ class ExtendedApprovalMethodMixin(models.AbstractModel):
                 if approve:
                     return approve
 
-            r = _ea_approve.origin(self, *args, **kwargs)
+            user = self._get_approval_user()
+            rec = self
+            if user:
+                rec = self.with_user(user)
+
+            r = _ea_approve.origin(rec, *args, **kwargs)
 
             if self.ea_flow_check != "before":
                 approve = self.approve_step()

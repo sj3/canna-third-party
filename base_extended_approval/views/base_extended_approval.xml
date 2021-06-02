@@ -19,6 +19,7 @@
             <group name="extended-approval-step-data">
               <field name="flow_id"/>
               <field name="sequence"/>
+              <field name="use_sudo"/>
               <field name="group_ids"/>
               <field name="condition"/>
             </group>
@@ -81,12 +82,14 @@
                   <field name="sequence" widget="handle"/>
                   <field name="group_ids" widget="many2many_tags"/>
                   <field name="condition"/>
+                  <field name="use_sudo"/>
                 </tree>
                 <form string="Step">
                   <group>
                     <field name="condition"/>
                     <field name="sequence"/>
                     <field name="group_ids"/>
+                    <field name="use_sudo"/>
                   </group>
                 </form>
               </field>
