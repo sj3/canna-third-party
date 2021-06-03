@@ -23,6 +23,7 @@ class ExtendedApprovalMixin(models.AbstractModel):
         copy=False,
         string="Current Approval Step",
     )
+    flow_name = fields.Char(related="current_step.flow_id.name", string="Flow")
 
     approval_history_ids = fields.One2many(
         comodel_name="extended.approval.history",
