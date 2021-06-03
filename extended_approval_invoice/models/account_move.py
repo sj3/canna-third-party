@@ -8,7 +8,7 @@ class AccountInvoice(models.Model):
     _name = "account.move"
     _inherit = ["account.move", "extended.approval.method.field.mixin"]
 
-    ea_signal = "action_post"
+    ea_method_name = "action_post"
 
     def button_cancel(self):
         self.ea_cancel_approval()
