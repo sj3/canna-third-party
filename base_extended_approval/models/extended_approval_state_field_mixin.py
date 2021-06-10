@@ -52,7 +52,11 @@ class ExtendedApprovalStateFieldMixin(models.AbstractModel):
 
     def approve_step(self):
         r = super().approve_step()
-        if r is not False:
+        if r is False:
+            # reset state to start_state after approval, because
+            # eg ocb / purchase button_confirm checks it
+            self.write({self.ea_state_field: self.ea_start_state})
+        else:
             self.write({self.ea_state_field: self.ea_state})
 
         return r
