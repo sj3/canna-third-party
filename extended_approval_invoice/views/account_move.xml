@@ -17,7 +17,10 @@
 
             <xpath expr="//notebook" position="inside">
                 <page string="Approvals" name="approval">
-                    <group name="g1" colspan="4" col="4">
+                  <group name="g1" colspan="4" col="4">
+                        <field name="flow_name" />
+                        <field name="approval_allowed" />
+
                         <label for="next_approver" />
                         <div>
                             <field name="next_approver" widget="many2many_tags"
@@ -26,7 +29,6 @@
                                 help="Show Approval Group Users" name="show_approval_group_users"
                                 type="object" class="oe_link" />
                         </div>
-                        <field name="approval_allowed" />
                     </group>
                     <group name="g2" colspan="4">
                         <field colspan="4" name="approval_history_ids"
