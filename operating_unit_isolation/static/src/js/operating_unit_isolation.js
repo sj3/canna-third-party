@@ -1,4 +1,5 @@
 odoo.define('operating_unit_isolation.operating_unit_isolation', function (require) {
+  "use strict";
 
   var BasicModel = require('web.BasicModel');
 
@@ -6,15 +7,10 @@ odoo.define('operating_unit_isolation.operating_unit_isolation', function (requi
 
     _getContext: function(element, options) {
       var v_context = this._super(element, options);
-      /*
-      console.log("operating_unit_isolation, _getContext");
-      console.log('this=',this);
-      console.log('element=', element);
-      console.log('options=', options);
-      */
+
       var extra_context = {
         record: {
-          _name: element.model,
+          _name: element.model
         },
         parent_record: {}
       };
@@ -23,13 +19,21 @@ odoo.define('operating_unit_isolation.operating_unit_isolation', function (requi
         extra_context.record._field = options.fieldName;
       };
       var data = this.get(element.id).data;
-      console.log('data=', data); //DEBUG
       if (data && data.operating_unit_id) {
-        extra_context['record']['operating_unit_id'] = data.operating_unit_id.data && data.operating_unit_id.data.id;
+        extra_context.record.operating_unit_id = data.operating_unit_id.data && data.operating_unit_id.data.id;
       };
-      var parent = this.__parentedParent; //DEBUG
-      console.log('parent=', parent); //DEBUG
-      /*      
+
+      /* FIXME only hardcoded for sale.order.line */
+      if (element.model === 'sale.order.line' && 'model' in this.__parentedParent) {
+        var parent_data = this.__parentedParent.model.get(this.__parentedParent.handle).data;
+        if (parent_data && 'operating_unit_id' in parent_data && parent_data.operating_unit_id) {
+          /* FIXME */
+          extra_context.parent_record._o2m = 'order_id';
+          extra_context.parent_record.operating_unit_id = parent_data.operating_unit_id.data && parent_data.operating_unit_id.data.id;
+        }
+      }
+
+      /* V8 code
       if (this.field_manager.dataset && this.field_manager.dataset.parent_view) {
         extra_context['parent_record']['_name'] = this.field_manager.dataset.parent_view.model;
         if (this.field_manager.dataset.o2m && this.field_manager.dataset.o2m.field.relation_field) {
@@ -41,7 +45,6 @@ odoo.define('operating_unit_isolation.operating_unit_isolation', function (requi
       }
        */
       _.extend(v_context, extra_context);
-      console.log(v_context);
 
       return v_context;
     }
