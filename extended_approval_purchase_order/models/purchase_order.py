@@ -1,5 +1,5 @@
 # Copyright (C) Onestein 2019-2020
-# Copyright (C) Noviat 2020
+# Copyright (C) Noviat 2020-2021
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo import models
@@ -19,6 +19,6 @@ class PurchaseOrder(models.Model):
     _name = "purchase.order"
     _inherit = ["purchase.order", "extended.approval.method.field.mixin"]
 
-    def button_cancel(self):
+    def button_draft(self):
         self.ea_cancel_approval()
-        return super().button_cancel()
+        return super().button_draft()
