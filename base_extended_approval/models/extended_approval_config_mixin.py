@@ -22,6 +22,16 @@ class ExtendedApprovalConfigMixin(models.AbstractModel):
     _name = "extended.approval.config.mixin"
     _description = "Mixin class for extended approval config"
 
+    '''
+    The code below is causing unacceptable performance problems for databases
+    with large numbers of objects subject to the approval flows.
+    Hence this code should be rearchitected but imho it's not worth the
+    effort since the recalc needs to happen only for objects within
+    the approval flow. As an alternative we can train the
+    users (key users, helpdesk) to reset the affected objects to draft
+    which will reinitialise the approval workflow.
+
+
     def write(self, values):
         r = super().write(values)
         update_flows(self)
@@ -38,3 +48,4 @@ class ExtendedApprovalConfigMixin(models.AbstractModel):
         r = super().unlink()
         update_model_flows(self.env, models)
         return r
+    '''
