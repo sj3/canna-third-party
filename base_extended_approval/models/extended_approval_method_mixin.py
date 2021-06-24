@@ -27,7 +27,9 @@ class ExtendedApprovalMethodMixin(models.AbstractModel):
             user = self._get_approval_user()
             rec = self
             if user:
-                rec = self.with_user(user)
+                # temporary fix until we have programmed the 'with_group' method:
+                rec = self.sudo()
+                # rec = self.with_user(user)
 
             r = _ea_approve.origin(rec, *args, **kwargs)
 
