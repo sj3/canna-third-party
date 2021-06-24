@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+  <record id="view_extended_approval_step_form" model="ir.ui.view">
+    <field name="name">extended.approval.step.form</field>
+    <field name="model">extended.approval.step</field>
+    <field name="inherit_id" ref="base_extended_approval.view_extended_approval_step_form"/>
+    <field name="arch" type="xml">
+      <field name="group_ids" position="replace">
+        <field name="role_ids" widget="many2many_tags"/>
+      </field>
+    </field>
+  </record>
+
+  <record id="view_extended_approval_step_tree" model="ir.ui.view">
+    <field name="name">extended.approval.step.tree</field>
+    <field name="model">extended.approval.step</field>
+    <field name="inherit_id" ref="base_extended_approval.view_extended_approval_step_tree"/>
+    <field name="arch" type="xml">
+      <field name="group_ids" position="replace">
+        <field name="role_ids" widget="many2many_tags"/>
+      </field>
+    </field>
+  </record>
+
+  <record id="view_extended_approval_flow_form" model="ir.ui.view">
+    <field name="name">extended.approval.flow.form</field>
+    <field name="model">extended.approval.flow</field>
+    <field name="inherit_id" ref="base_extended_approval.view_extended_approval_flow_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='steps']//tree/field[@name='group_ids']" position="replace">
+        <field name="role_ids" widget="many2many_tags"/>
+      </xpath>
+      <xpath expr="//field[@name='steps']//form//field[@name='group_ids']" position="replace">
+        <field name="role_ids" widget="many2many_tags"/>
+      </xpath>
+    </field>
+  </record>
+
+</odoo>
