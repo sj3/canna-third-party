@@ -47,7 +47,7 @@ Sample code to do this:
   <record id="view_move_form" model="ir.ui.view">
     <field name="name">account.move.form</field>
     <field name="model">account.move</field>
-    <field name="inherit_id" ref="account_analytic_dimension_policy.view_move_form"/>
+    <field name="inherit_id" ref="account.view_move_form"/>
     <field name="arch" type="xml">
       <xpath expr="//notebook//field[@name='invoice_line_ids']/tree/field[@name='analytic_account_id']" position="after">
         <field name="department_id"/>
@@ -58,11 +58,6 @@ Sample code to do this:
     </field>
   </record>
 
-|
-
-Please not that this view MUST inherit from the "account_analytic_dimension_policy.view_move_form" to enable view based policy enforcement.
-
-|
 
 Dimensions that are not available in the standard bank reconciliation widget must also be added to the widget Qweb template.
 
@@ -93,4 +88,18 @@ This module is inspired by https://github.com/OCA/account-analytic/blob/13.0/acc
 Known Issues
 ------------
 
-The current version of this module requires a restart of the Odoo server after adding Analytic Dimensions.
+The current version of this module requires a restart of the Odoo server after adding Analytic Dimensions
+in order to enable the UI enforcement.
+
+|
+
+The current version of this module assumes that 'account.move.line' objects
+are created/updated via an embedded editable tree view in a 'account.move' form view.
+
+|
+
+Policy enforcement will still work if a custom module allows to update
+an Analytic Dimension field via e.g. a Journal Item form view,
+but the enforcement will be performed in this case via a pop-up window
+in stead of front end UI enforcement.
+

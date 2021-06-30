@@ -1,4 +1,4 @@
-# Copyright 2009-2020 Noviat.
+# Copyright 2009-2021 Noviat.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from odoo import _, api, fields, models
@@ -20,8 +20,9 @@ class AnalyticDimension(models.Model):
             (fld, aml_fields[fld].string)
             for fld in aml_fields
             if fld not in self._dimension_blacklist()
-            and aml_fields[fld].type in ("many2one", "many2many", "selection")
+            and aml_fields[fld].type in ("many2one", "many2many", "selection", "char")
             and not aml_fields[fld].compute
+            and not aml_fields[fld].related
         ]
         return select
 
@@ -56,13 +57,6 @@ class AnalyticDimension(models.Model):
             )
             if dims > 1:
                 raise UserError(_("The dimension has already been defined."))
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        dims = super().create(vals_list)
-        user_types = self.env["account.account.type"].search([])
-        user_types.update({"analytic_dimension_ids": [(4, x) for x in dims.ids]})
-        return dims
 
     def unlink(self):
         for (model, fld) in [
