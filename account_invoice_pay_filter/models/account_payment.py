@@ -21,7 +21,7 @@ class AccountPayment(models.Model):
             )
             return res
         pj_dom = res["domain"]["journal_id"]
-        company = self.invoice_ids and self.invoice_ids[0].company_id or  self.env.company
+        company = self.invoice_ids and self.invoice_ids[0].company_id or self.env.company
         pj_dom.append(("company_id", "=", company.id))
         if self.payment_type == "inbound":
             pj_dom.append(("payment_method_in", "=", True))
