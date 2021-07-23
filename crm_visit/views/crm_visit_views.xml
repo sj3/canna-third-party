@@ -94,7 +94,7 @@
                 <filter name="draft" string="Draft" domain="[('state','=','draft')]"/>
                 <filter name="to_process" string="To Process" domain="[('state','=','report')]"/>
                 <filter name="planned" string="Planned" domain="[('state','=','planned')]"/>
-                <filter name="cancelled" string="Cancelled" domain="[('state','=','cancel')]"/>
+                <!-- <filter name="cancelled" string="Cancelled" domain="[('state','=','cancel')]"/> -->
                 <filter name="processed" string="Done" domain="[('state','=','done')]"/>
                 <separator/>
                 <filter name="my_visit" domain="[('user_id','=',uid)]" string="My Visits"/>
