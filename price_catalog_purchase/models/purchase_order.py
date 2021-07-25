@@ -29,8 +29,10 @@ class PurchaseOrder(models.Model):
         to match that of the Price Catalog.
         """
         # Note: cascades to lines
-        self.currency_id = self.price_catalog_id.currency_id
-
+        if self.price_catalog_id.currency_id:
+            self.currency_id = self.price_catalog_id.currency_id
+        else:
+            self.currency_id = self._default_currency_id()
 
 class PurchaseOrderLine(models.Model):
     """Override PurchaseOrderLine for catalog prices."""
