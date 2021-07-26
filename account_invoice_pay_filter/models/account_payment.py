@@ -21,7 +21,7 @@ class AccountPayment(models.Model):
             )
             return res
         pj_dom = res["domain"]["journal_id"]
-        company = self.invoice_ids[0].company_id
+        company = self.invoice_ids and self.invoice_ids[0].company_id or self.env.company
         pj_dom.append(("company_id", "=", company.id))
         if self.payment_type == "inbound":
             pj_dom.append(("payment_method_in", "=", True))
@@ -30,7 +30,7 @@ class AccountPayment(models.Model):
         pay_journals = self.env["account.journal"].search(pj_dom)
         self.journal_id = len(pay_journals) == 1 and pay_journals or False
         pj_dom = [("id", "in", pay_journals.ids)]
-        return res
+        return {'domain': {'journal_id': pj_dom}}
 
     @api.onchange("journal_id")
     def _onchange_journal(self):
