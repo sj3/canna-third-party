@@ -15,10 +15,12 @@ class ResPartner(models.Model):
         string="Customer Price Catalog",
         company_dependent=True,
         domain=[("catalog_type", "=", "sale")],
+        tracking=True,
     )
     purchase_catalog_id = fields.Many2one(
         comodel_name="price.catalog",
         string="Supplier Price Catalog",
         company_dependent=True,
         domain=[("catalog_type", "=", "purchase")],
+        tracking=True,
     )

@@ -23,6 +23,7 @@ class ExtendedApprovalMixin(models.AbstractModel):
         copy=False,
         string="Current Approval Step",
     )
+    flow_name = fields.Char(related="current_step.flow_id.name", string="Flow")
 
     approval_history_ids = fields.One2many(
         comodel_name="extended.approval.history",
@@ -47,11 +48,11 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
     @api.model
     def _search_approval_allowed(self, operator, value):
-        if operator in "=":
+        if operator in ["=", "!="]:
             return [
                 (
                     "current_step.group_ids",
-                    "in",
+                    "in" if operator == "=" else "not in",
                     self.env.user.mapped("groups_id.trans_implied_ids.id")
                     + self.env.user.mapped("groups_id.id"),
                 )
@@ -67,9 +68,9 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
     @api.model
     def recompute_all_next_approvers(self):
-        if hasattr(self, "workflow_start_state"):
+        if hasattr(self, "ea_state_field") and hasattr(self, "ea_start_state"):
             self.search(
-                [(self.workflow_state_field, "in", [self.workflow_start_state])]
+                [(self.ea_state_field, "in", [self.ea_start_state])]
             )._recompute_next_approvers()
 
     def _recompute_next_approvers(self):
@@ -176,16 +177,28 @@ class ExtendedApprovalMixin(models.AbstractModel):
         return {}
 
     def show_approval_group_users(self):
-        a_partners = self.next_approver.mapped("users.partner_id")
-        ptree = self.env.ref("base.view_partner_tree")
+        a_user_ids = self.next_approver.mapped("users.id")
+        ptree = self.env.ref("base.view_users_tree")
         action = {
             "name": _("Approval Group Users"),
             "type": "ir.actions.act_window",
-            "res_model": "res.partner",
+            "res_model": "res.users",
             "view_type": "form",
             "view_mode": "tree",
             "view_id": ptree.id,
-            "domain": [("id", "in", a_partners._ids)],
+            "domain": [("id", "in", a_user_ids)],
             "context": self._context,
         }
         return action
+
+    def _get_approval_user(self):
+        self.ensure_one()
+        history = self.env["extended.approval.history"].search(
+            [("source", "=", "{},{}".format(self._name, self.id))],
+            order="date desc, id desc",
+        )
+        for rec in history:
+            if rec.step_id.use_sudo:
+                return rec.approver_id
+
+        return False

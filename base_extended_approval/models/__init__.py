@@ -2,7 +2,10 @@
 
 from . import extended_approval_config_mixin
 from . import extended_approval_mixin
+from . import extended_approval_state_field_mixin
 from . import extended_approval_workflow_mixin
+from . import extended_approval_method_mixin
+from . import extended_approval_method_field_mixin
 from . import extended_approval_history
 from . import extended_approval_flow
 from . import extended_approval_condition

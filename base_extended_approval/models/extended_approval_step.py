@@ -21,9 +21,13 @@ class ExtendedApprovalStep(models.Model):
         comodel_name="extended.approval.condition", string="Condition"
     )
 
-    limit = fields.Float(string="Amount")
-
     group_ids = fields.Many2many(comodel_name="res.groups", string="Approver")
+
+    use_sudo = fields.Boolean(
+        string="Approver (sudo)",
+        help="The actual approval will be done by the last user "
+        "in the approval history with this flag set.",
+    )
 
     def get_applicable_models(self):
         return [self.flow_id.model]

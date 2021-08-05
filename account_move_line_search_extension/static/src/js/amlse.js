@@ -1,5 +1,5 @@
 /*
-# Copyright 2009-2020 Noviat.
+# Copyright 2009-2021 Noviat.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 */
 
@@ -157,10 +157,10 @@ odoo.define("account_move_line_search_extension.amlse", function(require) {
                 params.domain = self.sidebar.env.domain;
             }
             if (params.amlse_domain) {
-                params.domain = params.domain.concat(params.amlse_domain);
+                $.extend(params.domain, params.amlse_domain);
             } else {
                 this.search_bar_domain = params.domain;
-                params.domain = params.domain.concat(this.amlse_domain);
+                $.extend(params.domain, self.amlse_domain);
             }
             return this._super.apply(this, arguments).then(function() {
                 /* Restore search bar domain since the super will set it to the concatenated domain */

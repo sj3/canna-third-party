@@ -15,6 +15,14 @@ class PurchaseOrder(models.Model):
         domain=[("catalog_type", "=", "purchase")],
     )
 
+    @api.onchange("partner_id")
+    def onchange_partner_id(self):
+        res = super().onchange_partner_id()
+        self.price_catalog_id = (
+            self.partner_id.commercial_partner_id.purchase_catalog_id
+        )
+        return res
+
     @api.onchange("price_catalog_id")
     def _onchange_catalog(self):
         """When the Price Catalog field is changed, set the Order's currency
