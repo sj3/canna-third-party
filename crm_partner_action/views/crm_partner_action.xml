@@ -25,14 +25,12 @@
         <field name="arch" type="xml">
             <form string="Partner Action">
                 <header>
-                    <span>
-                        <button name="action_done" states="open"
-                            string="Done" type="object" />
-                        <button name="action_open" states="done"
-                            string="Open" type="object" />
-                        <field name="state" widget="statusbar"
-                            statusbar_visible="open, cancel, done" />
-                    </span>
+                    <button name="action_done" states="open"
+                        string="Done" type="object" />
+                    <button name="action_open" states="done"
+                        string="Open" type="object" />
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="open, cancel, done" />
                 </header>
                 <sheet>
                     <group>
