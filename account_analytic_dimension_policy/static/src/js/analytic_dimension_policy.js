@@ -31,13 +31,18 @@ odoo.define("account_analytic_dimensions_policy.analytic_dimensions_policy", fun
         reload: function() {
             var self = this;
             var def_reload = this._super();
-
+            var mod = self.context.active_model;
+            var mod_id = self.context.active_id;
+            if ("journal_id" in this.context) {
+                mod = "account.journal";
+                mod_id = self.context.journal_id;
+            }
             var def_dims = self
                 ._rpc({
-                    model: self.context.active_model,
+                    model: mod,
                     method: "search_read",
                     fields: ["company_id"],
-                    domain: [["id", "=", self.context.active_id]],
+                    domain: [["id", "=", mod_id]],
                 })
                 .then(function(company) {
                     self.company_id = company[0].company_id[0];
