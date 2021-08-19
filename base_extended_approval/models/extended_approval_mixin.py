@@ -68,23 +68,23 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
     @api.model
     def recompute_all_next_approvers(self):
-        if hasattr(self, "ea_state_field") and hasattr(self, "ea_start_state"):
+        states = []
+        if hasattr(self, "ea_state_field"):
+            if hasattr(self, "ea_start_state"):
+                states.append(self.ea_start_state)
+            if hasattr(self, "ea_state"):
+                states.append(self.ea_state)
+
+        if len(states):
             self.search(
-                [(self.ea_state_field, "in", [self.ea_start_state])]
+                [(self.ea_state_field, "in", states)]
             )._recompute_next_approvers()
 
     def _recompute_next_approvers(self):
         for rec in self:
-            completed = (
-                self.env["extended.approval.history"]
-                .search([("source", "=", "{},{}".format(rec._name, rec.id))])
-                .mapped("step_id")
-            )
-            if not completed:
-                # re-evaluate current step, but not during approval ?
-                step = rec._get_next_approval_step()
-                if step and step != rec.current_step:
-                    rec.with_context(approval_flow_update=True).current_step = step
+            step = rec._get_next_approval_step()
+            if step and step != rec.current_step:
+                rec.with_context(approval_flow_update=True).current_step = step
 
     def write(self, values):
         r = super().write(values)
