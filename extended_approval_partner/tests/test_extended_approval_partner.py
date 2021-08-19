@@ -19,6 +19,7 @@ class ExtendedApprovalPartnerUnit(common.TransactionCase):
         self.group = self.env.ref("base.group_partner_manager")
         self.group1 = self._create_group("group1")
         self.group2 = self._create_group("group2")
+        self.group3 = self._create_group("group3")
 
         # Create User 0 without group
         self.user0 = self._create_user(
@@ -28,9 +29,13 @@ class ExtendedApprovalPartnerUnit(common.TransactionCase):
         self.user1 = self._create_user(
             "user_1", [self.group.id, self.group0.id, self.group1.id], self.company
         )
-        # Create User 2 with group 1
+        # Create User 2 with group 3
         self.user2 = self._create_user(
             "user_2", [self.group.id, self.group0.id, self.group2.id], self.company
+        )
+        # Create User 3 with group 3
+        self.user3 = self._create_user(
+            "user_3", [self.group.id, self.group0.id, self.group3.id], self.company
         )
 
     def _create_group(self, name, context=None):
@@ -152,6 +157,109 @@ class ExtendedApprovalPartnerUnit(common.TransactionCase):
         )
 
         test_partner.with_user(self.user2.id).set_state_to_confirmed()
+        self.assertEqual(
+            test_partner.state, "confirmed", "Partner should be in state confirmed"
+        )
+        # trigger recompute
+        test_partner._compute_history_ids()
+        self.assertEqual(
+            len(test_partner.approval_history_ids),
+            2,
+            "Partner should have 2 approval records",
+        )
+
+        step1.unlink()
+        step2.unlink()
+        flow.unlink()
+
+    def test_01_reconfigure_multistep_approval_partner(self):
+        flow = self.env["extended.approval.flow"].create(
+            {"name": "unittest partner approval", "model": "res.partner"}
+        )
+        step1 = self.env["extended.approval.step"].create(
+            {
+                "flow_id": flow.id,
+                # 'condition': '',
+                "sequence": 10,
+                "group_ids": [self.group1.id],
+            }
+        )
+        step2 = self.env["extended.approval.step"].create(
+            {
+                "flow_id": flow.id,
+                # 'condition': '',
+                "sequence": 20,
+                "group_ids": [self.group2.id],
+            }
+        )
+
+        test_partner = self.env["res.partner"].create({"name": "test 2"})
+
+        test_partner.with_user(self.user0.id).set_state_to_confirmed()
+        self.assertEqual(
+            test_partner.state,
+            "extended_approval",
+            "Partner should be in state extended_approval",
+        )
+        # trigger recompute
+        test_partner._compute_history_ids()
+        self.assertEqual(
+            len(test_partner.approval_history_ids),
+            0,
+            "Partner should have 0 approval record",
+        )
+
+        test_partner.with_user(self.user2.id).set_state_to_confirmed()
+        self.assertEqual(
+            test_partner.state,
+            "extended_approval",
+            "Partner should be in state extended_approval",
+        )
+        # trigger recompute
+        test_partner._compute_history_ids()
+        self.assertEqual(
+            len(test_partner.approval_history_ids),
+            0,
+            "Partner should have 0 approval record",
+        )
+
+        test_partner.with_user(self.user1.id).set_state_to_confirmed()
+        self.assertEqual(
+            test_partner.state,
+            "extended_approval",
+            "Partner should be in state extended_approval",
+        )
+        # trigger recompute
+        test_partner._compute_history_ids()
+        self.assertEqual(
+            len(test_partner.approval_history_ids),
+            1,
+            "Partner should have 1 approval record",
+        )
+
+        # attempt to approve with user 3, should fail.
+
+        test_partner.with_user(self.user3.id).set_state_to_confirmed()
+        self.assertEqual(
+            test_partner.state,
+            "extended_approval",
+            "Partner should be in state extended_approval",
+        )
+        # trigger recompute
+        test_partner._compute_history_ids()
+        self.assertEqual(
+            len(test_partner.approval_history_ids),
+            1,
+            "Partner should have 1 approval records",
+        )
+
+        # reconfigure step2
+
+        step2.write({"group_ids": [self.group3.id]})
+
+        # attempt to approve with user 3, should succeed.
+
+        test_partner.with_user(self.user3.id).set_state_to_confirmed()
         self.assertEqual(
             test_partner.state, "confirmed", "Partner should be in state confirmed"
         )
