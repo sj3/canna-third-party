@@ -5,7 +5,7 @@ workflow:
     - if: $CI_MERGE_REQUEST_IID
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
-image: python:3.6
+image: gitlab.canna.lan:5000/odoo/gitlabci_tests
 stages:
   - test
   - external
@@ -32,8 +32,9 @@ variables:
 
 .before_script_template:
   before_script:
+      - update-alternatives --install /usr/bin/python python /usr/bin/python3.6 1
       - curl -sL https://deb.nodesource.com/setup_10.x | bash -
-      - apt-get install -y  sudo postgresql-client expect-dev python-lxml nodejs python-dev python-pip build-essential libsasl2-dev python-dev libldap2-dev libssl-dev
+      - apt-get install -y sudo git postgresql-client expect-dev python-ldap python-lxml nodejs python-dev python-pip build-essential libsasl2-dev python-dev libldap2-dev libssl-dev
       - pip install coverage
 
 # lint disabled for third-party repo as discussed 20200924. Newly added modules
@@ -81,6 +82,8 @@ test:
     - update-ca-certificates
     # Change oca_dependencies.txt formatting to fetch from private GitLab by changing to https and injecting the job token.
     - sed -i -e '/^#/! s/\(git.*:\)\(.*\.git\)/https:\/\/gitlab-ci-token:'"${CI_JOB_TOKEN}"'@gitlab.canna.lan\/\2/g' oca_dependencies.txt
+    - rm /usr/bin/lessc
+    - mkdir -p /data/build
     - travis_install_nightly
     - travis_run_tests
     - travis_after_tests_success || true
