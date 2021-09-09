@@ -90,15 +90,16 @@ class AccountMoveLine(models.Model):
         dims = self._get_all_analytic_dimensions(company_id)
         fields_info = []
         for dim in dims:
-            fields_info.append(
-                {
-                    "name": dim,
-                    "type": self._fields[dim].type,
-                    "string": self._fields[dim].string,
-                    "relation": self._fields[dim].comodel_name,
-                    "domain": self._fields[dim].domain,
-                }
-            )
+            field = self._fields[dim]
+            field_info = {
+                "name": dim,
+                "type": field.type,
+                "string": field.string,
+                "relation": field.comodel_name,
+            }
+            if hasattr(field, "domain"):
+                field_info.update({"domain": field.domain})
+            fields_info.append(field_info)
         return fields_info
 
     def _get_analytic_dimensions(self):
@@ -126,8 +127,8 @@ class AccountMoveLine(models.Model):
             am = aml.move_id
             err_msg = _(
                 "Analytic Dimension Policy violation in Journal Item ID %s, "
-                "Journal Entry %s:\n"
-            ) % (aml.id, am.name_get()[0][1])
+                "Journal Entry %s, Account %s:\n"
+            ) % (aml.id, am.name_get()[0][1], aml.account_id.code)
             for dim in dims:
                 if aml[dim] and policy == "never":
                     raise UserError(err_msg + _("Field '%s' must not be set.") % dim)
