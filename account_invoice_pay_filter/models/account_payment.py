@@ -30,7 +30,8 @@ class AccountPayment(models.Model):
         pay_journals = self.env["account.journal"].search(pj_dom)
         self.journal_id = len(pay_journals) == 1 and pay_journals or False
         pj_dom = [("id", "in", pay_journals.ids)]
-        return {'domain': {'journal_id': pj_dom}}
+        res["domain"]["journal_id"] = pj_dom
+        return res
 
     @api.onchange("journal_id")
     def _onchange_journal(self):
