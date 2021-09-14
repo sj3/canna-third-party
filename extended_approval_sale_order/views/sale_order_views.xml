@@ -7,9 +7,10 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
             <!-- pylint:disable=dangerous-view-replace-wo-priority -->
-            <xpath expr="//button[@id=action_confirm']" position="after">
+            <xpath expr="//button[@id='action_confirm']" position="after">
                 <button name="action_confirm" type="object" string="Approve" class="oe_highlight" attrs="{'invisible': ['|', ('state', 'not in', ['extended_approval']), ('approval_allowed', '!=', True)]}"/>
                 <button name="ea_abort_approval" type="object" string="Reject" attrs="{'invisible': ['|', ('state', '!=', 'extended_approval'), ('approval_allowed', '!=', True)]}"/>
+                <button name="ea_retry_approval" type="object" string="Retry approval" attrs="{'invisible': [('state', '!=', 'extended_approval')]}" />
             </xpath>
 
             <button name="action_cancel" position="attributes">

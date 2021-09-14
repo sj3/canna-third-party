@@ -108,6 +108,8 @@
               <p>For each step a log record will be created.</p>
               <p>If a user can complete multiple consecutive steps, all these steps
               will be completed at once.</p>
+              <p>Upon completion of the final step, the user that completed the last step with 'use_sudo' marked
+              (if any) will be used for the actual state change.</p>
             </span>
           </sheet>
         </form>
@@ -168,6 +170,14 @@
             <field name="condition_type"/>
             <field name="domain"/>
           </group>
+          <separator name="config_help" string="Configuration Instructions" colspan="4"/>
+          <span name="extended_approval_help">
+              <p>You can use conditions to make certain steps in the flow conditional. There are 2 types of conditions:</p>
+              <ul>
+                  <li>domain: use odoo domain syntax, eg ['|',('amount', '&lt;', 1000),('user_id','=','1')]</li>
+                  <li>python: you can use the 'record' variable to access the current record</li>
+              </ul>
+          </span>
         </form>
       </field>
     </record>

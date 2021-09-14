@@ -48,3 +48,9 @@ class ExtendedApprovalMethodMixin(models.AbstractModel):
             self.ea_patched = True
 
         return super()._register_hook()
+
+    def ea_retry_approval(self):
+        super().ea_retry_approval()
+        for rec in self:
+            if not rec.current_step:
+                getattr(self, self.ea_method_name)()
