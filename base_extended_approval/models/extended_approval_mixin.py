@@ -73,6 +73,12 @@ class ExtendedApprovalMixin(models.AbstractModel):
                 [(self.ea_state_field, "in", [self.ea_start_state])]
             )._recompute_next_approvers()
 
+    def ea_retry_approval(self):
+        for rec in self:
+            step = rec._get_next_approval_step()
+            if step != rec.current_step:
+                rec.with_context(approval_flow_update=True).current_step = step
+
     def _recompute_next_approvers(self):
         for rec in self:
             completed = (
