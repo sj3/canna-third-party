@@ -28,7 +28,7 @@
                     <button name="action_done" states="visited" type="object" string="Finish Report"
                           confirm="Are you sure you want to finish this report ?" class="oe_highlight"  groups="crm_visit.group_crm_visit_user,crm_visit.group_crm_visit_manager"/>
                     <button name="action_correct" states="done" type="object" string="Correct" class="oe_highlight"  groups="crm_visit.group_crm_visit_user,crm_visit.group_crm_visit_manager"/>
-                    <field name="state" widget="statusbar"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,planned,visited,done"/>
                 </header>
                 <sheet>
                     <div class="oe_inline">
@@ -94,7 +94,7 @@
                 <filter name="draft" string="Draft" domain="[('state','=','draft')]"/>
                 <filter name="to_process" string="To Process" domain="[('state','=','report')]"/>
                 <filter name="planned" string="Planned" domain="[('state','=','planned')]"/>
-                <filter name="cancelled" string="Cancelled" domain="[('state','=','cancel')]"/>
+                <!-- <filter name="cancelled" string="Cancelled" domain="[('state','=','cancel')]"/> -->
                 <filter name="processed" string="Done" domain="[('state','=','done')]"/>
                 <separator/>
                 <filter name="my_visit" domain="[('user_id','=',uid)]" string="My Visits"/>
