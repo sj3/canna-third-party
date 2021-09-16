@@ -18,7 +18,7 @@ class CrmVisit(models.Model):
             ("draft", "Draft"),
             ("planned", "Appointment"),
             ("visited", "Needs Report"),
-#             ("cancel", "Cancelled"),
+            ("cancel", "Cancelled"),
             ("done", "Done"),
         ],
         default="draft",
