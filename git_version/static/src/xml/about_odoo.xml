@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template xml:space="preserve">
+    <t t-extend="UserMenu.Actions">
+        <t t-jquery=".dropdown-divider" t-operation="before">
+            <a role="menuitem" href="#" data-menu="aboutOdoo" class="dropdown-item d-none d-md-inline-block">About Odoo</a>
+        </t>
+    </t>
+    <t t-name="UserMenu.about">
+        <div class="oe_about">
+            <div class="container-fluid">
+                <div class="col-md-12">
+                    <a class="oe_activate_debug_mode pull-right badge badge-primary" href="?debug=" >Activate the developer mode</a>
+                </div>
+                <div class="col-md-12">
+                    <div class="user-details text-center">
+                        <div class="col-md-6 offset-md-2 user-image">
+                            <img src="/web/static/src/img/logo2.png" alt="Odoo (Formerly OpenERP)" title="Odoo (Formerly OpenERP)" class="img-circle"/>
+                        </div>
+                        <div class="user-info-block">
+                            <div class="user-heading">
+                                <br/><span class="help-block">(Formerly OpenERP)</span>
+                                <h3>Version <t t-esc="version_info.server_version"/></h3>
+                            </div>
+                            <h4>Repository Version(s): </h4>
+                            <t t-raw="version_info.git_version_info"/>
+                            <br/><br/>
+                            <ul class="list-inline text-center navigation">
+                                <li class="active">
+                                    <a data-toggle="tab" href="#settings">
+                                        <span class="glyphicon glyphicon-cog"></span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a data-toggle="tab" href="#email">
+                                        <span class="glyphicon glyphicon-envelope"></span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a data-toggle="tab" href="#events">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </a>
+                                </li>
+                                 <li>
+                                    <a data-toggle="tab" href="#social">
+                                        <span class="glyphicon glyphicon-share"></span>
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="user-body">
+                                <div class="tab-content">
+                                    <div id="settings" class="tab-pane active">
+                                        <h4>Copyright © 2004-TODAY Odoo SA. All Rights Reserved.</h4>
+                                        <p>Odoo is a trademark of the <a target="_blank" href="https://www.odoo.com" style="text-decoration: underline;">Odoo SA Company</a>.</p>
+                                        <p>Licenced under the terms of <a target="_blank" href="http://www.gnu.org/licenses/lgpl.html" style="text-decoration: underline;">GNU LGPL License</a></p>
+                                        <p>For more information visit <a target="_blank" href="https://www.odoo.com" style="text-decoration: underline;">Odoo.com</a></p>
+                                    </div>
+                                    <div id="email" class="tab-pane">
+                                        <h4>Odoo S.A.</h4>
+                                        <p>
+                                            Chaussée de Namur 40<br/>
+                                            1367 Grand-Rosière <br/>
+                                            Belgium
+                                        </p>
+                                        <!-- TODO - ALIAS contactus -->
+                                        <a class='btn btn-link' href='https://www.odoo.com/web/about/contactus'>Our website</a>
+                                    </div>
+                                    <div id="events" class="tab-pane">
+                                        <h4>Discover Events of Odoo around the world...</h4>
+                                        <a class='btn btn-link' href='https://www.odoo.com/web/about/event'> Our next Events</a>
+                                    </div>
+                                    <div id="social" class="tab-pane">
+                                        <h4>Follow Us...</h4>
+                                        <a href="https://www.odoo.com/web/about/facebook"><i class="fa fa-facebook-square fa-3x social-fb"></i></a>
+                                        <a href="https://www.odoo.com/web/about/twitter"><i class="fa fa-twitter-square fa-3x social-tw"></i></a>
+                                        <a href="https://www.odoo.com/web/about/googleplus"><i class="fa fa-google-plus-square fa-3x social-gp"></i></a>
+                                        <a href="https://www.odoo.com/web/about/linkedin"><i class="fa fa-linkedin-square fa-3x social-lk"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</template>
