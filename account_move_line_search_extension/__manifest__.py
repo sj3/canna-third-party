@@ -3,7 +3,7 @@
 
 {
     "name": "Journal Items Search Extension",
-    "version": "13.0.1.2.0",
+    "version": "13.0.1.2.2",
     "license": "AGPL-3",
     "author": "Noviat",
     "website": "http://www.noviat.com",

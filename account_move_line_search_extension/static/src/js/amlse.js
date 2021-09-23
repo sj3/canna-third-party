@@ -37,7 +37,7 @@ odoo.define("account_move_line_search_extension.amlse", function(require) {
             this.current_amount = null;
             this.current_taxes = null;
             this.current_tags = null;
-            this.search_bar_domain = [];
+            this.sidebar_domain = [];
             this.amlse_domain = [];
         },
 
@@ -144,19 +144,24 @@ odoo.define("account_move_line_search_extension.amlse", function(require) {
         },
 
         do_search: function() {
+            this.sidebar_domain = this.sidebar.env.domain.slice();
             this.amlse_domain = this.aml_search_domain();
             this.reload(this.sidebar.env);
         },
 
         reload: function(params) {
             var self = this;
-            params.domain = params.domain || [];
-            this.search_bar_domain = params.domain.slice();
-            params.domain = params.domain.concat(self.amlse_domain);
+            if (params.domain) {
+                this.sidebar_domain = params.domain;
+            } else {
+                this.sidebar_domain = this.sidebar.env.domain.slice();
+                params.domain = this.sidebar.env.domain;
+            }
+            params.domain = this.amlse_domain.concat(params.domain);
             return this._super.apply(this, arguments).then(function() {
                 /* Restore search bar domain since the super
                    will set it to the concatenated domain */
-                self.sidebar.env.domain = self.search_bar_domain.slice();
+                self.sidebar.env.domain = self.sidebar_domain.slice();
             });
         },
 
