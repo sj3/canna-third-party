@@ -1,13 +1,12 @@
-# -*- coding: utf-8 -*-
-# Copyright Onestein (https://www.onestein.eu).
+# Copyright (C) 2021-TODAY SerpentCS Pvt. Ltd. (<http://www.serpentcs.com>).
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-import openerp.tools as tools
 import subprocess
 
-import openerp.addons.web.controllers.main as main
-from openerp import http
-from openerp.service.common import exp_version
+import odoo.addons.web.controllers.main as main
+from odoo import http
+from odoo.service.common import exp_version
+import odoo.tools as tools
 
 
 class WebClient(main.WebClient):
@@ -23,7 +22,7 @@ class WebClient(main.WebClient):
             proc = subprocess.Popen(
                     cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                     cwd=addon_path)
-            output = proc.communicate()[0]
+            output = str(proc.communicate()[0].decode("utf-8"))
             # Check if it is a git repo and hide standard saas repos
             if proc.returncode == 0 and output and 'saas' not in output:
                 versions.append((addon_path.split('/')[-1],

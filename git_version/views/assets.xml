@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="git_version_assets_backend" name="git version assets" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/git_version/static/src/js/git_version.js"></script>
+            </xpath>
+        </template>
+    </data>
+</odoo>
