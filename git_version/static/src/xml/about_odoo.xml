@@ -9,9 +9,7 @@
         <div class="oe_about">
             <div class="container-fluid">
                 <div class="col-md-12">
-                    <a class="oe_activate_debug_mode pull-right badge badge-primary" href="?debug=" >Activate the developer mode</a>
-                </div>
-                <div class="col-md-12">
+                    <a class="oe_activate_debug_mode pull-right btn btn-primary btn-sm text-white" >Activate the developer mode</a>
                     <div class="user-details text-center">
                         <div class="col-md-6 offset-md-2 user-image">
                             <img src="/web/static/src/img/logo2.png" alt="Odoo (Formerly OpenERP)" title="Odoo (Formerly OpenERP)" class="img-circle"/>
