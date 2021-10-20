@@ -15,7 +15,10 @@ class StockRule(models.Model):
         if partner_id is not None:
             partner = self.env["res.partner"].browse(partner_id)
             if partner.purchase_catalog_id:
-                res["price_catalog_id"] = partner.purchase_catalog_id.id
+                res.update({
+                    "price_catalog_id": partner.purchase_catalog_id.id,
+                    "currency_id": partner.purchase_catalog_id.currency_id.id,
+                })
         return res
 
     @api.model
