@@ -26,13 +26,19 @@ class PurchaseOrder(models.Model):
     @api.onchange("price_catalog_id")
     def _onchange_catalog(self):
         """When the Price Catalog field is changed, set the Order's currency
-        to match that of the Price Catalog.
+        to match that of the Price Catalog and update price according to the
+        new vendor's price catalog.
         """
         # Note: cascades to lines
         if self.price_catalog_id.currency_id:
             self.currency_id = self.price_catalog_id.currency_id
         else:
             self.currency_id = self.partner_id.property_purchase_currency_id.id or self.env.company.currency_id.id
+        if self.price_catalog_id:
+            for line in self.order_line:
+                line.price_unit = self.price_catalog_id.get_price(
+                    line.product_id, self.date_order
+                )
 
 class PurchaseOrderLine(models.Model):
     """Override PurchaseOrderLine for catalog prices."""
