@@ -24,11 +24,11 @@ class ExtendedApprovalPartnerUnit(common.TransactionCase):
         self.user0 = self._create_user(
             "user_0", [self.group.id, self.group0.id], self.company
         )
-        # Create User 2 with group 1
+        # Create User 1 with group 1
         self.user1 = self._create_user(
             "user_1", [self.group.id, self.group0.id, self.group1.id], self.company
         )
-        # Create User 2 with group 1
+        # Create User 2 with group 2
         self.user2 = self._create_user(
             "user_2", [self.group.id, self.group0.id, self.group2.id], self.company
         )

@@ -7,7 +7,12 @@
     "license": "AGPL-3",
     "author": "Startx",
     "category": "base",
-    "depends": ["sale_order_group", "base_extended_approval"],
+    "depends": [
+        "sale_order_group",
+        "base_extended_approval",
+        # Not strictly necessary, but allows to test interaction.
+        "extended_approval_sale_order",
+    ],
     "data": ["views/sale_order_group_views.xml"],
     "installable": True,
 }
