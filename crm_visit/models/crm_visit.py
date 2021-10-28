@@ -70,7 +70,7 @@ class CrmVisit(models.Model):
         string="Report",
         readonly=True,
         required=False,
-        states={"visited": [("readonly", False), ("required", True)]},
+        states={"visited": [("readonly", False)]},
     )
     partner_id = fields.Many2one(
         comodel_name="res.partner",
@@ -107,6 +107,8 @@ class CrmVisit(models.Model):
         self.state = "visited"
 
     def action_done(self):
+        if not self.visit_feeling or not self.report:
+            raise UserError(_("Fill out the report and visit feeling."))
         self.state = "done"
 
     def action_correct(self):

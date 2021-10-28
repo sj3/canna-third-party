@@ -69,7 +69,7 @@
                             <group>
                                 <separator string="Report" colspan="4" />
                                 <field name="report" nolabel="1" colspan="4" on_change="0"
-                                    attrs="{'readonly':[('state','!=','visited')], 'required': [('state','=','visited')]}"/>
+                                    attrs="{'readonly':[('state','!=','visited')]}"/>
                             </group>
                         </page>
                     </notebook>
