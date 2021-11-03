@@ -32,14 +32,16 @@ module extended_approval_<model_or_module>
 In this module you should create a models/<model>.py which inherits the model
 as shown:
 
-```
-from odoo import fields, models
+.. code-block:: python
+
+    from odoo import fields, models
 
 
-class ResPartner(models.Model):
-    _name = "res.partner"
-    _inherit = ["res.partner", "extended.approval.method.field.mixin"]
-```
+    class ResPartner(models.Model):
+        _name = "res.partner"
+        _inherit = ["res.partner", "extended.approval.method.field.mixin"]
+
+|
 
 There are multiple mixins available depending on how you want to integrate
 (see below).
@@ -47,20 +49,23 @@ There are multiple mixins available depending on how you want to integrate
 You should also subclass extended approval history to add your model as
 option for these records:
 
-```
-from odoo import fields, models
+.. code-block:: python
+
+    from odoo import fields, models
 
 
-class ExtendedApprovalHistory(models.Model):
-    _inherit = "extended.approval.history"
+    class ExtendedApprovalHistory(models.Model):
+        _inherit = "extended.approval.history"
 
-    source = fields.Reference(selection_add=[("res.partner", "Partner")])
-```
+        source = fields.Reference(selection_add=[("res.partner", "Partner")])
+
+|
 
 Lastly you will probably want to change the 'approve' and 'reset' buttons
 visibility and add the approval history on the form. Example:
 
-```
+.. code-block:: xml
+
     <xpath expr="/form/sheet" position="before">
         <header>
             <button type="object" name="reset_to_draft"
@@ -99,7 +104,7 @@ visibility and add the approval history on the form. Example:
         </page>
     </xpath>
 
-```
+|
 
 ------------------------------------
 extended.approval.method.field.mixin
