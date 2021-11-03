@@ -10,7 +10,6 @@
     "depends": [
         "sale_order_group",
         "base_extended_approval",
-        # Not strictly necessary, but allows to test interaction.
         "extended_approval_sale_order",
     ],
     "data": ["views/sale_order_group_views.xml"],
