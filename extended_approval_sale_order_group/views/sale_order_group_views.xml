@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="sale_order_group_view_form" model="ir.ui.view">
+        <field name="name">sale.order.group.view.form</field>
+        <field name="model">sale.order.group</field>
+        <field name="inherit_id" ref="sale_order_group.sale_order_group_view_form"/>
+        <field name="arch" type="xml">
+            <!-- pylint:disable=dangerous-view-replace-wo-priority -->
+            <xpath expr="//button[@name='button_confirm']" position="after">
+                <button name="button_confirm" type="object" string="Approve" class="oe_highlight" attrs="{'invisible': ['|', ('state', 'not in', ['extended_approval']), ('approval_allowed', '!=', True)]}"/>
+                <button name="ea_abort_approval" type="object" string="Reject" attrs="{'invisible': ['|', ('state', '!=', 'extended_approval'), ('approval_allowed', '!=', True)]}"/>
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                <page string="Approvals" name="approval">
+                    <group name="g-a1" colspan="4" col="4" attrs="{'invisible': [('next_approver', '=', False)]}">
+                        <label for="next_approver"/>
+                        <div>
+                            <field name="next_approver" widget="many2many_tags" options='{"no_open":True}'/>
+                            <button string="=> Users"
+                        help="Show Approval Group Users"
+                        name="show_approval_group_users" type="object"
+                        class="oe_link"/>
+                        </div>
+                        <field name="approval_allowed"/>
+                    </group>
+                    <group name="g-a2" colspan="4">
+                        <field colspan="4" name="approval_history_ids" readonly="1">
+                            <tree string="Approval History">
+                                <field name="date"/>
+                                <field name="requested_group_ids" widget="many2many_tags"/>
+                                <field name="approver_id"/>
+                            </tree>
+                        </field>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
