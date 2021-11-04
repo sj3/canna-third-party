@@ -12,7 +12,9 @@ class SaleOrder(models.Model):
         for so in self:
             for sol in so.order_line:
                 product = sol.product_id
-                display_price = sol._get_display_price(product)
+                display_price = sol.price_unit
+                if not sol._is_delivery():
+                    display_price = sol._get_display_price(product)
                 price_unit = self.env["account.tax"]._fix_tax_included_price_company(
                     display_price, product.taxes_id, sol.tax_id, sol.company_id
                 )
