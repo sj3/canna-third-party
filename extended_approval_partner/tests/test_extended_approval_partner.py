@@ -1,5 +1,5 @@
-# © 2021 Startx BV
-# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl.html)
+# Copyright (C) Startx 2021
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo.tests import common, tagged
 
