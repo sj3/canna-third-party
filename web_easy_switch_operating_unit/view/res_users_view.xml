@@ -19,7 +19,7 @@
             <field name="inherit_id" ref="base.view_users_form_simple_modif"/>
             <field name="arch" type="xml">
                 <field name="company_id" position="after">
-                    <field name="operating_unit" options="{'no_create': True}" readonly="0"/>
+                    <field name="default_operating_unit_id" options="{'no_create': True}" readonly="0"/>
                 </field>
             </field>
         </record>
