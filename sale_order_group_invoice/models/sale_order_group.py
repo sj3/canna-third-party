@@ -44,7 +44,7 @@ class SaleOrderGroup(models.Model):
         self.ensure_one()
         invoices = self.sale_order_ids.mapped("invoice_ids")
         action = self.env["ir.actions.act_window"].for_xml_id(
-            "canna_invoice", "account_move_action_customer"
+            "account", "action_move_out_invoice_type"
         )
         domain = tools.safe_eval(action.get("domain") or "[]")
         domain += [("id", "in", invoices.ids)]

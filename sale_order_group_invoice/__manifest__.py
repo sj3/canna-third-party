@@ -7,7 +7,7 @@
     "license": "AGPL-3",
     "author": "Noviat",
     "category": "Sales",
-    "depends": ["sale_order_group", "canna_invoice"],
+    "depends": ["sale_order_group"],
     "data": [
         "views/sale_order_group_views.xml",
         "wizards/sale_order_group_invoice_create.xml",
