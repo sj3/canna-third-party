@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="set_user_home_action_assets_backend" name="Set User Home Action assets" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/user_home_action/static/src/js/set_user_home_action.js"></script>
+            </xpath>
+        </template>
+    </data>
+</odoo>
