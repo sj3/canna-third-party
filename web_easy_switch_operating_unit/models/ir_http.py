@@ -15,10 +15,10 @@ class IrHttp(models.AbstractModel):
                     "user_operating_units": {
                         "current_operating_unit": (
                             user.default_operating_unit_id.id,
-                            user.default_operating_unit_id.name,
+                            user.default_operating_unit_id.code,
                         ),
                         "allowed_operating_units": [
-                            (ou.id, ou.name) for ou in user.operating_unit_ids
+                            (ou.id, ou.code) for ou in user.operating_unit_ids
                         ],
                     }
                 }
