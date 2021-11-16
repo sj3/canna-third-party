@@ -20,4 +20,5 @@
         "views/crm_visit_views.xml",
         "views/res_partner_views.xml",
     ],
+    "demo": ["data/demo.xml"],
 }

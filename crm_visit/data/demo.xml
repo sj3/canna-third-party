@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="visit_reason_0" model="crm.visit.reason">
+            <field name="name">Introduction visit</field>
+        </record>
+        <record id="visit_reason_1" model="crm.visit.reason">
+            <field name="name">Annual visit</field>
+        </record>
+
+        <record id="visit_feeling_0" model="crm.visit.feeling">
+            <field name="name">Good</field>
+        </record>
+        <record id="visit_feeling_1" model="crm.visit.feeling">
+            <field name="name">Average</field>
+        </record>
+        <record id="visit_feeling_3" model="crm.visit.feeling">
+            <field name="name">Bad</field>
+        </record>
+    </data>
+</odoo>
