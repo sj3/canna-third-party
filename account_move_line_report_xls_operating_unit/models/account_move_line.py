@@ -1,49 +1,40 @@
-# -*- coding: utf-8 -*-
-##############################################################################
-#
-#    Odoo, Open Source Management Solution
-#
-#    Copyright (c) 2009-2016 Noviat nv/sa (www.noviat.com).
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
-#    published by the Free Software Foundation, either version 3 of the
-#    License, or (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program. If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+# Copyright 2009-2021 Noviat.
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from openerp import api, models, _
-from openerp.addons.report_xls.utils import _render
+from odoo import _, api, models
+
+from odoo.addons.report_xlsx_helper.report.report_xlsx_abstract import (
+    ReportXlsxAbstract,
+)
+
+_render = ReportXlsxAbstract._render
 
 
 class AccountMoveLine(models.Model):
-    _inherit = 'account.move.line'
+    _inherit = "account.move.line"
 
     @api.model
-    def _report_xls_fields(self):
-        res = super(AccountMoveLine, self)._report_xls_fields()
-        ix = res.index('account')
-        res.insert(ix + 1, 'operating_unit_name')
+    def _report_xlsx_fields(self):
+        res = super()._report_xlsx_fields()
+        ix = res.index("account")
+        res.insert(ix + 1, "operating_unit_name")
         return res
 
     @api.model
-    def _report_xls_template(self):
-        update = super(AccountMoveLine, self).\
-            _report_xls_template()
-        update['operating_unit_name'] = {
-            'header': [1, 25, 'text', _('Operating Unit')],
-            'lines': [
-                1, 0, 'text', _render(
-                    "line.operating_unit_id and "
-                    "line.operating_unit_id.name "
-                    "or ''")],
-            'totals': [1, 0, 'text', None]}
+    def _report_xlsx_template(self):
+        update = super()._report_xlsx_template()
+        update.update(
+            {
+                "operating_unit_name": {
+                    "header": {"value": _("Operating Unit")},
+                    "lines": {
+                        "value": _render(
+                            "line.operating_unit_id "
+                            "and line.operating_unit_id.name or ''"
+                        )
+                    },
+                    "width": 25,
+                }
+            }
+        )
         return update
