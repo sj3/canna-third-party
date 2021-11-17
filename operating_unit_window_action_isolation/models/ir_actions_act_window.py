@@ -1,3 +1,6 @@
+# Copyright (C) Startx 2017-2021
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+
 from odoo import SUPERUSER_ID, models
 from odoo.tools.safe_eval import safe_eval
 
@@ -28,9 +31,9 @@ class IrActionsActWindow(models.Model):
             if not user_ou:
                 return res
 
-            if act.get("domain", False):
+            if act.get("domain"):
                 try:
-                    act_ctx = safe_eval(act.get("domain", ""))
+                    act_ctx = safe_eval(act["domain"])
                     act_ctx.append(("operating_unit_id", "in", [False, user_ou[0]]))
                     act["domain"] = str(act_ctx)
                 except ValueError:
