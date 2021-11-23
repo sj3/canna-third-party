@@ -10,6 +10,3 @@ class ResConfigSettings(models.TransientModel):
     mapbox_client_id = fields.Char(
         string="Mapbox Client ID", config_parameter="mapbox.client_id"
     )
-    feedback_email = fields.Char(
-        string="Feedback Email", config_parameter="mapbox.feedback_email"
-    )

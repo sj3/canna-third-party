@@ -18,13 +18,7 @@
                         <div attrs="{'invisible': [('module_geoengine_mapbox', '=', False)]}">
                             <div class="content-group mt16">
                                 <label for="mapbox_client_id" class="o_light_label" />
-                                <field name="mapbox_client_id" attrs="{'required': [('module_geoengine_mapbox', '=', True)]}" />
-                            </div>
-                        </div>
-                        <div attrs="{'invisible': [('module_geoengine_mapbox', '=', False)]}">
-                            <div class="content-group mt16">
-                                <label for="feedback_email" class="o_light_label" />
-                                <field name="feedback_email" attrs="{'required': [('module_geoengine_mapbox', '=', True)]}" />
+                                <field name="mapbox_client_id" />
                             </div>
                         </div>
                     </div>
