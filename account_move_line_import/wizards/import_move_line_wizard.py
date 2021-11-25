@@ -28,6 +28,11 @@ from .import_wizard_helpers import (
 
 _logger = logging.getLogger(__name__)
 
+_FIELD_TYPE_MAP = {
+    "text": "char",
+    "monetary": "float",
+}
+
 
 class AccountMoveLineImport(models.TransientModel):
     _name = "aml.import"
@@ -479,11 +484,11 @@ class AccountMoveLineImport(models.TransientModel):
             field_type = field_def["type"]
 
             try:
-                ft = field_type == "text" and "char" or field_type
+                ft = _FIELD_TYPE_MAP.get(field_type, field_type)
                 self._field_methods[hf] = {
                     "method": getattr(self, "_handle_orm_%s" % ft),
                     "orm_field": orm_field,
-                    "field_type": field_type,
+                    "field_type": ft,
                 }
             except AttributeError:
                 _logger.error(
