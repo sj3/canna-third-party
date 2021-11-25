@@ -22,16 +22,17 @@ class TestGeoenginePartner(common.TransactionCase):
                     "country_id": self.env.ref("base.be").id,
                     "zip": "6800",
                 },
-                "coordinates": {"latitude": 49.96, "longitude": 5.41},
+                "coordinates": {"latitude": 50.0, "longitude": 5.4},
             },
             {
                 "partner": {
                     "name": "Partner Project",
                     "street": "PO 58059",
                     "country_id": self.env.ref("base.nl").id,
-                    "zip": "1040 HB",
+                    "zip": "1040HB",
+                    "city": "amsterdam",
                 },
-                "coordinates": {"latitude": 52.24, "longitude": 6.97},
+                "coordinates": {"latitude": 52.4, "longitude": 4.9},
             },
             {
                 "partner": {
@@ -41,7 +42,7 @@ class TestGeoenginePartner(common.TransactionCase):
                     "zip": "98717",
                     "country_id": self.env.ref("base.pf").id,
                 },
-                "coordinates": {"latitude": -17.59, "longitude": -149.61},
+                "coordinates": {"latitude": -17.6, "longitude": -149.6},
             },
         ]
 
@@ -53,12 +54,12 @@ class TestGeoenginePartner(common.TransactionCase):
             self.assertAlmostEqual(
                 vals["partner_latitude"],
                 test_record["coordinates"]["latitude"],
-                2,
+                1,
                 "Latitude Should be equals",
             )
             self.assertAlmostEqual(
                 vals["partner_longitude"],
                 test_record["coordinates"]["longitude"],
-                2,
+                1,
                 "Longitude Should be equals",
             )
