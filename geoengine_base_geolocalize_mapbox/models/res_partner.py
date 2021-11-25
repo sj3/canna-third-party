@@ -123,6 +123,13 @@ class ResPartner(models.Model):
                         }
                     )
                     break
+                else:
+                    _logger.debug(
+                        "No Mapbox geocoding result for partner %s: %s",
+                        self.id,
+                        pay_load,
+                    )
+
             except Exception as e:
                 _logger.exception("Mapbox geocoding error: %s", str(e))
         else:
