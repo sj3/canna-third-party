@@ -2,6 +2,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl)
 
 import logging
+from urllib.parse import quote_plus
 
 from odoo import fields, models
 
@@ -39,9 +40,8 @@ class ResPartner(models.Model):
             "date_localization": fields.Date.today(),
         }
 
-        mapbox_client_id = (
-            self.env["ir.config_parameter"].sudo().get_param("mapbox.client_id")
-        )
+        mapbox_client_id = self.env["res.company"].get_mapbox_api_key()
+
         if not mapbox_client_id:
             return result
 
@@ -51,31 +51,44 @@ class ResPartner(models.Model):
         pay_loads = [
             [
                 ",".join(
-                    filter(
-                        None,
-                        [
-                            self.street or "",
-                            self.zip or "",
-                            self.city or "",
-                            self.state_id and self.state_id.name or "",
-                            self.street2,
-                        ],
+                    map(
+                        quote_plus,
+                        filter(
+                            None,
+                            [
+                                self.street or "",
+                                self.zip or "",
+                                self.city or "",
+                                self.state_id and self.state_id.name or "",
+                                self.street2,
+                            ],
+                        ),
                     )
                 )
             ],
             [
                 ",".join(
-                    filter(
-                        None,
-                        [
-                            self.zip or "",
-                            self.city or "",
-                            self.state_id and self.state_id.name or "",
-                        ],
+                    map(
+                        quote_plus,
+                        filter(
+                            None,
+                            [
+                                self.zip or "",
+                                self.city or "",
+                                self.state_id and self.state_id.name or "",
+                            ],
+                        ),
                     )
                 )
             ],
-            [",".join(filter(None, [self.state_id and self.state_id.name or ""]))],
+            [
+                ",".join(
+                    map(
+                        quote_plus,
+                        filter(None, [self.state_id and self.state_id.name or ""]),
+                    )
+                )
+            ],
         ]
 
         headers = requests.utils.default_headers()
