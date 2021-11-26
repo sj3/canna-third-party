@@ -13,9 +13,8 @@ odoo.define('geoengine_mapbox.mapbox_geoengine_widgets', function (require) {
         start: function() {
           var def = this._super();
           this._rpc({
-            model: 'ir.config_parameter',
-            method: 'get_param',
-            args: ['mapbox.client_id']
+            model: 'res.company',
+            method: 'get_mapbox_api_key'
           }).then(function (access_token) {
             if (access_token) {
               this.mapbox_client_id = access_token;
