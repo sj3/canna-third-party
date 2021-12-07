@@ -8,4 +8,4 @@ Recompute Sales Order prices
 
 This module adds an "update" button located just before 'Total' field.
 Hitting the button will update the order lines (excluding delivery lines)
- with the latest unit prices.
+with the latest unit prices.
