@@ -1,4 +1,4 @@
-# Copyright (C) 2019 Noviat nv/sa (www.noviat.com).
+# Copyright (C) 2019-2022 Noviat nv/sa (www.noviat.com).
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from odoo import models
@@ -15,7 +15,9 @@ class ProductProduct(models.Model):
         self.ensure_one()
 
         def check_category_recursive(product, category):
-            if product.categ_id == category:
+            # In case we are in an onchange, category is a NewId.
+            # By using .ids we get a value that we can use to compare.
+            if product.categ_id.ids == category.ids:
                 return True
             else:
                 for categ in category.child_id:
