@@ -111,18 +111,17 @@ class SaleDiscount(models.Model):
     @api.onchange("discount_base")
     def _onchange_discount_base(self):
         self.exclusive = False
-        for rule in self._origin.rule_ids:
-            rule.update(
-                {
-                    "matching_type": "amount",
-                    "product_ids": False,
-                    "product_category_ids": False,
-                    "discount_type": "perc",
-                    "discount_pct": 0.0,
-                    "discount_amount": 0.0,
-                    "discount_amount_unit": 0.0,
-                }
-            )
+        self.rule_ids.update(
+            {
+                "matching_type": "amount",
+                "product_ids": False,
+                "product_category_ids": False,
+                "discount_type": "perc",
+                "discount_pct": 0.0,
+                "discount_amount": 0.0,
+                "discount_amount_unit": 0.0,
+            }
+        )
 
     @api.constrains("start_date", "end_date")
     def _check_dates(self):
