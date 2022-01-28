@@ -293,7 +293,9 @@ class SaleDiscount(models.Model):
 
     def _is_excluded_product(self, product):
         self.ensure_one()
-        c1 = product in self.excluded_product_ids
+        # In case we are in an onchange, self is a NewId.
+        # By using .ids we get a value that we can use to compare.
+        c1 = product.id in self.excluded_product_ids.ids
         c2 = False
         for categ in self.excluded_product_category_ids:
             if product._belongs_to_category(categ):
@@ -303,7 +305,9 @@ class SaleDiscount(models.Model):
 
     def _is_included_product(self, product):
         self.ensure_one()
-        c1 = product in self.included_product_ids
+        # In case we are in an onchange, self is a NewId.
+        # By using .ids we get a value that we can use to compare.
+        c1 = product.id in self.included_product_ids.ids
         c2 = False
         for categ in self.included_product_category_ids:
             if product._belongs_to_category(categ):
