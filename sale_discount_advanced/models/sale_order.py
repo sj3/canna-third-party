@@ -1,5 +1,5 @@
 # Copyright (C) 2015 ICTSTUDIO (<http://www.ictstudio.eu>).
-# Copyright (C) 2016-2021 Noviat nv/sa (www.noviat.com).
+# Copyright (C) 2016-2022 Noviat nv/sa (www.noviat.com).
 # Copyright (C) 2016 Onestein (http://www.onestein.eu/).
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
@@ -34,46 +34,20 @@ class SaleOrder(models.Model):
         help="Sale Discount engines for this order.",
     )
 
-    @api.onchange("discount_ids")
-    def _onchange_discount_ids(self):
-        self.ensure_one()
+    @api.onchange("partner_id", "discount_ids", "date_order", "order_line")
+    def _onchange_discount_update_fields(self):
+        if self.partner_id:
+            cpartner = self.partner_id.commercial_partner_id
+            new_discounts = cpartner._get_active_sale_discounts(self.date_order)
+            if self.discount_ids.ids != new_discounts.ids:
+                self.discount_ids = [(6, 0, new_discounts.ids)]
         for line in self.order_line:
             discounts = line._get_sale_discounts()
-            if discounts != line.sale_discount_ids:
-                line.sale_discount_ids = discounts
-                line.discount = 0.0
-
-    @api.onchange("partner_id", "date_order")
-    def _onchange_sale_discount_advanced_partner_id_(self):
-        if self.partner_id:
-            cpartner = self.partner_id.commercial_partner_id
-            self.discount_ids = cpartner._get_active_sale_discounts(self.date_order)
-        else:
-            self.discount_ids = False
-
-    @api.onchange("date_order")
-    def _onchange_date_order(self):
-        self.ensure_one()
-        if self.partner_id:
-            cpartner = self.partner_id.commercial_partner_id
-            old_discounts = self.discount_ids
-            new_discounts = cpartner._get_active_sale_discounts(self.date_order)
-            if old_discounts != new_discounts:
-                self.discount_ids -= old_discounts
-                self.discount_ids += new_discounts
-
-    @api.model
-    def create(self, vals):
-        order = super().create(vals)
-        order.compute_discount()
-        return order
-
-    def write(self, vals):
-        res = super().write(vals)
-        for so in self:
-            if not self._context.get("skip_discount_calc"):
-                so.compute_discount()
-        return res
+            # In case we are in an onchange, self is a NewId.
+            # By using .ids we get a value that we can use to compare.
+            if discounts.ids != line.sale_discount_ids.ids:
+                line.sale_discount_ids = [(6, 0, discounts.ids)]
+        self._update_discount()
 
     @api.model
     def fields_view_get(
@@ -101,36 +75,35 @@ class SaleOrder(models.Model):
                     res["arch"] = etree.tostring(view_obj)
         return res
 
-    def button_update_prices(self):
-        res = super().button_update_prices()
-        self.compute_discount()
-        return res
-
-    def action_confirm(self):
-        self.compute_discount()
-        return super().action_confirm()
-
-    def compute_discount(self):
-        for so in self:
-            if so.state not in ["draft", "sent"]:
-                return
-        self._update_discount()
-
     def _update_discount(self):  # noqa: C901
         if self.env.context.get("skip_discount_calc"):
             return
-
         grouped_discounts = {}
         base_amount_totals = {}
         line_updates = {}
 
         orders = self.with_context(dict(self.env.context, skip_discount_calc=True))
         for so in orders:
+            is_zero = (
+                so.currency_id
+                and so.currency_id.is_zero
+                or self.env.company.currency_id.is_zero
+            )
             total_base_amount = 0.0
             for line in so.order_line:
                 base_amount = line.price_unit * line.product_uom_qty
                 total_base_amount += base_amount
-                for discount in line.sale_discount_ids:
+                for entry in line.sale_discount_ids:
+                    if isinstance(entry.id, models.NewId):
+                        discount = entry._origin
+                    else:
+                        discount = entry
+                    if discount not in grouped_discounts:
+                        grouped_discounts[discount] = line
+                    else:
+                        grouped_discounts[discount] += line
+                if not line.sale_discount_ids:
+                    discount = self.env["sale.discount"]
                     if discount not in grouped_discounts:
                         grouped_discounts[discount] = line
                     else:
@@ -204,7 +177,7 @@ class SaleOrder(models.Model):
                 }
 
         for line in line_update_vals:
-            line.write(line_update_vals[line])
+            line.update(line_update_vals[line])
 
         for so in orders:
             vals = {}
@@ -213,11 +186,12 @@ class SaleOrder(models.Model):
                 base_amount = line.price_unit * line.product_uom_qty
                 discount_pct = line.discount
                 total_discount_amount += base_amount * discount_pct / 100.0
-            if not so.currency_id.is_zero(so.discount_amount - total_discount_amount):
+            if not is_zero(so.discount_amount - total_discount_amount):
                 vals["discount_amount"] = total_discount_amount
-            if not so.currency_id.is_zero(
-                so.discount_base_amount - base_amount_totals[so]
-            ):
+            if not is_zero(so.discount_base_amount - base_amount_totals[so]):
                 vals["discount_base_amount"] = base_amount_totals[so]
             if vals:
-                so.write(vals)
+                so.update(vals)
+            if so != so._origin:
+                # trigger update of lines on UI
+                so.order_line = so.order_line
