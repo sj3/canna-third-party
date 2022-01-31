@@ -25,6 +25,13 @@ class SaleOrder(models.Model):
         help="Sum of the totals of all Order Lines before discount."
         "\nAlso lines without discount are included in this total.",
     )
+    commercial_partner_id = fields.Many2one(
+        comodel_name="res.partner",
+        string="Commercial Entity",
+        compute="_compute_commercial_partner_id",
+        store=True,
+        readonly=True,
+    )
     discount_ids = fields.Many2many(
         comodel_name="sale.discount",
         relation="sale_order_discount_rel",
@@ -34,13 +41,19 @@ class SaleOrder(models.Model):
         help="Sale Discount engines for this order.",
     )
 
-    @api.onchange("partner_id", "discount_ids", "date_order", "order_line")
-    def _onchange_discount_update_fields(self):
-        if self.partner_id:
-            cpartner = self.partner_id.commercial_partner_id
-            new_discounts = cpartner._get_active_sale_discounts(self.date_order)
-            if self.discount_ids.ids != new_discounts.ids:
-                self.discount_ids = [(6, 0, new_discounts.ids)]
+    @api.depends("partner_id")
+    def _compute_commercial_partner_id(self):
+        for so in self:
+            so.commercial_partner_id = so.partner_id.commercial_partner_id
+            so.discount_ids = [(6, 0, so.commercial_partner_id.sale_discount_ids.ids)]
+
+    @api.onchange("discount_ids", "date_order", "order_line")
+    def _onchange_discount_ids(self):
+        discounts = self.env["sale.discount"]
+        for discount in self.discount_ids:
+            if discount.active and discount._check_active_date(self.date_order):
+                discounts += discount
+        self.discount_ids = [(6, 0, discounts.ids)]
         for line in self.order_line:
             discounts = line._get_sale_discounts()
             # In case we are in an onchange, self is a NewId.

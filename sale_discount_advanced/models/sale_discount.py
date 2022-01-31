@@ -157,7 +157,9 @@ class SaleDiscount(models.Model):
         if not check_date:
             check_date = fields.Date.today()
         else:
-            check_date = check_date.date()
+            check_date = fields.Datetime.context_timestamp(
+                self.env.user, check_date
+            ).date()
         start_date = self.start_date or date(MINYEAR, 1, 1)
         end_date = self.end_date or date(MAXYEAR, 12, 31)
         return start_date <= check_date <= end_date

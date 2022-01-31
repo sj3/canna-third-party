@@ -9,6 +9,9 @@
       <field name="partner_id" position="attributes">
         <attribute name="on_change" eval="1"/>
       </field>
+      <field name="partner_id" position="before">
+        <field name="commercial_partner_id" force_save="1" invisible="1"/>
+      </field>
       <xpath expr="//field[@name='pricelist_id']" position="after">
         <field name="discount_amount" force_save="1"/>
         <field name="discount_base_amount" force_save="1"/>
