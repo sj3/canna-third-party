@@ -3,15 +3,17 @@
     <record id="sale_discount_on_sale_order" model="sale.discount">
         <field name="name">Bulk Discount (on sales order)</field>
         <field name="discount_base">sale_order</field>
-        <field name="start_date">2022-01-01</field>
-        <field name="end_date">2023-12-31</field>
+        <field name="start_date" eval="time.strftime('%Y-01-01')"/>
+        <field name="end_date"
+               eval="(datetime.now() + relativedelta(years=1, month=12, day=31)).strftime('%Y-%m-%d')"/>
     </record>
 
     <record id="sale_discount_on_sale_order_line" model="sale.discount">
         <field name="name">Bulk Discount (on sales order line)</field>
         <field name="discount_base">sale_line</field>
-        <field name="start_date">2022-01-01</field>
-        <field name="end_date">2023-12-31</field>
+        <field name="start_date" eval="time.strftime('%Y-01-01')"/>
+        <field name="end_date"
+               eval="(datetime.now() + relativedelta(years=1, month=12, day=31)).strftime('%Y-%m-%d')"/>
         <field name="excluded_product_ids" eval="[(6, 0, [ref('product_product_consultant')])]"/>
         <field name="excluded_product_category_ids" eval="[(6, 0, [ref('product.product_category_4')])]"/>
         <field name="exclusive">always</field>

@@ -3,8 +3,13 @@
 # Copyright (C) 2016 Onestein (http://www.onestein.eu/).
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+import time
+from datetime import datetime
+
 from odoo.exceptions import ValidationError
 from odoo.tests.common import Form, TransactionCase
+
+from dateutil.relativedelta import relativedelta
 
 
 class TestSaleDiscountAdvanced(TransactionCase):
@@ -14,6 +19,9 @@ class TestSaleDiscountAdvanced(TransactionCase):
         self.sd_obj = self.env["sale.discount"]
         self.sdr_obj = self.env["sale.discount.rule"]
         self.partner = self.env.ref("base.res_partner_2")
+        self.date_order = datetime.strptime(
+            time.strftime("%Y-02-01 08:30:00"), "%Y-%m-%d %H:%M:%S"
+        )
         self.discount_order = self.env.ref(
             "sale_discount_advanced.sale_discount_on_sale_order"
         )
@@ -26,7 +34,7 @@ class TestSaleDiscountAdvanced(TransactionCase):
         so = self.so_obj.with_context({"so_discount_ids": discount_ids}).create(
             {
                 "partner_id": self.partner.id,
-                "date_order": "2018-02-01 08:30:00",
+                "date_order": self.date_order - relativedelta(years=1),
                 "order_line": [
                     (
                         0,
@@ -50,7 +58,7 @@ class TestSaleDiscountAdvanced(TransactionCase):
         so = self.so_obj.with_context({"so_discount_ids": discount_ids}).create(
             {
                 "partner_id": self.partner.id,
-                "date_order": "2022-02-01 08:30:00",
+                "date_order": self.date_order,
                 "order_line": [
                     (
                         0,
@@ -75,7 +83,7 @@ class TestSaleDiscountAdvanced(TransactionCase):
         so = self.so_obj.with_context({"so_discount_ids": discount_ids}).create(
             {
                 "partner_id": self.partner.id,
-                "date_order": "2022-02-01 08:30:00",
+                "date_order": self.date_order,
                 "order_line": [
                     (
                         0,
@@ -91,7 +99,6 @@ class TestSaleDiscountAdvanced(TransactionCase):
             }
         )
         with Form(so) as so_form:
-            so_form.date_order = "2022-02-01 08:30:00"
             so_form.discount_ids.add(self.discount_order)
         so_form.save()
         self.assertEquals(so.amount_total, 750, "Total amount should be 750.00")
@@ -100,7 +107,7 @@ class TestSaleDiscountAdvanced(TransactionCase):
         so = self.so_obj.with_context({"so_discount_ids": discount_ids}).create(
             {
                 "partner_id": self.partner.id,
-                "discount_ids": discount_ids,
+                "date_order": self.date_order,
                 "order_line": [
                     (
                         0,
@@ -115,6 +122,9 @@ class TestSaleDiscountAdvanced(TransactionCase):
                 ],
             }
         )
+        with Form(so) as so_form:
+            so_form.discount_ids.add(self.discount_line)
+        so_form.save()
         self.assertEquals(so.amount_total, 900, "Total amount should be 900.00")
 
     def test_next_min_base_threshold(self):
@@ -122,7 +132,7 @@ class TestSaleDiscountAdvanced(TransactionCase):
         so = self.so_obj.with_context({"so_discount_ids": discount_ids}).create(
             {
                 "partner_id": self.partner.id,
-                "date_order": "2022-02-01 08:30:00",
+                "date_order": self.date_order,
                 "order_line": [
                     (
                         0,
@@ -146,7 +156,7 @@ class TestSaleDiscountAdvanced(TransactionCase):
         so = self.so_obj.with_context({"so_discount_ids": discount_ids}).create(
             {
                 "partner_id": self.partner.id,
-                "date_order": "2022-02-01 08:30:00",
+                "date_order": self.date_order,
                 "discount_ids": discount_ids,
                 "order_line": [
                     (
@@ -172,7 +182,7 @@ class TestSaleDiscountAdvanced(TransactionCase):
         so = self.so_obj.with_context({"so_discount_ids": discount_ids}).create(
             {
                 "partner_id": self.partner.id,
-                "date_order": "2018-02-01 08:30:00",
+                "date_order": self.date_order - relativedelta(years=1),
                 "order_line": [
                     (
                         0,
@@ -201,7 +211,7 @@ class TestSaleDiscountAdvanced(TransactionCase):
         so = self.so_obj.with_context({"so_discount_ids": discount_ids}).create(
             {
                 "partner_id": self.partner.id,
-                "date_order": "2022-02-01 08:30:00",
+                "date_order": self.date_order,
                 "order_line": [
                     (
                         0,
@@ -238,7 +248,7 @@ class TestSaleDiscountAdvanced(TransactionCase):
         so = self.so_obj.with_context({"so_discount_ids": discount_ids}).create(
             {
                 "partner_id": self.partner.id,
-                "date_order": "2022-02-01 08:30:00",
+                "date_order": self.date_order,
                 "order_line": [
                     (
                         0,
