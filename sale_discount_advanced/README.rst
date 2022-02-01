@@ -48,12 +48,7 @@ the first exclusive discount (based on sequence) will be set on the order line.
 Known issues
 ============
 
-There no known issues at this point in time.
-
-Roadmap
-=======
-
-Addition or demo data and unit tests.
+There are no known issues at this point in time.
 
 Credits
 =======

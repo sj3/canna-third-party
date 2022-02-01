@@ -9,9 +9,9 @@
     "author": "ICTSTUDIO,Noviat,Onestein,Serpent Consulting Services Pvt. Ltd.",
     "website": "http://www.ictstudio.eu",
     "category": "Sales",
-    "version": "13.0.1.0.1",
+    "version": "13.0.1.1.0",
     "license": "AGPL-3",
-    "depends": ["sale_apply_price_update"],
+    "depends": ["sale"],
     "data": [
         "security/ir.model.access.csv",
         "data/mail_message_subtype_data.xml",

@@ -1,9 +1,9 @@
 # Copyright (C) 2015 ICTSTUDIO (<http://www.ictstudio.eu>).
-# Copyright (C) 2016-2020 Noviat nv/sa (www.noviat.com).
+# Copyright (C) 2016-2022 Noviat nv/sa (www.noviat.com).
 # Copyright (C) 2016 Onestein (http://www.onestein.eu/).
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from datetime import timedelta
+from datetime import MAXYEAR, MINYEAR, date
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
@@ -151,30 +151,18 @@ class SaleDiscount(models.Model):
             raise UserError(
                 _("You cannot delete a discount which is used in a Sale Order!")
             )
-        return super(SaleDiscount, self).unlink()
+        return super().unlink()
 
     def _check_active_date(self, check_date=None):
         if not check_date:
             check_date = fields.Date.today()
         else:
-            check_date = check_date.date()
-        end_date = self.end_date
-        if end_date:
-            end_date = end_date + timedelta(days=1)
-        if (
-            self.start_date
-            and end_date
-            and (check_date >= self.start_date and check_date < end_date)
-        ):
-            return True
-        if self.start_date and not end_date and (check_date >= self.start_date):
-            return True
-        if not self.start_date and self.end_date and (check_date < end_date):
-            return True
-        elif not self.start_date or not end_date:
-            return True
-        else:
-            return False
+            check_date = fields.Datetime.context_timestamp(
+                self.env.user, check_date
+            ).date()
+        start_date = self.start_date or date(MINYEAR, 1, 1)
+        end_date = self.end_date or date(MAXYEAR, 12, 31)
+        return start_date <= check_date <= end_date
 
     def _calculate_discount(self, lines):  # noqa: C901
         match = False
