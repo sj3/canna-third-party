@@ -88,6 +88,12 @@ class SaleOrder(models.Model):
                     res["arch"] = etree.tostring(view_obj)
         return res
 
+    def action_draft(self):
+        res = super().action_draft()
+        for rec in self:
+            rec._onchange_discount_ids()
+        return res
+
     def _update_discount(self):  # noqa: C901
         if self.env.context.get("skip_discount_calc"):
             return
