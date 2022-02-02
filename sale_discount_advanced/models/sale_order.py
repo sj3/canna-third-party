@@ -47,7 +47,22 @@ class SaleOrder(models.Model):
             so.commercial_partner_id = so.partner_id.commercial_partner_id
             so.discount_ids = [(6, 0, so.commercial_partner_id.sale_discount_ids.ids)]
 
-    @api.onchange("discount_ids", "date_order", "order_line")
+    @api.onchange("date_order")
+    def _onchange_sale_discount_advanced_date_order(self):
+        """
+        Expired discounts from the commercial_partner_id may become
+        active when changing the date or vice versa.
+        Manually added discounts can become expired or vice versa.
+        """
+        old_discounts = self.discount_ids
+        discounts = self.env["sale.discount"]
+        for discount in old_discounts + self.commercial_partner_id.sale_discount_ids:
+            if discount.active and discount._check_active_date(self.date_order):
+                discounts += discount
+        if discounts.ids != old_discounts.ids:
+            self.discount_ids = [(6, 0, discounts.ids)]
+
+    @api.onchange("discount_ids", "order_line")
     def _onchange_discount_ids(self):
         discounts = self.env["sale.discount"]
         for discount in self.discount_ids:
@@ -86,6 +101,25 @@ class SaleOrder(models.Model):
                         ctx = "{" + extra_ctx + "}"
                     el.set("context", str(ctx))
                     res["arch"] = etree.tostring(view_obj)
+        return res
+
+    def copy(self, default=None):
+        """
+        trigger recompute of discounts when duplicating an SO
+        """
+        dup = super().copy(default=default)
+        dup._compute_commercial_partner_id()
+        dup._onchange_discount_ids()
+        return dup
+
+    def action_draft(self):
+        """
+        trigger recompute of discounts when a cancelled SO is set back to draft
+        """
+        res = super().action_draft()
+        for rec in self:
+            rec._compute_commercial_partner_id()
+            rec._onchange_discount_ids()
         return res
 
     def _update_discount(self):  # noqa: C901
