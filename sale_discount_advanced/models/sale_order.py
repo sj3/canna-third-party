@@ -122,6 +122,12 @@ class SaleOrder(models.Model):
             rec._onchange_discount_ids()
         return res
 
+    def compute_discount(self):
+        for so in self:
+            if so.state not in ['draft', 'sent']:
+                return
+        self._update_discount()
+
     def _update_discount(self):  # noqa: C901
         if self.env.context.get("skip_discount_calc"):
             return
