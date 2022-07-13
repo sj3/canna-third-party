@@ -44,7 +44,7 @@
                                 attrs="{'readonly':[('state','!=','draft')]}"/>
                             <field name="user_id"
                                 options="{'no_create_edit': True, 'no_create': True}"
-                                attrs="{'readonly':[('state','!=','draft')]}"/>
+                                attrs="{'readonly':[('state','in',['done', 'cancel'])]}"/>
                         </group>
                         <group>
                             <field name="duration" attrs="{'readonly':[('state','not in',['draft', 'visited'])]}"/>
