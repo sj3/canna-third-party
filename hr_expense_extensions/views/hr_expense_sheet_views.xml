@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_hr_expense_sheet_form" model="ir.ui.view">
+        <field name="name">hr.expense.sheet.form</field>
+        <field name="model">hr.expense.sheet</field>
+        <field name="inherit_id" ref="hr_expense.view_hr_expense_sheet_form" />
+        <field name="arch" type="xml">
+            <field name="journal_id" position="after">
+                <field name="update_sheet_lines" invisible="1" />
+            </field>
+            <button name="reset_expense_sheets" position="after">
+                <button
+                    name="update_approved_lines"
+                    groups="account.group_account_manager"
+                    attrs="{'invisible': ['|', ('state', '!=', 'approve'), ('update_sheet_lines', '=', True)]}"
+                    string="Update Lines"
+                    type="object"
+                />
+                <button
+                    name="update_approved_lines_done"
+                    groups="account.group_account_manager"
+                    attrs="{'invisible': [('update_sheet_lines', '=', False)]}"
+                    string="Update Lines Done"
+                    type="object"
+                />
+            </button>
+            <field name="journal_id" position="attributes">
+                <attribute
+                    name="domain"
+                >[('type', 'in', ('purchase', 'general')), ('company_id', '=', company_id)]</attribute>
+            </field>
+            <field name="expense_line_ids" position="attributes">
+                <attribute
+                    name="attrs"
+                >{'readonly': ['|', '&amp;', ('state', '=', 'approve'), ('update_sheet_lines', '=', False), ('state', 'in', ('post', 'done'))]}</attribute>
+            </field>
+            <xpath
+                expr="//notebook//field[@name='expense_line_ids']/tree/field[@name='date']"
+                position="before"
+            >
+                <field name="product_id" />
+                <button
+                    name="update_product"
+                    attrs="{'invisible': [('state', 'in', ('submit', 'approve'))]}"
+                    groups="account.group_account_manager"
+                    string="Update Product"
+                    type="object"
+                    icon="fa-reply"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>
