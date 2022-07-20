@@ -11,7 +11,7 @@
     "data": [
         "views/account_journal_views.xml",
         "views/hr_expense_sheet_views.xml",
-        "wizards/hr_expense_line_product_wizard.xml",
+        "wizards/hr_expense_line_product_wizard_views.xml",
     ],
     "installable": True,
 }
