@@ -72,7 +72,7 @@ class PriceCatalog(models.Model):
         if not product_id:
             return 0.0
         price = 0.0
-        items = self._get_items(product_id, date_order)
+        items = self._get_items(product_id, date_order.date())
         for item in items:
             price = item.price
             break
