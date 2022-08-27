@@ -34,7 +34,7 @@ class TestSaleDiscountAdvanced(TransactionCase):
         so = self.so_obj.with_context({"so_discount_ids": discount_ids}).create(
             {
                 "partner_id": self.partner.id,
-                "date_order": self.date_order - relativedelta(years=1),
+                "date_order": self.date_order,
                 "order_line": [
                     (
                         0,

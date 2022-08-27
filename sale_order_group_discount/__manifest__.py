@@ -11,4 +11,8 @@
     "depends": ["sale_order_group", "sale_discount_advanced"],
     "data": ["views/sale_order_group_views.xml"],
     "installable": True,
+    "demo": [
+        "demo/sale_discount_demo.xml",
+        "demo/sale_discount_rule_demo.xml",
+    ],
 }
