@@ -1,0 +1,11 @@
+<odoo>
+
+    <record id="sale_discount_on_sale_order_group" model="sale.discount">
+        <field name="name">Bulk Discount (on sales order group)</field>
+        <field name="discount_base">sale_order_group</field>
+        <field name="start_date" eval="time.strftime('%Y-01-01')"/>
+        <field name="end_date"
+               eval="(datetime.now() + relativedelta(years=1, month=12, day=31)).strftime('%Y-%m-%d')"/>
+    </record>
+
+</odoo>
