@@ -1,4 +1,4 @@
-# Copyright 2020 Noviat
+# Copyright 2009-2022 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from odoo import api, models
@@ -11,28 +11,36 @@ class MailThread(models.AbstractModel):
     @api.model_create_multi
     def create(self, vals_list):
         daf_models = safe_eval(
-            self.env["ir.config_parameter"].sudo().get_param(
-                "mail_thread_disable_auto_followers"
-            )
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("mail_thread_disable_auto_followers")
             or "[]"
         )
-        if self._name in daf_models:
+        if (
+            not self.env.context.get("mail_thread_allow_auto_followers")
+            and self._name in daf_models
+        ):
             ctx = dict(
                 self.env.context,
                 mail_create_nosubscribe=True,
                 mail_thread_disable_auto_followers=daf_models,
+                # pass active_model to mail.followers _get_subscription_data method
+                active_model=self._name,
             )
             self = self.with_context(ctx)
         return super().create(vals_list)
 
     def write(self, vals):
         daf_models = safe_eval(
-            self.env["ir.config_parameter"].sudo().get_param(
-                "mail_thread_disable_auto_followers"
-            )
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("mail_thread_disable_auto_followers")
             or "[]"
         )
-        if self._name in daf_models:
+        if (
+            not self.env.context.get("mail_thread_allow_auto_followers")
+            and self._name in daf_models
+        ):
             ctx = dict(self.env.context, mail_thread_disable_auto_followers=daf_models)
             self = self.with_context(ctx)
         return super().write(vals)
@@ -43,11 +51,13 @@ class MailThread(models.AbstractModel):
         We also need to handle the case where the create/write context
         is gone (e.g. mail wizard).
         """
-        if self.env.context.get("mail_post_autofollow"):
+        if not self.env.context.get(
+            "mail_thread_allow_auto_followers"
+        ) and self.env.context.get("mail_post_autofollow"):
             daf_models = safe_eval(
-                self.env["ir.config_parameter"].sudo().get_param(
-                    "mail_thread_disable_auto_followers"
-                )
+                self.env["ir.config_parameter"]
+                .sudo()
+                .get_param("mail_thread_disable_auto_followers")
                 or "[]"
             )
             if self._name in daf_models:
@@ -62,11 +72,14 @@ class MailThread(models.AbstractModel):
         In some cases the message_subscribe is called before the write
         (e.g. sale order confirmation).
         """
-        if "mail_thread_disable_auto_followers" not in self.env.context:
+        if (
+            not self.env.context.get("mail_thread_allow_auto_followers")
+            and "mail_thread_disable_auto_followers" not in self.env.context
+        ):
             daf_models = safe_eval(
-                self.env["ir.config_parameter"].sudo().get_param(
-                    "mail_thread_disable_auto_followers"
-                )
+                self.env["ir.config_parameter"]
+                .sudo()
+                .get_param("mail_thread_disable_auto_followers")
                 or "[]"
             )
             if self._name in daf_models:
@@ -78,13 +91,16 @@ class MailThread(models.AbstractModel):
                     for arg in args[1:]:
                         args_new.append(arg)
                 args = tuple(args_new)
-            if "partner_ids" in kwargs:
-                kwargs["partner_ids"] = None
+                if "partner_ids" in kwargs:
+                    kwargs["partner_ids"] = None
         return super().message_subscribe(*args, **kwargs)
 
     def _message_auto_subscribe_followers(self, updated_values, default_subtype_ids):
         daf_models = self.env.context.get("mail_thread_disable_auto_followers", [])
-        if self._name in daf_models:
+        if (
+            not self.env.context.get("mail_thread_allow_auto_followers")
+            and self._name in daf_models
+        ):
             return []
         return super()._message_auto_subscribe_followers(
             updated_values, default_subtype_ids
