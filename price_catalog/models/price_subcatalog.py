@@ -23,7 +23,7 @@ class PriceSubcatalog(models.Model):
         "higher in the list Subcatalog will appear, which elevates the "
         "priority of prices to be looked up."
     )
-    start_date = fields.Date(copy=False, default=fields.Date.today)
+    start_date = fields.Date(copy=False, default=fields.Date.today, required=True)
     end_date = fields.Date(copy=False)
     item_ids = fields.One2many(
         comodel_name="price.catalog.item", inverse_name="subcatalog_id"
