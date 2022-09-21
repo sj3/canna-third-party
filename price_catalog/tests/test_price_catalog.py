@@ -33,6 +33,7 @@ class TestPriceCatalog(common.TransactionCase):
         )
 
         with self.assertRaises(IntegrityError):
+            self.env.cr._default_log_exceptions = False # Prevent logging a traceback
             self.env["price.catalog.item"].create(
                 {
                     "subcatalog_id": subcatalog.id,
@@ -40,19 +41,7 @@ class TestPriceCatalog(common.TransactionCase):
                     "price": 9,
                 }
             )
-
-    # def test_createCatalogWithoutStartDate(self):
-    #     catalog = self.env['price.catalog'].create({
-    #         'name': "UNITTEST CATALOG",
-    #         'catalog_type': 'sale',
-    #     })
-
-    #     with self.assertRaises(IntegrityError):
-    #         subcatalog = self.env['price.subcatalog'].create({
-    #             'name': "UNITTEST v1",
-    #             "catalog_id": catalog.id,
-    #             'start_date': False,
-    #         })
+        self.env.cr._default_log_exceptions = True
 
     def test_createOverlapWithInactiveCatalog(self):
         catalog = self.env["price.catalog"].create(
