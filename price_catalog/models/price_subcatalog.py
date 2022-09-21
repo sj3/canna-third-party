@@ -1,8 +1,8 @@
 # Copyright 2020 Onestein B.V.
 # Copyright 2020 Noviat
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
-from odoo import api, fields, models, _
 
 
 class PriceSubcatalog(models.Model):
@@ -45,38 +45,64 @@ class PriceSubcatalog(models.Model):
     def action_duplicate_subcatalog(self):
         self.ensure_one()
         ctx = self._context.copy()
-        ctx['default_name'] = self.name
-        ctx['default_catalog_id'] = self.catalog_id.id
+        ctx["default_name"] = self.name
+        ctx["default_catalog_id"] = self.catalog_id.id
         return {
-            'name': _('Price Subcatalog'),
-            'type': 'ir.actions.act_window',
-            'view_mode': 'form',
-            'res_model': 'price.subcatalog',
-            'view_id': self.env.ref('price_catalog.price_subcatalog_view_form').id,
-            'context': ctx,
+            "name": _("Price Subcatalog"),
+            "type": "ir.actions.act_window",
+            "view_mode": "form",
+            "res_model": "price.subcatalog",
+            "view_id": self.env.ref("price_catalog.price_subcatalog_view_form").id,
+            "context": ctx,
         }
 
-    @api.constrains('start_date', 'end_date')
+    @api.constrains("start_date", "end_date")
     def check_start_end_date(self):
         for record in self:
-            if record.start_date and record.end_date and record.end_date < record.start_date:
-                raise ValidationError(_("End Date '%s' must be greater than the Start Date '%s' !") % (record.end_date, record.start_date))
+            if (
+                record.start_date
+                and record.end_date
+                and record.end_date < record.start_date
+            ):
+                raise ValidationError(
+                    _("End Date '%s' must be greater than the Start Date '%s' !")
+                    % (record.end_date, record.start_date)
+                )
 
-    @api.constrains('start_date', 'end_date', 'catalog_id', 'active')
+    @api.constrains("start_date", "end_date", "catalog_id", "active")
     def check_subcatalog_date_overlap(self):
         for record in self:
             domain = [
-                ('id', '!=', record.id),
-                ('catalog_id', '=', record.catalog_id.id),
+                ("id", "!=", record.id),
+                ("catalog_id", "=", record.catalog_id.id),
             ]
             if record.end_date:
-                domain += ['|', ('start_date', '=', False), ('start_date', '<=', record.end_date)]
+                domain += [
+                    "|",
+                    ("start_date", "=", False),
+                    ("start_date", "<=", record.end_date),
+                ]
             if record.start_date:
-                domain += ['|', ('end_date', '=', False), ('end_date', '>=', record.start_date)]
-                
+                domain += [
+                    "|",
+                    ("end_date", "=", False),
+                    ("end_date", ">=", record.start_date),
+                ]
+
             # Not using search_count to provide details in error message.
-            # Include inactive in check.            
-            overlap_sub_cat_id = self.with_context(active_test=False).search(domain, limit=1, order='sequence desc')
+            # Include inactive in check.
+            overlap_sub_cat_id = self.with_context(active_test=False).search(
+                domain, limit=1, order="sequence desc"
+            )
 
             if overlap_sub_cat_id:
-                raise ValidationError(_("You can not overlap the Price Subcatalog '%s' (date %s - %s) !" % (overlap_sub_cat_id.name, overlap_sub_cat_id.start_date, overlap_sub_cat_id.end_date)))
+                raise ValidationError(
+                    _(
+                        "You can not overlap the Price Subcatalog '%s' (date %s - %s) !"
+                        % (
+                            overlap_sub_cat_id.name,
+                            overlap_sub_cat_id.start_date,
+                            overlap_sub_cat_id.end_date,
+                        )
+                    )
+                )
