@@ -3,6 +3,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo import fields, models
+from datetime import datetime
 
 
 class PriceCatalog(models.Model):
@@ -72,7 +73,10 @@ class PriceCatalog(models.Model):
         if not product_id:
             return 0.0
         price = 0.0
-        items = self._get_items(product_id, date_order.date())
+        items = self._get_items(
+            product_id,
+            date_order.date() if isinstance(date_order, datetime) else date_order
+        )
         for item in items:
             price = item.price
             break
