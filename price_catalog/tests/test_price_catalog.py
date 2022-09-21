@@ -40,19 +40,41 @@ class TestPriceCatalog(common.TransactionCase):
             })
 
 
-    def test_createCatalogWithoutStartDate(self):
+    # def test_createCatalogWithoutStartDate(self):
+    #     catalog = self.env['price.catalog'].create({
+    #         'name': "UNITTEST CATALOG",
+    #         'catalog_type': 'sale',
+    #     })
+
+    #     with self.assertRaises(IntegrityError):
+    #         subcatalog = self.env['price.subcatalog'].create({
+    #             'name': "UNITTEST v1",
+    #             "catalog_id": catalog.id,
+    #             'start_date': False,
+    #         })
+
+    def test_createOverlapWithInactiveCatalog(self):
         catalog = self.env['price.catalog'].create({
             'name': "UNITTEST CATALOG",
             'catalog_type': 'sale',
         })
 
-        with self.assertRaises(IntegrityError):
-            subcatalog = self.env['price.subcatalog'].create({
-                'name': "UNITTEST v1",
-                "catalog_id": catalog.id,
-                'start_date': False,
-            })
+        subcatalog = self.env['price.subcatalog'].create({
+            'name': "UNITTEST v1",
+            "catalog_id": catalog.id,
+            'start_date': '2020-01-01',
+            'end_date': '2020-12-31',
+            'active': False
+        })
 
+        with self.assertRaises(ValidationError):        
+            self.env['price.subcatalog'].create({
+                'name': "UNITTEST subcatalog overlap",
+                "catalog_id": catalog.id,
+                'start_date': '2019-01-01',
+                'end_date': '2020-01-31',
+            }).unlink()
+    
 
     def test_createOverlappingSubcatalog(self):
         catalog = self.env['price.catalog'].create({
@@ -64,16 +86,82 @@ class TestPriceCatalog(common.TransactionCase):
             'name': "UNITTEST v1",
             "catalog_id": catalog.id,
             'start_date': '2020-01-01',
+            'end_date': '2020-12-31',            
         })
 
+        # before
+        self.env['price.subcatalog'].create({
+            'name': "UNITTEST subcatalog before",
+            "catalog_id": catalog.id,
+            'start_date': '2019-01-01',
+            'end_date': '2019-12-31',
+        }).unlink()
+        self.env['price.subcatalog'].create({
+            'name': "UNITTEST subcatalog before no start",
+            "catalog_id": catalog.id,
+            'start_date': False,
+            'end_date': '2019-12-31',
+        }).unlink()
         with self.assertRaises(ValidationError):
-            subcatalog = self.env['price.subcatalog'].create({
-                'name': "UNITTEST v1",
-                "catalog_id": catalog.id,
-                'start_date': '2019-01-01',
-            })
+            with self.env.cr.savepoint():
+                self.env['price.subcatalog'].create({
+                    'name': "UNITTEST subcatalog before no end",
+                    "catalog_id": catalog.id,
+                    'start_date': '2019-01-01',
+                    'end_date': False,                
+                }).unlink()
 
-    def test_createOverlappingSubcatalog2(self):
+        # overlap start
+            
+        with self.assertRaises(ValidationError):
+            with self.env.cr.savepoint():
+                self.env['price.subcatalog'].create({
+                    'name': "UNITTEST subcatalog overlap",
+                    "catalog_id": catalog.id,
+                    'start_date': '2019-01-01',
+                    'end_date': '2020-12-31',
+                }).unlink()
+                
+        with self.assertRaises(ValidationError):
+            with self.env.cr.savepoint():            
+                self.env['price.subcatalog'].create({
+                    'name': "UNITTEST subcatalog overlap no start",
+                    "catalog_id": catalog.id,
+                    'start_date': False,
+                    'end_date': '2022-12-31',
+                }).unlink()
+        with self.assertRaises(ValidationError):
+            with self.env.cr.savepoint():
+                self.env['price.subcatalog'].create({
+                    'name': "UNITTEST subcatalog overlap no end",
+                    "catalog_id": catalog.id,
+                    'start_date': '2019-01-01',
+                    'end_date': False,
+                }).unlink()
+            
+        # after
+            
+        self.env['price.subcatalog'].create({
+            'name': "UNITTEST subcatalog after",
+            "catalog_id": catalog.id,
+            'start_date': '2022-12-31',
+            'end_date': '2023-12-31'
+        }).unlink()
+        self.env['price.subcatalog'].create({
+            'name': "UNITTEST subcatalog after no start",
+            "catalog_id": catalog.id,
+            'start_date': '2022-12-31',
+            'end_date': False,
+        }).unlink()   
+        self.env['price.subcatalog'].create({
+            'name': "UNITTEST subcatalog after no end",
+            "catalog_id": catalog.id,
+            'start_date': '2022-12-31',
+            'end_date': False,                
+        }).unlink()
+        
+
+    def test_createOverlappingSubcatalogOpenEnd(self):
         catalog = self.env['price.catalog'].create({
             'name': "UNITTEST CATALOG",
             'catalog_type': 'sale',
@@ -83,20 +171,169 @@ class TestPriceCatalog(common.TransactionCase):
             'name': "UNITTEST v1",
             "catalog_id": catalog.id,
             'start_date': '2020-01-01',
+            'end_date': False,            
         })
 
-        # Should work without error.
-        subcatalog = self.env['price.subcatalog'].create({
-            'name': "UNITTEST v1",
+        # before
+        
+        self.env['price.subcatalog'].create({
+            'name': "UNITTEST subcatalog before",
             "catalog_id": catalog.id,
             'start_date': '2019-01-01',
             'end_date': '2019-12-31',
+        }).unlink()
+        self.env['price.subcatalog'].create({
+            'name': "UNITTEST subcatalog before no start",
+            "catalog_id": catalog.id,
+            'start_date': False,
+            'end_date': '2019-12-31',
+        }).unlink()
+        with self.assertRaises(ValidationError): 
+            with self.env.cr.savepoint():           
+                self.env['price.subcatalog'].create({
+                    'name': "UNITTEST subcatalog before no end",
+                    "catalog_id": catalog.id,
+                    'start_date': '2019-01-01',
+                    'end_date': False,                
+                }).unlink()
+
+        # overlap start
+            
+        with self.assertRaises(ValidationError):
+            with self.env.cr.savepoint():            
+                self.env['price.subcatalog'].create({
+                    'name': "UNITTEST subcatalog overlap",
+                    "catalog_id": catalog.id,
+                    'start_date': '2019-01-01',
+                    'end_date': '2020-12-31',
+                }).unlink()
+        with self.assertRaises(ValidationError):
+            with self.env.cr.savepoint():
+                self.env['price.subcatalog'].create({
+                    'name': "UNITTEST subcatalog overlap no start",
+                    "catalog_id": catalog.id,
+                    'start_date': False,
+                    'end_date': '2022-12-31',
+                }).unlink()
+        with self.assertRaises(ValidationError):
+            with self.env.cr.savepoint():
+                self.env['price.subcatalog'].create({
+                    'name': "UNITTEST subcatalog overlap no end",
+                    "catalog_id": catalog.id,
+                    'start_date': '2019-01-01',
+                    'end_date': False,
+                }).unlink()
+            
+        # after
+            
+        with self.assertRaises(ValidationError):
+            with self.env.cr.savepoint():
+                self.env['price.subcatalog'].create({
+                    'name': "UNITTEST subcatalog after",
+                    "catalog_id": catalog.id,
+                    'start_date': '2022-12-31',
+                    'end_date': '2023-12-31'
+                }).unlink()
+        with self.assertRaises(ValidationError):
+            with self.env.cr.savepoint():
+                self.env['price.subcatalog'].create({
+                    'name': "UNITTEST subcatalog after no start",
+                    "catalog_id": catalog.id,
+                    'start_date': '2022-12-31',
+                    'end_date': False,
+                }).unlink()   
+        with self.assertRaises(ValidationError):
+            with self.env.cr.savepoint():
+                self.env['price.subcatalog'].create({
+                    'name': "UNITTEST subcatalog after no end",
+                    "catalog_id": catalog.id,
+                    'start_date': '2022-12-31',
+                    'end_date': False,                
+                }).unlink()
+            
+    def test_createOverlappingSubcatalogOpenStart(self):
+        catalog = self.env['price.catalog'].create({
+            'name': "UNITTEST CATALOG",
+            'catalog_type': 'sale',
         })
 
+        subcatalog = self.env['price.subcatalog'].create({
+            'name': "UNITTEST v1",
+            "catalog_id": catalog.id,
+            'start_date': False,            
+            'end_date': '2020-12-31',
+        })
+
+        # before
+
         with self.assertRaises(ValidationError):
-            subcatalog = self.env['price.subcatalog'].create({
-                'name': "UNITTEST v1",
-                "catalog_id": catalog.id,
-                'start_date': '2020-01-01',
-                'end_date': '2020-12-31',
-            })
+            with self.env.cr.savepoint():            
+                self.env['price.subcatalog'].create({
+                    'name': "UNITTEST subcatalog before",
+                    "catalog_id": catalog.id,
+                    'start_date': '2019-01-01',
+                    'end_date': '2019-12-31',
+                }).unlink()
+        with self.assertRaises(ValidationError):
+            with self.env.cr.savepoint():            
+                self.env['price.subcatalog'].create({
+                    'name': "UNITTEST subcatalog before no start",
+                    "catalog_id": catalog.id,
+                    'start_date': False,
+                    'end_date': '2019-12-31',
+                }).unlink()
+        with self.assertRaises(ValidationError): 
+            with self.env.cr.savepoint():           
+                self.env['price.subcatalog'].create({
+                    'name': "UNITTEST subcatalog before no end",
+                    "catalog_id": catalog.id,
+                    'start_date': '2019-01-01',
+                    'end_date': False,                
+                }).unlink()
+
+        # overlap start
+            
+        with self.assertRaises(ValidationError):
+            with self.env.cr.savepoint():            
+                self.env['price.subcatalog'].create({
+                    'name': "UNITTEST subcatalog overlap",
+                    "catalog_id": catalog.id,
+                    'start_date': '2019-01-01',
+                    'end_date': '2020-12-31',
+                }).unlink()
+        with self.assertRaises(ValidationError):
+            with self.env.cr.savepoint():
+                self.env['price.subcatalog'].create({
+                    'name': "UNITTEST subcatalog overlap no start",
+                    "catalog_id": catalog.id,
+                    'start_date': False,
+                    'end_date': '2022-12-31',
+                }).unlink()
+        with self.assertRaises(ValidationError):
+            with self.env.cr.savepoint():
+                self.env['price.subcatalog'].create({
+                    'name': "UNITTEST subcatalog overlap no end",
+                    "catalog_id": catalog.id,
+                    'start_date': '2019-01-01',
+                    'end_date': False,
+                }).unlink()
+            
+        # after
+        self.env['price.subcatalog'].create({
+            'name': "UNITTEST subcatalog after",
+            "catalog_id": catalog.id,
+            'start_date': '2022-12-31',
+            'end_date': '2023-12-31'
+        }).unlink()
+        self.env['price.subcatalog'].create({
+            'name': "UNITTEST subcatalog after no start",
+            "catalog_id": catalog.id,
+            'start_date': '2022-12-31',
+            'end_date': False,
+        }).unlink()   
+        self.env['price.subcatalog'].create({
+            'name': "UNITTEST subcatalog after no end",
+            "catalog_id": catalog.id,
+            'start_date': '2022-12-31',
+            'end_date': False,                
+        }).unlink()

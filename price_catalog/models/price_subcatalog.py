@@ -23,7 +23,7 @@ class PriceSubcatalog(models.Model):
         "higher in the list Subcatalog will appear, which elevates the "
         "priority of prices to be looked up."
     )
-    start_date = fields.Date(copy=False, default=fields.Date.today, required=True)
+    start_date = fields.Date(copy=False, default=fields.Date.today)
     end_date = fields.Date(copy=False)
     item_ids = fields.One2many(
         comodel_name="price.catalog.item", inverse_name="subcatalog_id"
@@ -56,32 +56,27 @@ class PriceSubcatalog(models.Model):
             'context': ctx,
         }
 
-    @api.constrains('start_date', 'end_date', 'catalog_id', 'active')
-    def check_expired_price_overlap(self):
+    @api.constrains('start_date', 'end_date')
+    def check_start_end_date(self):
         for record in self:
-            if record.start_date and record.catalog_id:
-                # Check the empty end date Sub Catalogs
-                empty_sub_cat_id = self.search([
-                            ('id', '!=', record.id),
-                            ('catalog_id', '=', record.catalog_id.id),
-                            ('active', '=', True),
-                            ('end_date', '=', False),
-                            ('start_date', '<=', record.start_date)], limit=1, order='sequence desc')
-                if empty_sub_cat_id:
-                    raise ValidationError(_("First add an end date on previous Price Subcatalog '%s' ." % (empty_sub_cat_id.name)))
-                # Check the overlapping Sub Catalogs
-                date_domain = [('start_date', '<=', record.start_date)]
-                if record.end_date:
-                    date_domain = [('start_date', '<=', record.end_date)]
-                    # check dates
-                    if record.end_date < record.start_date:
-                        raise ValidationError(_("End Date must be greater than the Start Date !"))
-                overlap_sub_cat_id = self.search([
-                        ('id', '!=', record.id),
-                        ('catalog_id', '=', record.catalog_id.id),
-                        ('active', '=', True),
-                        ('end_date', '>=', record.start_date),
-                        ] + date_domain, limit=1, order='sequence desc')
-                if overlap_sub_cat_id:
-                    raise ValidationError(_("You can not overlap the Price Subcatalog '%s' with date '%s' !" % (overlap_sub_cat_id.name, overlap_sub_cat_id.end_date)))
-        return True
+            if record.start_date and record.end_date and record.end_date < record.start_date:
+                raise ValidationError(_("End Date '%s' must be greater than the Start Date '%s' !") % (record.end_date, record.start_date))
+
+    @api.constrains('start_date', 'end_date', 'catalog_id', 'active')
+    def check_subcatalog_date_overlap(self):
+        for record in self:
+            domain = [
+                ('id', '!=', record.id),
+                ('catalog_id', '=', record.catalog_id.id),
+            ]
+            if record.end_date:
+                domain += ['|', ('start_date', '=', False), ('start_date', '<=', record.end_date)]
+            if record.start_date:
+                domain += ['|', ('end_date', '=', False), ('end_date', '>=', record.start_date)]
+                
+            # Not using search_count to provide details in error message.
+            # Include inactive in check.            
+            overlap_sub_cat_id = self.with_context(active_test=False).search(domain, limit=1, order='sequence desc')
+
+            if overlap_sub_cat_id:
+                raise ValidationError(_("You can not overlap the Price Subcatalog '%s' (date %s - %s) !" % (overlap_sub_cat_id.name, overlap_sub_cat_id.start_date, overlap_sub_cat_id.end_date)))
