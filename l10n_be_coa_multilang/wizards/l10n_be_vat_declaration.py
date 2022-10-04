@@ -9,11 +9,8 @@ from lxml import etree
 
 from odoo import _, fields, models
 from odoo.exceptions import UserError
-from odoo.tools.translate import translate
 
 _logger = logging.getLogger(__name__)
-
-IR_TRANSLATION_NAME = "l10n.be.vat.declaration"
 
 
 class L10nBeVatDeclaration(models.TransientModel):
@@ -41,7 +38,6 @@ class L10nBeVatDeclaration(models.TransientModel):
 
     def generate_declaration(self):
         self.ensure_one()
-        self.note = ""
         case_vals = self._get_case_vals()
         self.case_ids = [(0, 0, x) for x in case_vals]
         self._vat_declaration_controls()
@@ -162,6 +158,9 @@ class L10nBeVatDeclaration(models.TransientModel):
             "91",
         ]
 
+    def _account_move_min_types(self):
+        return ["out_invoice", "out_receipt", "in_refund"]
+
     def _get_case_domain(self, case_report):
         if case_report.children_line_ids:
             case_dom = []
@@ -193,14 +192,31 @@ class L10nBeVatDeclaration(models.TransientModel):
             [("parent_id", "child_of", case_root.id), ("children_line_ids", "=", False)]
         )
         amounts = dict.fromkeys(cases.mapped("id"), 0.0)
-        date_dom = self._get_move_line_date_domain()
-        min_types = ["out_invoice", "out_receipt", "in_refund"]
-        dom_min = [("move_id.type", "in", min_types)]
-        dom_plus = [("move_id.type", "not in", min_types)]
+        dom = self._get_move_line_domain()
+        min_types = self._account_move_min_types()
+        # Odoo OE uses a different approach involving a more complex hence slower
+        # SQL query, cf _get_grids_refund_sql_condition.
+        # The logic here remains what we use in previous versions of
+        # this module : for type "entry" (e.g. POS Orders) we check the balance sign.
+        # This approach is sufficient to cover Belgian tax declaration requirements.
+        dom_min = [
+            "|",
+            ("move_id.type", "in", min_types),
+            "&",
+            ("move_id.type", "=", "entry"),
+            ("balance", "<", 0),
+        ]
+        dom_plus = [
+            "|",
+            ("move_id.type", "not in", min_types + ["entry"]),
+            "&",
+            ("move_id.type", "=", "entry"),
+            ("balance", ">", 0),
+        ]
         for case in cases:
             tc = case.code
             for tag in tax_code_map[tc]:
-                aml_dom = date_dom + [("tag_ids", "in", tag.id)]
+                aml_dom = dom + [("tag_ids", "in", tag.id)]
                 sign = tag.tax_negate and -1 or 1
                 flds = ["balance"]
                 groupby = []
@@ -305,7 +321,7 @@ class L10nBeVatDeclaration(models.TransientModel):
         if negative_cases:
             self.note += _(
                 "Negative values found for cases %s"
-                % [str(x.code) for x in negative_cases]
+                % [str(x.case_id.code) for x in negative_cases]
             )
             self.note += "\n"
             self.note += _(
@@ -465,21 +481,20 @@ class L10nBeVatDeclarationCase(models.TransientModel):
     def view_move_lines(self):
         self.ensure_one()
         act_window = self.declaration_id._move_lines_act_window()
-        date_dom = self.declaration_id._get_move_line_date_domain()
+        aml_dom = self.declaration_id._get_move_line_domain()
         case_dom = self.declaration_id._get_case_domain(self.case_id)
-        act_window["domain"] = date_dom + case_dom
+        act_window["domain"] = aml_dom + case_dom
         return act_window
 
 
 class L10nBeVatDeclarationXlsx(models.AbstractModel):
     _name = "report.l10n_be_coa_multilang.vat_declaration_xls"
-    _inherit = "report.report_xlsx.abstract"
+    _inherit = ["report.report_xlsx.abstract", "l10n.be.xlats.mixin"]
     _description = "VAT declaration excel export"
 
-    def _(self, src):
-        lang = self.env.context.get("lang", "en_US")
-        val = translate(self.env.cr, IR_TRANSLATION_NAME, "report", lang, src) or src
-        return val
+    def generate_xlsx_report(self, workbook, data, objects):
+        self = self.with_context(dict(self.env.context, lang=self.env.user.lang))
+        super().generate_xlsx_report(workbook, data, objects)
 
     def _get_ws_params(self, workbook, data, declaration):
 
@@ -512,7 +527,7 @@ class L10nBeVatDeclarationXlsx(models.AbstractModel):
             {
                 "ws_name": "vat_declaration_%s" % declaration.period,
                 "generate_ws_method": "_generate_declaration",
-                "title": declaration._description,
+                "title": self._("Periodical VAT Declaration"),
                 "wanted_list": wanted_list,
                 "col_specs": col_specs,
             }
@@ -544,6 +559,15 @@ class L10nBeVatDeclarationXlsx(models.AbstractModel):
         row_pos += 1
         ws.write_string(row_pos, 1, self._("Period") + ":", self.format_left_bold)
         ws.write_string(row_pos, 2, declaration.period)
+        row_pos += 1
+        ws.write_string(row_pos, 1, self._("Target Moves") + ":", self.format_left_bold)
+        ws.write_string(
+            row_pos,
+            2,
+            declaration.target_move == "all"
+            and self._("All Entries")
+            or self._("Posted Entries"),
+        )
         return row_pos + 2
 
     def _declaration_lines(self, ws, row_pos, ws_params, data, declaration):
@@ -573,13 +597,12 @@ class L10nBeVatDeclarationXlsx(models.AbstractModel):
 
 class L10nBeVatDetailXlsx(models.AbstractModel):
     _name = "report.l10n_be_coa_multilang.vat_detail_xls"
-    _inherit = "report.report_xlsx.abstract"
+    _inherit = ["report.report_xlsx.abstract", "l10n.be.xlats.mixin"]
     _description = "vat declaration transactions report"
 
-    def _(self, src):
-        lang = self.env.context.get("lang", "en_US")
-        val = translate(self.env.cr, IR_TRANSLATION_NAME, "report", lang, src) or src
-        return val
+    def generate_xlsx_report(self, workbook, data, objects):
+        self = self.with_context(dict(self.env.context, lang=self.env.user.lang))
+        super().generate_xlsx_report(workbook, data, objects)
 
     def _define_formats(self, wb):
         """
@@ -628,10 +651,10 @@ class L10nBeVatDetailXlsx(models.AbstractModel):
 
     def _get_ws_params(self, wb, data, decl):
         dummy, self._tax_tags = decl._get_tax_code_map()
-        self._date_dom = decl._get_move_line_date_domain()
+        aml_dom = decl._get_move_line_domain()
         flds = ["journal_id", "debit"]
         groupby = ["journal_id"]
-        totals = self.env["account.move.line"].read_group(self._date_dom, flds, groupby)
+        totals = self.env["account.move.line"].read_group(aml_dom, flds, groupby)
         j_dict = {}
         for entry in totals:
             if entry["debit"]:
@@ -682,7 +705,14 @@ class L10nBeVatDetailXlsx(models.AbstractModel):
         wl = ["code", "name", "debit"]
 
         title = (10 * " ").join(
-            [decl.company_id.name, _("Journal Centralisation"), decl.period]
+            [
+                decl.company_id.name,
+                self._("Journal Centralisation"),
+                decl.period,
+                decl.target_move == "all"
+                and self._("All Entries")
+                or self._("Posted Entries"),
+            ]
         )
 
         return {
@@ -710,6 +740,11 @@ class L10nBeVatDetailXlsx(models.AbstractModel):
         return self._write_ws_title(ws, row_pos, ws_params)
 
     def _centralisation_lines(self, ws, row_pos, ws_params, data, decl):
+
+        if not self._journals:
+            no_entries = self._("No records found for the selected period.")
+            row_pos = ws.write_string(row_pos, 0, no_entries, self.format_left_bold)
+            return
 
         wl = ws_params["wanted_list"]
         debit_pos = wl.index("debit")
@@ -957,8 +992,13 @@ class L10nBeVatDetailXlsx(models.AbstractModel):
                 "width": 25,
             },
             "move_id": {
-                "header": {"value": self._("Entry Ide")},
+                "header": {"value": self._("Entry ID")},
                 "lines": {"value": self._render("str(l.move_id.id)")},
+                "width": 10,
+            },
+            "move_type": {
+                "header": {"value": self._("Type")},
+                "lines": {"value": self._render("move_type")},
                 "width": 10,
             },
         }
@@ -997,6 +1037,7 @@ class L10nBeVatDetailXlsx(models.AbstractModel):
                 decl.company_id.name,
                 journal.name + "({})".format(journal.code),
                 decl.period,
+                decl.target_move,
             ]
         )
         ws_params_summary = {
@@ -1040,6 +1081,8 @@ class L10nBeVatDetailXlsx(models.AbstractModel):
     def _journal_lines(self, ws, row_pos, ws_params, data, decl, journal):
 
         wl = ws_params["wanted_list"]
+        if journal.type in ("sale", "purchase"):
+            wl.append("move_type")
         debit_pos = wl.index("debit")
         credit_pos = wl.index("credit")
         start_pos = row_pos + 1
@@ -1054,7 +1097,12 @@ class L10nBeVatDetailXlsx(models.AbstractModel):
 
         ws.freeze_panes(row_pos, 0)
 
-        am_dom = self._date_dom + [("journal_id", "=", journal.id)]
+        min_types = decl._account_move_min_types()
+        am_dom = decl._get_move_domain() + [("journal_id", "=", journal.id)]
+        if decl.target_move == "posted":
+            am_dom.append(("state", "=", "posted"))
+        else:
+            am_dom.append(("state", "!=", "cancel"))
         ams = self.env["account.move"].search(am_dom, order="name, date")
         amls = ams.mapped("line_ids")
 
@@ -1070,13 +1118,20 @@ class L10nBeVatDetailXlsx(models.AbstractModel):
                 am_cnt += 1
             else:
                 new_am = False
+            move_type = am.type
+            if "invoice" in move_type:
+                move_type = _("Invoice")
+            elif "refund" in move_type:
+                move_type = _("Credit Note")
             tax_codes = []
             tax_amount = None
             for tag in aml.tag_ids:
                 if tag not in self._tax_tags:
                     continue
                 tc = tc_str = tag.name[1:]
-                sign = tag.tax_negate and 1 or -1
+                sign = tag.tax_negate and -1 or 1
+                if am.type in min_types or (am.type == "entry" and aml.balance < 0):
+                    sign = sign * -1
                 tax_amount = cround(sign * aml.balance)
                 if tax_amount < 0:
                     tc_str += "(-1)"
@@ -1106,6 +1161,7 @@ class L10nBeVatDetailXlsx(models.AbstractModel):
                     "l": aml,
                     "tax_code": ", ".join(tax_codes),
                     "tax_amount": tax_amount and abs(tax_amount),
+                    "move_type": move_type,
                     "format_tcell_center": format_tcell_center,
                     "format_tcell_amount_right": format_tcell_amount_right,
                     "format_tcell_date_left": format_tcell_date_left,

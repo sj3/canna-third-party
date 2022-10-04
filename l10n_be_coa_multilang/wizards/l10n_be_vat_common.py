@@ -1,4 +1,4 @@
-# Copyright 2009-2019 Noviat
+# Copyright 2009-2020 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import calendar
@@ -59,6 +59,12 @@ class L10nBeVatCommon(models.AbstractModel):
     period = fields.Char(compute="_compute_period")
     date_from = fields.Date(string="Start Date")
     date_to = fields.Date(string="End Date")
+    target_move = fields.Selection(
+        [("posted", "Posted Entries"), ("all", "All Entries")],
+        string="Target Moves",
+        required=True,
+        default="posted",
+    )
     file_name = fields.Char()
     file_save = fields.Binary(string="Save File", readonly=True)
     comments = fields.Text(string="Comments")
@@ -66,7 +72,7 @@ class L10nBeVatCommon(models.AbstractModel):
 
     @api.model
     def _default_company_id(self):
-        return self.env.user.company_id
+        return self.env.company
 
     @api.model
     def _default_year(self):
@@ -104,8 +110,8 @@ class L10nBeVatCommon(models.AbstractModel):
             self.declarant_id = contacts and contacts[0] or self.company_id.partner_id
         decl_dom = [
             "|",
-            ("parent_id", "=", self.company_id.id),
-            ("id", "=", self.company_id.id),
+            ("parent_id", "=", self.company_id.partner_id.id),
+            ("id", "=", self.company_id.partner_id.id),
         ]
         return {"domain": {"declarant_id": decl_dom}}
 
@@ -128,6 +134,14 @@ class L10nBeVatCommon(models.AbstractModel):
                 self.date_from = m_from and "{}-{}-01".format(self.year, m_from)
                 d_to = m_to and calendar.monthrange(int(self.year), int(m_to))[1]
                 self.date_to = d_to and "{}-{}-{}".format(self.year, m_to, d_to)
+            dom = self._get_move_line_date_domain()
+            dom.append(("state", "=", "draft"))
+            check_draft = self.env["account.move"].search_count(dom)
+            if check_draft:
+                warning = _("Draft entries found for the selected period.")
+                if warning not in self.note:
+                    self.note += warning
+                    self.note += "\n"
 
     def create_xls(self):
         raise UserError(_("The XLS export function is not available."))
@@ -157,6 +171,22 @@ class L10nBeVatCommon(models.AbstractModel):
             ("date", "<=", self.date_to),
         ]
         return aml_dom
+
+    def _get_move_line_domain(self):
+        aml_dom = self._get_move_line_date_domain()
+        if self.target_move == "posted":
+            aml_dom.append(("move_id.state", "=", "posted"))
+        else:
+            aml_dom.append(("move_id.state", "!=", "cancel"))
+        return aml_dom
+
+    def _get_move_domain(self):
+        am_dom = self._get_move_line_date_domain()
+        if self.target_move == "posted":
+            am_dom.append(("state", "=", "posted"))
+        else:
+            am_dom.append(("state", "!=", "cancel"))
+        return am_dom
 
     def _get_company_data(self):
         cpart = self.company_id.partner_id
