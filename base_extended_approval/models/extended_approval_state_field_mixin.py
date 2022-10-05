@@ -28,7 +28,6 @@ class ExtendedApprovalStateFieldMixin(models.AbstractModel):
         selection
         """
         super()._setup_complete()
-        reg = self.env.registry
         is_install = (
             hasattr(self.env.registry, "_is_install") and self.env.registry._is_install
         )
