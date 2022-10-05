@@ -1,205 +1,210 @@
 <odoo>
-
     <menuitem
         name="Extended Approval"
         id="menu_extended_approval_config"
         sequence="4"
-        parent="account.menu_finance_configuration"/>
-
+        parent="account.menu_finance_configuration"
+    />
     <record model="ir.ui.view" id="view_extended_approval_step_form">
-      <field name="name">extended.approval.step.form</field>
-      <field name="model">extended.approval.step</field>
-      <field name="arch" type="xml">
-        <form string="Extended Approval Step">
-          <sheet>
-            <group name="extended-approval-help">
-              <p>
+        <field name="name">extended.approval.step.form</field>
+        <field name="model">extended.approval.step</field>
+        <field name="arch" type="xml">
+            <form string="Extended Approval Step">
+                <sheet>
+                    <group name="extended-approval-help">
+                        <p>
               </p>
-            </group>
-            <group name="extended-approval-step-data">
-              <field name="flow_id"/>
-              <field name="sequence"/>
-              <field name="use_sudo"/>
-              <field name="group_ids"/>
-              <field name="condition"/>
-            </group>
-          </sheet>
-        </form>
-      </field>
+                    </group>
+                    <group name="extended-approval-step-data">
+                        <field name="flow_id" />
+                        <field name="sequence" />
+                        <field name="use_sudo" />
+                        <field name="group_ids" />
+                        <field name="condition" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
     </record>
-
     <record model="ir.ui.view" id="view_extended_approval_step_tree">
-      <field name="name">extended.approval.step.tree</field>
-      <field name="model">extended.approval.step</field>
-      <field name="arch" type="xml">
-        <tree string="Extended Approval Step">
-          <field name="flow_id"/>
-          <field name="sequence"/>
-          <field name="group_ids" widget="many2many_tags"/>
-          <field name="condition"/>
-        </tree>
-      </field>
+        <field name="name">extended.approval.step.tree</field>
+        <field name="model">extended.approval.step</field>
+        <field name="arch" type="xml">
+            <tree string="Extended Approval Step">
+                <field name="flow_id" />
+                <field name="sequence" />
+                <field name="group_ids" widget="many2many_tags" />
+                <field name="condition" />
+            </tree>
+        </field>
     </record>
-
     <record model="ir.actions.act_window" id="action_extended_approval_step_form">
-      <field name="name">Approval Step</field>
-      <field name="res_model">extended.approval.step</field>
-      <field name="type">ir.actions.act_window</field>
-      <field name="view_mode">tree,form</field>
-      <field name="view_id" ref="view_extended_approval_step_tree"/>
-      <field name="help" type="html">
-        <p class="oe_view_nocontent_create">
+        <field name="name">Approval Step</field>
+        <field name="res_model">extended.approval.step</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_extended_approval_step_tree" />
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
           Click to add an extended approval step.
         </p>
-      </field>
+        </field>
     </record>
-
     <menuitem
         id="menu_extended_approval_step"
         action="action_extended_approval_step_form"
         parent="menu_extended_approval_config"
         groups="base.group_erp_manager"
-        sequence="20"/>
-
-
+        sequence="20"
+    />
     <record model="ir.ui.view" id="view_extended_approval_flow_form">
-      <field name="name">extended.approval.flow.form</field>
-      <field name="model">extended.approval.flow</field>
-      <field name="arch" type="xml">
-        <form string="Extended Approval Flow">
-          <sheet>
-            <group name="extended-approval-help">
-              <p>
+        <field name="name">extended.approval.flow.form</field>
+        <field name="model">extended.approval.flow</field>
+        <field name="arch" type="xml">
+            <form string="Extended Approval Flow">
+                <sheet>
+                    <group name="extended-approval-help">
+                        <p>
               </p>
-            </group>
-            <group name="extended-approval-flow-data">
-              <field name="name"/>
-              <field name="sequence"/>
-              <field name="model"/>
-              <field name="domain"/>
-              <field name="steps">
-                <tree string="steps">
-                  <field name="sequence" widget="handle"/>
-                  <field name="group_ids" widget="many2many_tags"/>
-                  <field name="condition"/>
-                  <field name="use_sudo"/>
-                </tree>
-                <form string="Step">
-                  <group>
-                    <field name="condition"/>
-                    <field name="sequence"/>
-                    <field name="group_ids"/>
-                    <field name="use_sudo"/>
-                  </group>
-                </form>
-              </field>
-            </group>
-            <separator name="config_help" string="Configuration Instructions" colspan="4"/>
-            <span name="extended_approval_help">
-              <p>You can use extended approval flows to define multiple approval steps for a matching object,
+                    </group>
+                    <group name="extended-approval-flow-data">
+                        <field name="name" />
+                        <field name="sequence" />
+                        <field name="model" />
+                        <field name="domain" />
+                        <field name="steps">
+                            <tree string="steps">
+                                <field name="sequence" widget="handle" />
+                                <field name="group_ids" widget="many2many_tags" />
+                                <field name="condition" />
+                                <field name="use_sudo" />
+                            </tree>
+                            <form string="Step">
+                                <group>
+                                    <field name="condition" />
+                                    <field name="sequence" />
+                                    <field name="group_ids" />
+                                    <field name="use_sudo" />
+                                </group>
+                            </form>
+                        </field>
+                    </group>
+                    <separator
+                        name="config_help"
+                        string="Configuration Instructions"
+                        colspan="4"
+                    />
+                    <span name="extended_approval_help">
+                        <p
+                        >You can use extended approval flows to define multiple approval steps for a matching object,
               and/or define different approvers for objects of the same model based on a domain.</p>
-              <p>The extended approval works as follows:</p>
-              <ul>
-                <li>When a document enters the approval process, the first flow with the model of the document
+                        <p>The extended approval works as follows:</p>
+                        <ul>
+                            <li
+                            >When a document enters the approval process, the first flow with the model of the document
                 for which the domain applies is selected.</li>
-                <li>Next each step of this flow for which the condition applies to the document has to be completed
+                            <li
+                            >Next each step of this flow for which the condition applies to the document has to be completed
                 by a user holding any of the configured roles</li>
-              </ul>
-              <p>For each step a log record will be created.</p>
-              <p>If a user can complete multiple consecutive steps, all these steps
+                        </ul>
+                        <p>For each step a log record will be created.</p>
+                        <p
+                        >If a user can complete multiple consecutive steps, all these steps
               will be completed at once.</p>
-              <p>Upon completion of the final step, the user that completed the last step with 'use_sudo' marked
+                        <p
+                        >Upon completion of the final step, the user that completed the last step with 'use_sudo' marked
               (if any) will be used for the actual state change.</p>
-            </span>
-          </sheet>
-        </form>
-      </field>
+                    </span>
+                </sheet>
+            </form>
+        </field>
     </record>
-
     <record model="ir.ui.view" id="view_extended_approval_flow_tree">
-      <field name="name">extended.approval.flow.tree</field>
-      <field name="model">extended.approval.flow</field>
-      <field name="arch" type="xml">
-        <tree string="Extended Approval Flow">
-          <field name="sequence" widget="handle"/>
-          <field name="name"/>
-          <field name="model"/>
-        </tree>
-      </field>
+        <field name="name">extended.approval.flow.tree</field>
+        <field name="model">extended.approval.flow</field>
+        <field name="arch" type="xml">
+            <tree string="Extended Approval Flow">
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="model" />
+            </tree>
+        </field>
     </record>
-
     <record model="ir.actions.act_window" id="action_extended_approval_flow_form">
-      <field name="name">Approval Flow</field>
-      <field name="res_model">extended.approval.flow</field>
-      <field name="type">ir.actions.act_window</field>
-      <field name="view_mode">tree,form</field>
-      <field name="view_id" ref="view_extended_approval_flow_tree"/>
-      <field name="help" type="html">
-        <p class="oe_view_nocontent_create">
+        <field name="name">Approval Flow</field>
+        <field name="res_model">extended.approval.flow</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_extended_approval_flow_tree" />
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
           Click to add an extended approval flow.
         </p>
-      </field>
+        </field>
     </record>
-
     <menuitem
         id="menu_extended_approval_flow"
         action="action_extended_approval_flow_form"
         parent="menu_extended_approval_config"
         groups="base.group_erp_manager"
-        sequence="30"/>
-
+        sequence="30"
+    />
     <record model="ir.ui.view" id="view_extended_approval_condition_tree">
-      <field name="name">extended.approval.condition.tree</field>
-      <field name="model">extended.approval.condition</field>
-      <field name="arch" type="xml">
-        <tree string="Extended Approval Condition">
-          <field name="name"/>
-          <field name="condition_type"/>
-          <field name="domain"/>
-        </tree>
-      </field>
+        <field name="name">extended.approval.condition.tree</field>
+        <field name="model">extended.approval.condition</field>
+        <field name="arch" type="xml">
+            <tree string="Extended Approval Condition">
+                <field name="name" />
+                <field name="condition_type" />
+                <field name="domain" />
+            </tree>
+        </field>
     </record>
-
     <record model="ir.ui.view" id="view_extended_approval_condition_form">
-      <field name="name">extended.approval.condition.form</field>
-      <field name="model">extended.approval.condition</field>
-      <field name="arch" type="xml">
-        <form string="Extended Approval Condition">
-          <group>
-            <field name="name"/>
-            <field name="condition_type"/>
-            <field name="domain"/>
-          </group>
-          <separator name="config_help" string="Configuration Instructions" colspan="4"/>
-          <span name="extended_approval_help">
-              <p>You can use conditions to make certain steps in the flow conditional. There are 2 types of conditions:</p>
-              <ul>
-                  <li>domain: use odoo domain syntax, eg ['|',('amount', '&lt;', 1000),('user_id','=','1')]</li>
-                  <li>python: you can use the 'record' variable to access the current record</li>
-              </ul>
-          </span>
-        </form>
-      </field>
+        <field name="name">extended.approval.condition.form</field>
+        <field name="model">extended.approval.condition</field>
+        <field name="arch" type="xml">
+            <form string="Extended Approval Condition">
+                <group>
+                    <field name="name" />
+                    <field name="condition_type" />
+                    <field name="domain" />
+                </group>
+                <separator
+                    name="config_help"
+                    string="Configuration Instructions"
+                    colspan="4"
+                />
+                <span name="extended_approval_help">
+                    <p
+                    >You can use conditions to make certain steps in the flow conditional. There are 2 types of conditions:</p>
+                    <ul>
+                        <li
+                        >domain: use odoo domain syntax, eg ['|',('amount', '&lt;', 1000),('user_id','=','1')]</li>
+                        <li
+                        >python: you can use the 'record' variable to access the current record</li>
+                    </ul>
+                </span>
+            </form>
+        </field>
     </record>
-
     <record model="ir.actions.act_window" id="action_extended_approval_condition_form">
-      <field name="name">Approval Condition</field>
-      <field name="res_model">extended.approval.condition</field>
-      <field name="type">ir.actions.act_window</field>
-      <field name="view_mode">tree,form</field>
-      <field name="view_id" ref="view_extended_approval_condition_tree"/>
-      <field name="help" type="html">
-        <p class="oe_view_nocontent_create">
+        <field name="name">Approval Condition</field>
+        <field name="res_model">extended.approval.condition</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_extended_approval_condition_tree" />
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
           Click to add an extended approval condition.
         </p>
-      </field>
+        </field>
     </record>
-
     <menuitem
         id="menu_extended_approval_condition"
         action="action_extended_approval_condition_form"
         parent="menu_extended_approval_config"
         groups="base.group_erp_manager"
-        sequence="10"/>
-
+        sequence="10"
+    />
 </odoo>

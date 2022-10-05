@@ -1,4 +1,4 @@
-# Copyright 2009-2020 Noviat.
+# Copyright 2009-2022 Noviat.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from odoo import _, fields, models
@@ -18,7 +18,12 @@ class AccountTax(models.Model):
     ]
 
     def copy(self, default=None):
-        default = dict(default or {}, code=_("%s (Copy)") % (self.code or ""))
+        if self.code:
+            code = _("%s (Copy)") % (self.code or "")
+        else:
+            code = self.code
+
+        default = dict(default or {}, code=code)
         return super().copy(default=default)
 
     def name_get(self):

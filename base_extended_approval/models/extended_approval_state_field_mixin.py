@@ -1,5 +1,5 @@
 # Copyright (C) Onestein 2019-2020
-# Copyright (C) Noviat 2020
+# Copyright (C) Noviat 2020-2022
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo import api, models
@@ -28,7 +28,7 @@ class ExtendedApprovalStateFieldMixin(models.AbstractModel):
         selection
         """
         super()._setup_complete()
-        field = self.fields_get().get(self.ea_state_field)
+        field = self.fields_get([self.ea_state_field]).get(self.ea_state_field)
         if field:
             try:
                 state_names = [t[0] for t in field["selection"]]
