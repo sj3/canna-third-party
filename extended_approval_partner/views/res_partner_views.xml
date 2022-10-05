@@ -1,5 +1,4 @@
 <odoo>
-
     <record id="view_partner_form" model="ir.ui.view">
         <field name="name">res.partner.form</field>
         <field name="model">res.partner</field>
@@ -8,35 +7,54 @@
         <field name="arch" type="xml">
             <xpath expr="/form/sheet" position="before">
                 <header>
-                    <button type="object" name="reset_to_draft"
+                    <button
+                        type="object"
+                        name="reset_to_draft"
                         string="Reset to draft"
-                        attrs="{'invisible': ['|', ('state', 'not in', ['confirmed'])]}" />
-                    <button type="object" name="set_state_to_confirmed"
+                        attrs="{'invisible': ['|', ('state', 'not in', ['confirmed'])]}"
+                    />
+                    <button
+                        type="object"
+                        name="set_state_to_confirmed"
                         string="Confirm partner"
-                        attrs="{'invisible': [('state', 'not in', ['draft']), '|', ('approval_allowed', '!=', True), ('state', 'not in', ['extended_approval'])]}" />
+                        attrs="{'invisible': [('state', 'not in', ['draft']), '|', ('approval_allowed', '!=', True), ('state', 'not in', ['extended_approval'])]}"
+                    />
                     <field name="state" widget="statusbar" />
                 </header>
             </xpath>
             <xpath expr="//notebook" position="inside">
                 <page string="Approvals" name="approval">
-                    <group name="g1" colspan="4" col="4"
-                        attrs="{'invisible': [('next_approver', '=', False)]}">
+                    <group
+                        name="g1"
+                        colspan="4"
+                        col="4"
+                        attrs="{'invisible': [('next_approver', '=', False)]}"
+                    >
                         <label for="next_approver" />
                         <div>
-                            <field name="next_approver" widget="many2many_tags"
-                                options='{"no_open":True}' />
-                            <button string="=> Users"
-                                help="Show Approval Group Users" name="show_approval_group_users"
-                                type="object" class="oe_link" />
+                            <field
+                                name="next_approver"
+                                widget="many2many_tags"
+                                options='{"no_open":True}'
+                            />
+                            <button
+                                string="=> Users"
+                                help="Show Approval Group Users"
+                                name="show_approval_group_users"
+                                type="object"
+                                class="oe_link"
+                            />
                         </div>
                         <field name="approval_allowed" />
                     </group>
                     <group name="g2" colspan="4">
-                        <field colspan="4" name="approval_history_ids"
-                            readonly="1">
+                        <field colspan="4" name="approval_history_ids" readonly="1">
                             <tree string="Approval History">
                                 <field name="date" />
-                                <field name="requested_group_ids" widget="many2many_tags" />
+                                <field
+                                    name="requested_group_ids"
+                                    widget="many2many_tags"
+                                />
                                 <field name="approver_id" />
                             </tree>
                         </field>
@@ -45,5 +63,4 @@
             </xpath>
         </field>
     </record>
-
 </odoo>
