@@ -1,5 +1,5 @@
 # Copyright (C) Onestein 2019-2020
-# Copyright (C) Noviat 2020
+# Copyright (C) Noviat 2020-2022
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo import api, models
@@ -28,8 +28,12 @@ class ExtendedApprovalStateFieldMixin(models.AbstractModel):
         selection
         """
         super()._setup_complete()
-        field = self.fields_get().get(self.ea_state_field)
-        if field:
+        reg = self.env.registry
+        is_install = (
+            hasattr(self.env.registry, "_is_install") and self.env.registry._is_install
+        )
+        if not is_install:
+            field = self.fields_get([self.ea_state_field]).get(self.ea_state_field)
             try:
                 state_names = [t[0] for t in field["selection"]]
                 if self.ea_state not in state_names:
