@@ -28,11 +28,8 @@ class ExtendedApprovalStateFieldMixin(models.AbstractModel):
         selection
         """
         super()._setup_complete()
-        is_install = (
-            hasattr(self.env.registry, "_is_install") and self.env.registry._is_install
-        )
-        if not is_install:
-            field = self.fields_get([self.ea_state_field]).get(self.ea_state_field)
+        field = self.fields_get([self.ea_state_field]).get(self.ea_state_field)
+        if field:
             try:
                 state_names = [t[0] for t in field["selection"]]
                 if self.ea_state not in state_names:
