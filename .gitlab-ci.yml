@@ -5,15 +5,19 @@ workflow:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 include:
-  - project: 'canna-infrastructure/gitlab-ci-templates'
+  - project: 'canna-infrastructure/gitlabci-odoo'
     ref: main
     file: '/odoo-tests.template.yml'
 
 variables:
   ODOO_CI_IMAGE: registry.canna.lan/canna-infrastructure/oca-ci/13.0-canna
-  # no lint, nor pre-commit for third-party, only test
+  # no pre-commit for third-party
   ODOO_PRECOMMIT: "0"
-  ODOO_LINT: "0"
+  ODOO_GITLAB_PACKAGES: "1"
+
+odoo-gitlab-packages:
+  # use python image with canna CA certificate.
+  image: registry.canna.lan/canna-infrastructure/canna-docker-images/python:latest
 
 runbot:
   stage: deploy
