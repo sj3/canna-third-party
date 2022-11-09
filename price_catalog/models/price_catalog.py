@@ -2,8 +2,9 @@
 # Copyright 2020 Noviat
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import fields, models
+from odoo import fields, models, _
 from datetime import datetime
+from odoo.exceptions import Warning
 
 
 class PriceCatalog(models.Model):
@@ -77,6 +78,8 @@ class PriceCatalog(models.Model):
             product_id,
             date_order.date() if isinstance(date_order, datetime) else date_order
         )
+        if not items:
+            raise Warning(_(' "%s" was not found in the pricelist.') % product_id.name)
         for item in items:
             price = item.price
             break
