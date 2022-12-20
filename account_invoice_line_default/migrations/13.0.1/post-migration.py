@@ -1,4 +1,4 @@
-# Copyright 2009-2021 Noviat.
+# Copyright 2009-2022 Noviat.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 
@@ -8,9 +8,27 @@ def migrate(cr, version):
 
     cr.execute(
         """
+        SELECT table_name FROM information_schema.tables
+        WHERE table_name = 'account_invoice';
+        """
+    )
+    res = cr.fetchall()
+    if res:
+        cr.execute(
+            """
+        UPDATE account_move am
+        SET invoice_description = ai.name
+        FROM account_invoice ai
+        WHERE ai.move_id = am.id
+        AND invoice_description IS NULL
+        """
+        )
+
+    cr.execute(
+        """
         SELECT id, name FROM ir_model_fields
           WHERE name like 'property_in_inv_acc%'
-          AND model='res.partner';
+          AND model='res.partner' limit 1;
         """
     )
     res = cr.fetchall()
