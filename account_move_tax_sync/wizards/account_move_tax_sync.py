@@ -892,8 +892,10 @@ class AccountMoveTaxSync(models.TransientModel):
         am = am_dict["am"]
         sign = am.type in ("in_refund", "out_invoice") and -1 or 1
         if am.currency_id != am.company_id.currency_id:
+            is_zero = am.currency_id.is_zero
             amt_fld = "amount_currency"
         else:
+            is_zero = am.company_id.currency_id.is_zero
             amt_fld = "balance"
         aits_todo = [x for x in aits if x["id"] not in am_dict["ait2aml"]]
 
@@ -948,6 +950,13 @@ class AccountMoveTaxSync(models.TransientModel):
                             )[0]
                         else:
                             # we need to refine the logic if we encounter this use case
+                            _logger.error(
+                                "NotImplementedError detected in method "
+                                "'_sync_legacy_account_invoice_unmatched_aits' "
+                                "while processing %s (ID: %s).",
+                                am.name,
+                                am.id,
+                            )
                             raise NotImplementedError
                     am_dict["aml_done"] |= aml
                     for ana_acc_ait in ana_acc_aits:
@@ -981,97 +990,126 @@ class AccountMoveTaxSync(models.TransientModel):
         tax_acc_ids = {x["account_id"] for x in aits_todo}
         for tax_acc_id in tax_acc_ids:
             tax_acc_aits = [x for x in aits_todo if x["account_id"] == tax_acc_id]
-            ait_tax_amount = sign * sum([x["amount"] for x in tax_acc_aits])
-            aml = am.line_ids.filtered(
-                lambda r: r.account_id.id == tax_acc_id and r.exclude_from_invoice_tab
-            )
-            if aml:
-                # we have one or more tax_lines on the same general account
-                # hence we are here probably in a case where the accounting entry
-                # has been manually adjusted by the accountant to match with the
-                # received supplier invoice
-                if len(aml) != 1:
-                    # refine via originator tax
-                    for tax_acc_ait in tax_acc_aits:
-                        aml_refined = aml.filtered(
-                            lambda r: r.tax_line_id.id == tax_acc_ait["tax_id"]
-                        )
-                        if len(aml_refined) == 1:
-                            aml = aml_refined
-                            break
-                if len(aml) != 1:
-                    # filter out via ait2aml
-                    aml_refined = aml.filtered(
-                        lambda r: r.id not in am_dict["ait2aml"].values()
-                    )
-                    if len(aml_refined) == 1:
-                        aml = aml_refined
-                if len(aml) != 1:
-                    wiz_dict["error_cnt"] += 1
-                    wiz_dict["error_log"] += (
-                        "Errors detected during tax recalc of %s (ID: %s)"
-                    ) % (am.name, am.id)
-                    wiz_dict["error_log"] += ":\n"
-                    wiz_dict["error_log"] += (
-                        "No matching account.move.line found for "
-                        "account_invoice_tax IDS %s.\n"
-                    ) % [x["id"] for x in tax_acc_aits]
-                    if aml:
-                        wiz_dict["error_log"] += (
-                            "Unmatched aml IDS on same account: %s"
-                        ) % aml.ids
-                    wiz_dict["error_log"] += "\n"
-                    break
-
-                aml_new_tax_acc = aml_new_todo.filtered(
+            tax_code_ids = [x.get("tax_code_id") for x in tax_acc_aits]
+            for tax_code_id in tax_code_ids:
+                tax_acc_code_aits = [
+                    x for x in tax_acc_aits if x.get("tax_code_id") == tax_code_id
+                ]
+                ait_tax_amount = sign * sum([x["amount"] for x in tax_acc_code_aits])
+                aml = am.line_ids.filtered(
                     lambda r: r.account_id.id == tax_acc_id
                     and r.exclude_from_invoice_tab
                 )
-                if len(aml_new_tax_acc) > 1:
-                    # This case can happen when we have different originator taxes
-                    # with the same tax tags.
-                    # In Odoo <= V8.0 tax window entries on the same tax_code_id
-                    # were grouped into a single tax aml.
-                    # A concrete use case is a vendor invoice with purchases
-                    # of 21% and 6% VAT.
-                    # We check if the tax tags of all aml_new_tax_acc are equal
-                    # and use the most important one to correct the tax aml.
-                    tag_set_list = [set(x.tag_ids.ids) for x in aml_new_tax_acc]
-                    if tag_set_list.count(tag_set_list[0]) == len(tag_set_list):
-                        aml_new_todo -= aml_new_tax_acc
-                        aml_new_tax_acc = aml_new_tax_acc.sorted(
-                            lambda r: abs(r.balance), reverse=True
-                        )[0]
-                    else:
-                        # we need to refine the logic if we encounter this use case
-                        raise NotImplementedError
-                am_dict["aml_done"] |= aml
-                for tax_acc_ait in tax_acc_aits:
-                    am_dict["ait2aml"][tax_acc_ait["id"]] = aml.id
-                aml_new_dict = self._get_aml_new_dict(aml_new_tax_acc)
-                if aml_new_tax_acc:
-                    if aml.tax_ids:
-                        aml_new_dict["tax_ids"] = []
-                    self._calc_aml_updates(aml_new_dict, aml, am_dict, wiz_dict)
-                    aml_new_todo -= aml_new_tax_acc
+                if aml:
+                    # we have one or more tax_lines on the same general account
+                    # hence we are could here be in a case where the accounting entry
+                    # has been manually adjusted by the accountant to match with the
+                    # received supplier invoice
+                    if len(aml) != 1:
+                        # refine via originator tax
+                        for tax_acc_ait in tax_acc_code_aits:
+                            aml_refined = aml.filtered(
+                                lambda r: r.tax_line_id.id == tax_acc_ait["tax_id"]
+                            )
+                            if len(aml_refined) == 1:
+                                aml = aml_refined
+                                break
+                    if len(aml) != 1:
+                        # filter out via ait2aml
+                        aml_refined = aml.filtered(
+                            lambda r: r.id not in am_dict["ait2aml"].values()
+                        )
+                        if len(aml_refined) == 1:
+                            aml = aml_refined
+                    if len(aml) != 1:
+                        # filter via amount
+                        aml_refined = aml.filtered(
+                            lambda r: is_zero(r[amt_fld] - ait_tax_amount)
+                        )
+                        if len(aml_refined) == 1:
+                            aml = aml_refined
+                    if len(aml) != 1:
+                        wiz_dict["error_cnt"] += 1
+                        wiz_dict["error_log"] += (
+                            "Errors detected during tax recalc of %s (ID: %s)"
+                        ) % (am.name, am.id)
+                        wiz_dict["error_log"] += ":\n"
+                        wiz_dict["error_log"] += (
+                            "No matching account.move.line found for "
+                            "account_invoice_tax IDS %s.\n"
+                        ) % [x["id"] for x in tax_acc_code_aits]
+                        if aml:
+                            wiz_dict["error_log"] += (
+                                "Unmatched aml IDS on same account: %s"
+                            ) % aml.ids
+                        wiz_dict["error_log"] += "\n"
+                        break
 
-                # add warning message when deviation seems too big for rounding diff
-                max_diff = 0.10
-                aml_tax_amount = getattr(aml, amt_fld)
-                tax_amount_diff = ait_tax_amount - aml_tax_amount
-                check = abs(tax_amount_diff) <= max_diff
-                if not check:
-                    warn_msg = (
-                        "Large deviation of %s detected between legacy invoice "
-                        "tax window and corresponding Journal Item with ID %s"
-                    ) % (round(tax_amount_diff, 2), aml.id)
-                    wiz_dict["warning_cnt"] += 1
-                    wiz_dict["warning_log"] += (
-                        "Warnings during tax recalc of %s (ID: %s)"
-                    ) % (am.name, am.id,)
-                    wiz_dict["warning_log"] += ":\n"
-                    wiz_dict["warning_log"] += warn_msg
-                    wiz_dict["warning_log"] += "\n"
+                    aml_new_tax_acc = aml_new_todo.filtered(
+                        lambda r: r.account_id.id == tax_acc_id
+                        and r.exclude_from_invoice_tab
+                    )
+                    if len(aml_new_tax_acc) > 1:
+                        # refine by amount to cover the case of two tax lines on
+                        # the same general account which have not been summed because
+                        # of different tax code in Odoo 8.0
+                        aml_new_tax_acc_refined = aml_new_tax_acc.filtered(
+                            lambda r: is_zero(r[amt_fld] - ait_tax_amount)
+                        )
+                        if len(aml_new_tax_acc_refined) == 1:
+                            aml_new_tax_acc = aml_new_tax_acc_refined
+                    if len(aml_new_tax_acc) > 1:
+                        # This case can happen when we have different originator taxes
+                        # with the same tax tags.
+                        # In Odoo <= V8.0 tax window entries on the same tax_code_id
+                        # were grouped into a single tax aml.
+                        # A concrete use case is a vendor invoice with purchases
+                        # of 21% and 6% VAT.
+                        # We check if the tax tags of all aml_new_tax_acc are equal
+                        # and use the most important one to correct the tax aml.
+                        tag_set_list = [set(x.tag_ids.ids) for x in aml_new_tax_acc]
+                        if tag_set_list.count(tag_set_list[0]) == len(tag_set_list):
+                            aml_new_todo -= aml_new_tax_acc
+                            aml_new_tax_acc = aml_new_tax_acc.sorted(
+                                lambda r: abs(r.balance), reverse=True
+                            )[0]
+                        else:
+                            # we need to refine the logic if we encounter this use case
+                            _logger.error(
+                                "NotImplementedError detected in method "
+                                "'_sync_legacy_account_invoice_unmatched_aits' "
+                                "while processing %s (ID: %s).",
+                                am.name,
+                                am.id,
+                            )
+                            raise NotImplementedError
+                    am_dict["aml_done"] |= aml
+                    for tax_acc_ait in tax_acc_code_aits:
+                        am_dict["ait2aml"][tax_acc_ait["id"]] = aml.id
+                    aml_new_dict = self._get_aml_new_dict(aml_new_tax_acc)
+                    if aml_new_tax_acc:
+                        if aml.tax_ids:
+                            aml_new_dict["tax_ids"] = []
+                        self._calc_aml_updates(aml_new_dict, aml, am_dict, wiz_dict)
+                        aml_new_todo -= aml_new_tax_acc
+
+                    # add warning message when deviation seems too big for rounding diff
+                    max_diff = 0.10
+                    aml_tax_amount = getattr(aml, amt_fld)
+                    tax_amount_diff = ait_tax_amount - aml_tax_amount
+                    check = abs(tax_amount_diff) <= max_diff
+                    if not check:
+                        warn_msg = (
+                            "Large deviation of %s detected between legacy invoice "
+                            "tax window and corresponding Journal Item with ID %s"
+                        ) % (round(tax_amount_diff, 2), aml.id)
+                        wiz_dict["warning_cnt"] += 1
+                        wiz_dict["warning_log"] += (
+                            "Warnings during tax recalc of %s (ID: %s)"
+                        ) % (am.name, am.id,)
+                        wiz_dict["warning_log"] += ":\n"
+                        wiz_dict["warning_log"] += warn_msg
+                        wiz_dict["warning_log"] += "\n"
 
         return aml_new_todo
 
