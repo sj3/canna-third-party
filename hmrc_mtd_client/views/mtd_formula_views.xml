@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="vat_calculation_formula_views" model="ir.ui.view">
+        <field name="name">vat.calculation.formula.view</field>
+        <field name="model">res.config.settings</field>
+        <field name="arch" type="xml">
+            <form string="VAT Calculation Formula" class="o_invoice_form" edit="0" create="0" delete="0">
+                <sheet string="VAT Formula">
+                    <h2 class="text-center">VAT Formula</h2>
+                    <div class="alert alert-info" role="alert">
+                        <strong>What should you do:</strong>
+                        <ul>
+                            <li>For net values use net_&#x2039;tax_tag&#x203A; eg: net_PT8</li>
+                            <li>For vat values use vat_&#x2039;tax_tag&#x203A; eg: vat_PT8</li>
+                            <li>To sum vat or net values use sum([vat_&#x2039;tax_tag&#x203A;]) eg: sum([vat_PT8M]) or
+                                sum([net_ST0,net_ST1,net_ST2,net_ST11]
+                            </li>
+                            <li>To use credits and debits for each box use net_&#x2039;credit or debit&#x203A;__&#x2039;tax_tag&#x203A;
+                                eg:net_credit_PT8R,net_debit_PT8M,vat_credit_PT8R,vat_debit_PT8M
+                            </li>
+                            <li>For fuel scale charge use fuel_net and fuel_vat variables wich refer to net and vat
+                                values
+                            </li>
+                            <li>For bad debt use bad_net and bad_vat variables wich refer to net and vat values</li>
+                        </ul>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table" style="margin-top:40px;">
+                            <tbody>
+                                <tr>
+                                    <th style="border-top: 0px !important; padding-top: 4em;">
+                                        <h4>
+                                            <b>Boxes</b>
+                                        </h4>
+                                    </th>
+                                    <th style="border-top: 0px; important; padding-top: 4em;">
+                                        <b>Formula</b>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th width="35%" scope="row">
+                                        [box 1] VAT due this period on sales and other outputs
+                                    </th>
+                                    <td width="65%">
+                                        <field name="box_one"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th width="35%" scope="row">
+                                        [box 2] VAT due in the period on acquisitions of goods made in Northern Ireland from EU Member States
+                                    </th>
+                                    <td width="95%">
+                                        <field name="box_two"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th width="35%" scope="row">
+                                        [box 4] VAT reclaimed in the period on purchases and other inputs (including acquisitions in Northern Ireland from EU member states)
+                                    </th>
+                                    <td width="95%">
+                                        <field name="box_four"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th width="35%" scope="row">
+                                        [box 6] Total value of sales and all other outputs excluding VAT(including acquisitions from EC)
+                                    </th>
+                                    <td width="95%">
+                                        <field name="box_six"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th width="35%" scope="row">
+                                        [box 7] Total value of purchases and all other inputs excluding VAT(including acquisitions from EC)
+                                    </th>
+                                    <td width="95%">
+                                        <field name="box_seven"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th width="35%" scope="row">
+                                        [box 8] Total value of dispatches of goods and related costs (excluding VAT) from Northern Ireland to EU Member States
+                                    </th>
+                                    <td width="95%">
+                                        <field name="box_eight"/>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #E5E5E5 !important;">
+                                    <th width="35%" scope="row">
+                                        [box 9] Total value of acquisitions of goods and related costs (excluding VAT) made in Northern Ireland from EU Member States
+                                    </th>
+                                    <td width="95%">
+                                        <field name="box_nine"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <footer>
+                        <div class="btn-group" role="group" style="float: right;">
+                            <button name="submit_formula" string="Submit"
+                                    confirm="This formula will be used for the calculation off VAT Return. This will have an affect on the result off VAT report."
+                                    type="object" class="btn btn-primary" icon="fa-check"/>
+                        </div>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

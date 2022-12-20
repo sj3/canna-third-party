@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="mtd_vat_report_form" model="ir.ui.view">
+        <field name="name">hmrc_mtd_client.vat.report.form</field>
+        <field name="model">mtd.vat.report</field>
+        <field name="arch" type="xml">
+            <form string="Vat Return Data" class="o_invoice_form" edit="0" create="0" delete="0">
+                <sheet string="VAT return">
+                    <h2 class="text-center">VAT Report</h2>
+                    <div class="table-responsive">
+                        <table class="table" style="margin-top:40px;">
+                            <tbody>
+                                <tr>
+                                    <th style="border-top: 0px !important;" scope="row">
+                                        <h4>
+                                            <b>Details</b>
+                                            <field name="id" invisible="1"/>
+                                            <field name="is_submitted" invisible="1"/>
+                                            <field name="currency_id" invisible="1" readonly="1"/>
+                                        </h4>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th width="80%" scope="row">Registration Number</th>
+                                    <td width="20%" colspan="3">
+                                        <field name="registration_number" readonly="1"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th width="80%" scope="row">VAT scheme</th>
+                                    <td width="20%" colspan="3">
+                                        <field name="vat_scheme" readonly="1"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th width="80%" scope="row">Period covered by the return</th>
+                                    <td width="20%" colspan="3">
+                                        <field name="name" readonly="1"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th style="border-top: 0px !important; padding-top: 4em;">
+                                        <h4>
+                                            <b>VAT calculations</b>
+                                        </h4>
+                                    </th>
+                                    <th style="border-top: 0px; important; padding-top: 4em;">
+                                        <b>Value</b>
+                                    </th>
+                                    <th style="border-top: 0px !important; padding-top: 4em;">
+                                        <b>Details</b>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th width="30%" scope="row">
+                                        [box 1] VAT due this period on sales and other outputs
+                                    </th>
+                                    <td width="20%">
+                                        <field name="vatDueSales" readonly="1"/>
+                                    </td>
+                                    <td width="20%">
+                                        <button name="get_account_moves" type="object"
+                                                context="{'taxes': 'box_one_taxes', 'box_name':'Box 1'}"
+                                                aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th width="30%" scope="row">
+                                        [box 2] VAT due in the period on acquisitions of goods made in Northern Ireland from EU Member States
+                                    </th>
+                                    <td width="20%">
+                                        <field name="vatDueAcquisitions" readonly="1"/>
+                                    </td>
+                                    <td width="20%">
+                                        <button name="get_account_moves" type="object"
+                                                context="{'taxes': 'box_two_taxes', 'box_name':'Box 2'}"
+                                                aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th width="30%" scope="row">
+                                        [box 3] Total VAT due (sum of boxes one and two)
+                                    </th>
+                                    <td width="20%">
+                                        <field name="totalVatDue" readonly="1"/>
+                                    </td>
+                                    <td width="20%">
+                                        <button name="get_account_moves" type="object"
+                                                context="{'taxes': 'box_three_taxes', 'box_name':'Box 3'}"
+                                                aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th width="30%" scope="row">
+                                        [box 4]  VAT reclaimed in the period on purchases and other inputs (including acquisitions in Northern Ireland from EU member states)
+                                    </th>
+                                    <td width="20%">
+                                        <field name="vatReclaimedCurrPeriod" readonly="1"/>
+                                    </td>
+                                    <td width="20%">
+                                        <button name="get_account_moves" type="object"
+                                                context="{'taxes': 'box_four_taxes', 'box_name':'Box 4'}"
+                                                aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #E5E5E5 !important;">
+                                    <th width="30%" scope="row">
+                                        [box 5] VAT to pay customs
+                                    </th>
+                                    <td width="20%">
+                                        <field name="netVatDue" readonly="1"/>
+                                    </td>
+                                    <td width="20%">
+                                        <button name="get_account_moves" type="object"
+                                                context="{'taxes': 'box_five_taxes', 'box_name':'Box 5'}"
+                                                aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th style="border-top: 0px !important; padding-top: 4em;">
+                                        <h4>
+                                            <b>Sales and purchases excluding VAT</b>
+                                        </h4>
+                                    </th>
+                                    <th style="border-top: 0px !important; padding-top: 4em;">
+                                        <b>Value</b>
+                                    </th>
+                                    <th style="border-top: 0px !important; padding-top: 4em;">
+                                        <b>Details</b>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th width="30%" scope="row">
+                                        [box 6] Total value of sales and all other outputs excluding VAT(including acquisitions from EC)
+                                    </th>
+                                    <td width="20%">
+                                        <field name="totalValueSalesExVAT" readonly="1"/>
+                                    </td>
+                                    <td width="20%">
+                                        <button name="get_account_moves" type="object"
+                                                context="{'taxes': 'box_six_taxes', 'box_name':'Box 6'}"
+                                                aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th width="30%" scope="row">
+                                        [box 7] Total value of purchases and all other inputs excluding VAT(including supplies of goods from EC)
+                                    </th>
+                                    <td width="20%">
+                                        <field name="totalValuePurchasesExVAT" readonly="1"/>
+                                    </td>
+                                    <td width="20%">
+                                        <button name="get_account_moves" type="object"
+                                                context="{'taxes': 'box_seven_taxes', 'box_name':'Box 7'}"
+                                                aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th width="40%" scope="row">
+                                        [box 8] Total value of dispatches of goods and related costs (excluding VAT) from Northern Ireland to EU Member States
+                                    </th>
+                                    <td width="20%">
+                                        <field name="totalValueGoodsSuppliedExVAT" readonly="1"/>
+                                    </td>
+                                    <td width="20%">
+                                        <button name="get_account_moves" type="object"
+                                                context="{'taxes': 'box_eight_taxes', 'box_name':'Box 8'}"
+                                                aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #E5E5E5 !important;">
+                                    <th width="30%" scope="row">
+                                        [box 9] Total value of acquisitions of goods and related costs (excluding VAT) made in Northern Ireland from EU Member States
+                                    </th>
+                                    <td width="20%">
+                                        <field name="totalAcquisitionsExVAT" readonly="1"/>
+                                    </td>
+                                    <td width="20%">
+                                        <button name="get_account_moves" type="object"
+                                                context="{'taxes': 'box_nine_taxes', 'box_name':'Box 9'}"
+                                                aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <footer>
+                        <button style="float: right;"
+                                attrs="{'invisible': ['|', ('is_submitted', '==', True),('id', '==', False)]}"
+                                name="submit_vat" string="Submit"
+                                confirm="When you submit this VAT information you are making a legal declaration that the information is true and complete.
+                                A false declaration can result in prosecution."
+                                type="object" class="btn btn-primary oe_read_only" icon="fa-check" aria-label="Info"
+                                title="Info"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_mtd_vat_form_report" model="ir.actions.act_window">
+        <field name="name">VAT Report</field>
+        <field name="res_model">mtd.vat.report</field>
+        <field name="binding_view_types">form</field>
+        <field name="view_id" ref="mtd_vat_report_form"/>
+        <field name="target">current</field>
+    </record>
+
+    <record id="view_mtd_vat_report_search" model="ir.ui.view">
+        <field name="model">mtd.vat.report</field>
+        <field name="arch" type="xml">
+            <search string="MTD Submissions">
+                <filter name='not_submitted' string="not submitted" domain="[('is_submitted', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="mtd_vat_report_tree_view" model="ir.ui.view">
+        <field name="model">mtd.vat.report</field>
+        <field name="arch" type="xml">
+            <tree string="VAT Reports" edit="0" create="0" delete="0">
+                <field name="name"/>
+                <field name="submission_date"/>
+                <field name="create_date" string="Create Date"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_mtd_vat_tree" model="ir.actions.act_window">
+        <field name="name">VAT Reports</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">mtd.vat.report</field>
+        <field name="binding_view_types">form</field>
+        <field name="view_id" ref="mtd_vat_report_tree_view"/>
+        <field name="search_view_id" ref="view_mtd_vat_report_search"/>
+    </record>
+</odoo>
