@@ -1658,23 +1658,24 @@ class AccountMoveTaxSync(models.TransientModel):
         am = am_dict["am"]
         tax_v59 = wiz_dict["tax_v59"]
         tax_v82 = wiz_dict["tax_v82"]
-        amls = am.line_ids.filtered(
-            # originator tax used in coda_advanced up to Odoo 12
-            lambda r: r.tax_line_id == tax_v59
-            or r.tax_ids in (tax_v82, tax_v59)
-            and not r.tag_ids
-            and r not in am_dict["aml_done"]
-        )
-        for aml in amls:
-            tax = aml.tax_line_id or aml.tax_ids
-            tag = tax.get_tax_tags(False, "base")
-            aml_updates = {
-                "tax_ids": [(6, 0, tax.ids)],
-                "tag_ids": [(6, 0, tag.ids)],
-                "tax_line_id": False,
-            }
-            wiz_dict["updates"] |= am
-            to_update.append((aml, aml_updates))
+        if tax_v59 and tax_v82:
+            amls = am.line_ids.filtered(
+                # originator tax used in coda_advanced up to Odoo 12
+                lambda r: r.tax_line_id == tax_v59
+                or r.tax_ids in (tax_v82, tax_v59)
+                and not r.tag_ids
+                and r not in am_dict["aml_done"]
+            )
+            for aml in amls:
+                tax = aml.tax_line_id or aml.tax_ids
+                tag = tax.get_tax_tags(False, "base")
+                aml_updates = {
+                    "tax_ids": [(6, 0, tax.ids)],
+                    "tag_ids": [(6, 0, tag.ids)],
+                    "tax_line_id": False,
+                }
+                wiz_dict["updates"] |= am
+                to_update.append((aml, aml_updates))
         am_dict["aml_done"] |= am.line_ids
 
     def _update_legacy_atc_entry_taxes(self, am_dict, wiz_dict):
