@@ -2,3 +2,7 @@ Shapely==1.7.0
 geojson==2.5.0
 pycountry==20.7.3
 Pygments==2.10.0
+odoorpc
+msgfy
+odoogap_mtd
+
