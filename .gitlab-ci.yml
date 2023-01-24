@@ -14,7 +14,6 @@ variables:
   # no pre-commit for third-party
   ODOO_PRECOMMIT: "0"
   ODOO_GITLAB_PACKAGES: "1"
-  EXCLUDE: "hmrc_mtd_client"
 
 odoo-gitlab-packages:
   # use python image with canna CA certificate.
