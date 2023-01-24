@@ -20,20 +20,3 @@ odoo-gitlab-packages:
   # use python image with canna CA certificate.
   image: registry.canna.lan/canna-infrastructure/canna-docker-images/python:latest
 
-runbot:
-  stage: deploy
-  script:
-  # See https://gitlab.canna.lan/help/user/project/integrations/webhooks
-  # and https://github.com/OCA/runbot-addons/blob/11.0/runbot_gitlab/controllers/gitlab_ci_controller.py
-    - apk --no-cache add curl
-    - "curl --header \"Content-Type: application/json\"
-        --request POST
-        --data '{
-            \"object_kind\":\"merge_request\",
-            \"project\":{
-              \"git_ssh_url\":\"git@gitlab.canna.lan:canna-odoo/third-party.git\",
-              \"git_http_url\":\"git@gitlab.canna.lan:canna-odoo/third-party.git\"
-            },
-            \"commit_sha\":\"'${CI_COMMIT_SHA}'\"
-        }'
-        --url http://10.10.17.135:8069/runbot/hook_gitlab/org"
