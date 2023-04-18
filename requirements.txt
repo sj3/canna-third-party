@@ -5,4 +5,6 @@ Pygments==2.10.0
 odoorpc
 msgfy
 odoogap_mtd
+odoo-client-lib
+
 
