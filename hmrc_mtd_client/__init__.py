@@ -12,6 +12,8 @@ def _synchronize_taxes_tags(cr, registry):
         This function updates the tags for all the default l10n_uk taxes when the module is installed.
         This tags will be used on the taxes on the formula, during the taxes calculation for MTD
     '''
+    if not env.ref('l10n_uk.1_ST0', raise_if_not_found=False):
+        return
     # update Sale taxes tags
     env.ref('l10n_uk.1_ST0').write({'tag_ids': env.ref('hmrc_mtd_client.mtd_tag_st0').id})
     env.ref('l10n_uk.1_ST2').write({'tag_ids': env.ref('hmrc_mtd_client.mtd_tag_st2').id})
