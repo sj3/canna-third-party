@@ -100,8 +100,7 @@
             </span>
           </page>
           <page name="excluded_products_and_categories"
-              string="Excluded Products &amp; Categories"
-              attrs="{'invisible': [('discount_base', '=', 'sale_line')]}">
+              string="Excluded Products &amp; Categories">
             <label for="excluded_product_ids"/>
             <field name="excluded_product_ids">
               <tree>
@@ -118,8 +117,7 @@
             </field>
           </page>
           <page name="included_products_and_categories"
-              string="Included Products &amp; Categories"
-              attrs="{'invisible': [('discount_base', '=', 'sale_line')]}">
+              string="Included Products &amp; Categories">
             <label for="included_product_ids"/>
             <field name="included_product_ids">
               <tree>
