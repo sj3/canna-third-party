@@ -6,14 +6,6 @@
         <field name="inherit_id"
             ref="sale_discount_advanced.sale_discount_view_form" />
         <field name="arch" type="xml">
-            <field name="min_qty" position="attributes">
-                <attribute name="attrs">{'invisible':
-                    [('matching_type', '!=', 'quantity')]}</attribute>
-            </field>
-            <field name="max_qty" position="attributes">
-                <attribute name="attrs">{'invisible':
-                    [('matching_type', '!=', 'quantity')]}</attribute>
-            </field>
             <field name="max_qty" position="after">
                 <field name="min_pallet"
                     attrs="{'invisible': [('matching_type', '!=', 'pallet')]}" />
