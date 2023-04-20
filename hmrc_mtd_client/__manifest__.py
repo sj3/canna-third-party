@@ -32,9 +32,7 @@
         'views/templates.xml',
         'security/ir.model.access.csv'
     ],
-    'external_dependencies': {
-         'python': ['odoorpc', 'msgfy', 'odoogap-mtd', 'odoo-client-lib']
-    },
+    'external_dependencies': {'python': ['odoorpc', 'msgfy', 'odoogap-mtd', 'odoo-client-lib']},
     'installable': True,
     'auto_install': False,
     'support': 'info@erpgap.com',
