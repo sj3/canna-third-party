@@ -18,7 +18,7 @@ class SaleOrder(models.Model):
         default=lambda r: r._default_price_catalog_id(),
     )
     currency_id = fields.Many2one(
-        string="Currency", compute="_compute_currency_id", required=True
+        string="Currency", compute="_compute_currency_id", required=True, related=False
     )
 
     @api.depends("price_catalog_id", "pricelist_id")
