@@ -46,14 +46,17 @@ class StockLevelXls(models.AbstractModel):
             dict(tcell_grey, num_format=num_format, align="right")
         )
 
+    def _get_warehouses(self, wiz):
+        return self.env["stock.warehouse"].search(
+            [("company_id", "=", wiz.company_id.id)]
+        )
+
     def _get_ws_params(self, wb, data, objects):
         wiz = self.env["wiz.export.stock.level"].browse(data["wiz_id"])
         stock_level_date = wiz.import_compatible and False or wiz.stock_level_date
         warehouses = wiz.warehouse_id
         if not warehouses:
-            warehouses = self.env["stock.warehouse"].search(
-                [("company_id", "=", wiz.company_id.id)]
-            )
+            warehouses = self._get_warehouses(wiz)
         if wiz.location_id:
             warehouses = wiz.location_id.get_warehouse()
         if wiz.location_ids:
