@@ -3,7 +3,7 @@
 
 {
     "name": "Stock Level Excel export",
-    "version": "13.0.1.0.1",
+    "version": "13.0.1.0.2",
     "license": "AGPL-3",
     "author": "Noviat",
     "website": "http://www.noviat.com",
