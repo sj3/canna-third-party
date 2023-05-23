@@ -42,3 +42,9 @@ class SaleOrder(models.Model):
         res = super().onchange_partner_id()
         self.price_catalog_id = self.partner_id.commercial_partner_id.sale_catalog_id
         return res
+
+    def _prepare_invoice(self):
+        vals = super()._prepare_invoice()
+        vals["currency_id"] = self.currency_id.id
+        return vals
+
