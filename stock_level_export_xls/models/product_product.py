@@ -1,4 +1,4 @@
-# Copyright 2009-2020 Noviat.
+# Copyright 2009-2023 Noviat.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
@@ -38,38 +38,11 @@ class ProductProduct(models.Model):
             new_domains.append(dom)
         return tuple(new_domains)
 
-    def _get_cost_at_date(self, res, stock_level_date):
-        """
-        Lookup of cost in price history table.
-        The resultings Qty * Cost gives a good idea on the inventory value
-        at a certain date but is not equal to the stock valuation as
-        calculated by the Odoo standard stock valuation report.
-        Product cost changes over time and hence we need to lookup the cost
-        of each quant seperately and sum up the valuations of all quants of
-        a product.
-
-        We could implement this as follows:
-
-        stock_hist = self.env['stock.history'].search(domain)
-        whereby domain is based upon the filter options of the export wizard
-        and query the resulting stock_hist to retrieve valuation per product.
-
-        There a couple of issues though with the standard 'stock.history':
-        - 'owner_id' is not supported, hence we cannot support consigned
-          stocks without prior fix of the underlying report.
-        - The query in the 'stock.history' report is complex resulting in
-          unacceptable performance for databases with large numbers of
-          products and stock moves.
-          A redesign of the 'stock.history' report is required
-          to make this report usable on real production level databases.
-        """
+    def _add_cost_at_date(self, res):
         for product in self:
-            # the get_history_price method has no proper multi record support
-            # hence we need this for loop
-            cost = product.get_history_price(
-                self.env.context["force_company"], date=stock_level_date
+            res[product.id]["cost"] = (
+                product.quantity_svl and product.value_svl / product.quantity_svl or 0.0
             )
-            res[product.id]["cost"] = cost
 
     def _compute_cost_and_qty_available_at_date(self):
         lot_id = self.env.context.get("lot_id")
@@ -82,7 +55,7 @@ class ProductProduct(models.Model):
             lot_id, owner_id, package_id, from_date=from_date, to_date=to_date
         )
         if self.env.context.get("add_cost_at_date"):
-            self._get_cost_at_date(res, to_date)
+            self._add_cost_at_date(res)
         return res
 
     @api.model
