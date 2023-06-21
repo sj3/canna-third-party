@@ -1,5 +1,5 @@
 # Copyright (C) 2015 ICTSTUDIO (<http://www.ictstudio.eu>).
-# Copyright (C) 2016-2022 Noviat nv/sa (www.noviat.com).
+# Copyright (C) 2016-2023 Noviat nv/sa (www.noviat.com).
 # Copyright (C) 2016 Onestein (http://www.onestein.eu/).
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
@@ -46,6 +46,12 @@ class SaleOrder(models.Model):
         for so in self:
             so.commercial_partner_id = so.partner_id.commercial_partner_id
             so.discount_ids = [(6, 0, so.commercial_partner_id.sale_discount_ids.ids)]
+
+    @api.onchange("partner_shipping_id", "partner_id", "company_id")
+    def onchange_partner_shipping_id(self):
+        res = super().onchange_partner_shipping_id()
+        self._update_discount()
+        return res
 
     @api.onchange("date_order")
     def _onchange_sale_discount_advanced_date_order(self):
@@ -123,8 +129,11 @@ class SaleOrder(models.Model):
         return res
 
     def compute_discount(self):
+        """
+        cf. module 'sale_order_group_discount'
+        """
         for so in self:
-            if so.state not in ['draft', 'sent']:
+            if so.state not in ["draft", "sent"]:
                 return
         self._update_discount()
 
