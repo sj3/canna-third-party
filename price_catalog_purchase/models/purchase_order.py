@@ -17,11 +17,13 @@ class PurchaseOrder(models.Model):
 
     @api.onchange("partner_id")
     def onchange_partner_id(self):
-        res = super().onchange_partner_id()
+        super().onchange_partner_id()
         self.price_catalog_id = (
             self.partner_id.commercial_partner_id.purchase_catalog_id
         )
-        return res
+        # when changing between two partners with the same price catalog
+        # _onchange_catalog is not called, allowing a wrong currency to be set.
+        self._onchange_catalog()
 
     @api.onchange("price_catalog_id")
     def _onchange_catalog(self):
