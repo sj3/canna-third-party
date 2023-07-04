@@ -117,6 +117,7 @@ class AccountPartnerOpenItemsXlsx(models.AbstractModel):
             "l.full_reconcile_id, fr.name AS fr_name, "
             "m.name AS inv_number, b.name AS st_number, "
             "m.ref AS sup_inv_nr, m.invoice_origin AS origin, "
+            "m.invoice_date AS inv_date, "
             + select_reconcile_details
             + "CASE WHEN l.balance > 0 "
             "     THEN (SELECT COALESCE(SUM(pr.amount), 0) "
@@ -535,8 +536,16 @@ class AccountPartnerOpenItemsXlsx(models.AbstractModel):
                 },
                 "width": 20,
             },
+            "invoice_bill_date": {
+                "header": {"value": self._("Bill Date")},
+                "lines": {
+                    "value": self._render("l['inv_date']  or ''"),
+                    "format": self.format_tcell_date_left,
+                },
+                "width": 12,
+            },
             "date": {
-                "header": {"value": self._("Date")},
+                "header": {"value": self._("Accounting Date")},
                 "lines": {
                     "value": self._render("l['l_date']"),
                     "format": self.format_tcell_date_left,

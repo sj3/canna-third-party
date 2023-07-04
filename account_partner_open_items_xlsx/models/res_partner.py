@@ -46,6 +46,7 @@ class ResPartner(models.Model):
         """
         wl = [
             "document",
+            "invoice_bill_date",
             "date",
             "date_maturity",
             "description",
