@@ -85,7 +85,7 @@ class SaleOrder(models.Model):
 
     @api.model
     def fields_view_get(
-        self, view_id=None, view_type=False, toolbar=False, submenu=False
+        self, view_id=None, view_type="form", toolbar=False, submenu=False
     ):
         res = super().fields_view_get(
             view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu
