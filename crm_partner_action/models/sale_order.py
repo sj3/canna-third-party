@@ -9,7 +9,7 @@ class SaleOrder(models.Model):
     _inherit = "sale.order"
 
     @api.onchange("partner_id")
-    def onchange_partner_id(self):
+    def onchange_partner_action_id(self):
         """
         Update the following fields when the partner is changed:
         - Pricelist
@@ -65,7 +65,7 @@ class SaleOrder(models.Model):
         dom = [("partner_id", "in", partner_ids), ("state", "=", "open")]
         action_ids = partner_action_obj.search(dom)
         message_body = ""
-        for action in partner_action_obj.search([("partner_id", "in", action_ids.ids)]):
+        for action in action_ids:
             if not action.user_id.id or self._uid == action.user_id.id:
                 message_body += action.description
                 if action.comments:
@@ -81,3 +81,4 @@ class SaleOrder(models.Model):
                 + "\n\n"
                 + message_body,
             }
+        return values
