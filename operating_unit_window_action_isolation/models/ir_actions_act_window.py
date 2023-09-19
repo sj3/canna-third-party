@@ -33,9 +33,9 @@ class IrActionsActWindow(models.Model):
 
             if act.get("domain"):
                 try:
-                    act_ctx = safe_eval(act["domain"])
-                    act_ctx.append(("operating_unit_id", "in", [False, user_ou[0]]))
-                    act["domain"] = str(act_ctx)
+                    act_domain = safe_eval(act["domain"])
+                    act_domain.append(("operating_unit_id", "in", [False, user_ou[0]]))
+                    act["domain"] = str(act_domain)
                 except ValueError:
                     pass
             else:
