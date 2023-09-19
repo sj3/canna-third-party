@@ -1,4 +1,4 @@
-# Copyright 2009-2021 Noviat
+# Copyright 2009-2023 Noviat
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
@@ -41,7 +41,11 @@ class AccountPartnerOpenItemsXlsx(models.AbstractModel):
 
         wiz = self.env["wiz.partner.open.items"].browse(data["wiz_id"])
         posted = wiz.target_move == "posted" and True or False
-        digits = self.env["decimal.precision"].precision_get("Account")
+        # digits = 2 for performance reasons:
+        # retrieving the currency rounding would require
+        # res_currency join and hence slower query when
+        # running the wizard without the add_currency option
+        digits = 2
         report_ar = {
             "type": "receivable",
             "title_short": self._("AR"),
@@ -117,6 +121,7 @@ class AccountPartnerOpenItemsXlsx(models.AbstractModel):
             "l.full_reconcile_id, fr.name AS fr_name, "
             "m.name AS inv_number, b.name AS st_number, "
             "m.ref AS sup_inv_nr, m.invoice_origin AS origin, "
+            "m.invoice_date AS inv_date, "
             + select_reconcile_details
             + "CASE WHEN l.balance > 0 "
             "     THEN (SELECT COALESCE(SUM(pr.amount), 0) "
@@ -534,6 +539,14 @@ class AccountPartnerOpenItemsXlsx(models.AbstractModel):
                     "value": self._render("l['origin'] or ''"),
                 },
                 "width": 20,
+            },
+            "invoice_date": {
+                "header": {"value": self._("Bill Date")},
+                "lines": {
+                    "value": self._render("l['inv_date']  or ''"),
+                    "format": self.format_tcell_date_left,
+                },
+                "width": 12,
             },
             "date": {
                 "header": {"value": self._("Date")},
