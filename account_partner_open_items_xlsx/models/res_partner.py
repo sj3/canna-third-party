@@ -46,7 +46,6 @@ class ResPartner(models.Model):
         """
         wl = [
             "document",
-            "invoice_bill_date",
             "date",
             "date_maturity",
             "description",
@@ -59,6 +58,7 @@ class ResPartner(models.Model):
         ]
         if report["type"] == "payable":
             wl.insert(1, "sup_inv_nr")
+            wl[wl.index("date")] = "invoice_date"
         return wl
 
     @api.model
