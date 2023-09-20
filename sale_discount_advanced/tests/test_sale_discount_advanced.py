@@ -1,5 +1,5 @@
 # Copyright (C) 2015 ICTSTUDIO (<http://www.ictstudio.eu>).
-# Copyright (C) 2016-2022 Noviat nv/sa (www.noviat.com).
+# Copyright (C) 2016-2023 Noviat nv/sa (www.noviat.com).
 # Copyright (C) 2016 Onestein (http://www.onestein.eu/).
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
@@ -22,15 +22,18 @@ class TestSaleDiscountAdvanced(TransactionCase):
         self.date_order = datetime.strptime(
             time.strftime("%Y-02-01 08:30:00"), "%Y-%m-%d %H:%M:%S"
         )
-        self.discount_order = self.env.ref(
-            "sale_discount_advanced.sale_discount_on_sale_order"
+        self.discount_order_1 = self.env.ref(
+            "sale_discount_advanced.sale_discount_on_sale_order_1"
+        )
+        self.discount_order_2 = self.env.ref(
+            "sale_discount_advanced.sale_discount_on_sale_order_2"
         )
         self.discount_line = self.env.ref(
             "sale_discount_advanced.sale_discount_on_sale_order_line"
         )
 
     def test_lower_min_base_threshold(self):
-        discount_ids = [(6, 0, [self.discount_order.id])]
+        discount_ids = [(6, 0, [self.discount_order_1.id])]
         so = self.so_obj.with_context({"so_discount_ids": discount_ids}).create(
             {
                 "partner_id": self.partner.id,
@@ -50,9 +53,9 @@ class TestSaleDiscountAdvanced(TransactionCase):
             }
         )
         with Form(so) as so_form:
-            so_form.discount_ids.add(self.discount_order)
+            so_form.discount_ids.add(self.discount_order_1)
         so_form.save()
-        self.assertEquals(so.amount_total, 950, "Total amount should be 950.00")
+        self.assertEquals(so.amount_untaxed, 950, "Total amount should be 950.00")
 
         discount_ids = [(6, 0, [self.discount_line.id])]
         so = self.so_obj.with_context({"so_discount_ids": discount_ids}).create(
@@ -67,7 +70,7 @@ class TestSaleDiscountAdvanced(TransactionCase):
                             "product_id": self.ref("product.product_product_24"),
                             "name": "Line 1",
                             "product_uom_qty": 1,
-                            "price_unit": 950,
+                            "price_unit": 100,
                         },
                     )
                 ],
@@ -76,10 +79,10 @@ class TestSaleDiscountAdvanced(TransactionCase):
         with Form(so) as so_form:
             so_form.discount_ids.add(self.discount_line)
         so_form.save()
-        self.assertEquals(so.amount_total, 950, "Total amount should be 950.00")
+        self.assertEquals(so.amount_untaxed, 100, "Total amount should be 100.00")
 
     def test_higher_min_base_threshold(self):
-        discount_ids = [(6, 0, [self.discount_order.id])]
+        discount_ids = [(6, 0, [self.discount_order_1.id])]
         so = self.so_obj.with_context({"so_discount_ids": discount_ids}).create(
             {
                 "partner_id": self.partner.id,
@@ -99,9 +102,9 @@ class TestSaleDiscountAdvanced(TransactionCase):
             }
         )
         with Form(so) as so_form:
-            so_form.discount_ids.add(self.discount_order)
+            so_form.discount_ids.add(self.discount_order_1)
         so_form.save()
-        self.assertEquals(so.amount_total, 750, "Total amount should be 750.00")
+        self.assertEquals(so.amount_untaxed, 750, "Total amount should be 750.00")
 
         discount_ids = [(6, 0, [self.discount_line.id])]
         so = self.so_obj.with_context({"so_discount_ids": discount_ids}).create(
@@ -116,7 +119,7 @@ class TestSaleDiscountAdvanced(TransactionCase):
                             "product_id": self.ref("product.product_product_24"),
                             "name": "Line 1",
                             "product_uom_qty": 1,
-                            "price_unit": 900,
+                            "price_unit": 750,
                         },
                     )
                 ],
@@ -125,10 +128,10 @@ class TestSaleDiscountAdvanced(TransactionCase):
         with Form(so) as so_form:
             so_form.discount_ids.add(self.discount_line)
         so_form.save()
-        self.assertEquals(so.amount_total, 900, "Total amount should be 900.00")
+        self.assertEquals(so.amount_untaxed, 675, "Total amount should be 675.00")
 
     def test_next_min_base_threshold(self):
-        discount_ids = [(6, 0, [self.discount_order.id])]
+        discount_ids = [(6, 0, [self.discount_order_1.id])]
         so = self.so_obj.with_context({"so_discount_ids": discount_ids}).create(
             {
                 "partner_id": self.partner.id,
@@ -148,11 +151,11 @@ class TestSaleDiscountAdvanced(TransactionCase):
             }
         )
         with Form(so) as so_form:
-            so_form.discount_ids.add(self.discount_order)
+            so_form.discount_ids.add(self.discount_order_1)
         so_form.save()
-        self.assertEquals(so.amount_total, 1125, "Total amount should be 1125.00")
+        self.assertEquals(so.amount_untaxed, 1125, "Total amount should be 1125.00")
 
-        discount_ids = [(6, 0, [self.discount_order.id])]
+        discount_ids = [(6, 0, [self.discount_order_1.id])]
         so = self.so_obj.with_context({"so_discount_ids": discount_ids}).create(
             {
                 "partner_id": self.partner.id,
@@ -173,12 +176,12 @@ class TestSaleDiscountAdvanced(TransactionCase):
             }
         )
         with Form(so) as so_form:
-            so_form.discount_ids.add(self.discount_order)
+            so_form.discount_ids.add(self.discount_order_1)
         so_form.save()
-        self.assertEquals(so.amount_total, 1500, "Total amount should be 1500.00")
+        self.assertEquals(so.amount_untaxed, 1500, "Total amount should be 1500.00")
 
     def test_discount_out_of_date_range(self):
-        discount_ids = [(6, 0, [self.discount_order.id])]
+        discount_ids = [(6, 0, [self.discount_order_1.id])]
         so = self.so_obj.with_context({"so_discount_ids": discount_ids}).create(
             {
                 "partner_id": self.partner.id,
@@ -198,9 +201,9 @@ class TestSaleDiscountAdvanced(TransactionCase):
             }
         )
         with Form(so) as so_form:
-            so_form.discount_ids.add(self.discount_order)
+            so_form.discount_ids.add(self.discount_order_1)
         so_form.save()
-        self.assertEquals(so.amount_total, 3000, "Total amount should be 3000.00")
+        self.assertEquals(so.amount_untaxed, 3000, "Total amount should be 3000.00")
 
     def test_excluded_products(self):
         excluded_by_product = self.ref(
@@ -244,7 +247,7 @@ class TestSaleDiscountAdvanced(TransactionCase):
         )
 
     def test_exclusive_discount(self):
-        discount_ids = [(6, 0, [self.discount_order.id, self.discount_line.id])]
+        discount_ids = [(6, 0, [self.discount_order_1.id, self.discount_line.id])]
         so = self.so_obj.with_context({"so_discount_ids": discount_ids}).create(
             {
                 "partner_id": self.partner.id,
@@ -264,10 +267,102 @@ class TestSaleDiscountAdvanced(TransactionCase):
             }
         )
         with Form(so) as so_form:
-            so_form.discount_ids.add(self.discount_order)
+            so_form.discount_ids.add(self.discount_order_1)
             so_form.discount_ids.add(self.discount_line)
         so_form.save()
-        self.assertEquals(so.amount_total, 900.00, "Total amount should be 900.00")
+        self.assertEquals(so.amount_untaxed, 925.00, "Total amount should be 925.00")
+
+    def test_multiple_discounts(self):
+        # Scenario 1:
+        # - 2 discount objects type 'sale_order'
+        # - 2 sale order lines
+        # The total order volume triggers the 25% of discount object 1
+        # The second line trigger on top of this the 50% discount on the product
+        # Result:
+        # Discount: 950.00 * 0.25 + 100.00 * 0.75 = 312.50
+        # Net order amount: 737.50
+        discount_ids = [(6, 0, [self.discount_order_1.id, self.discount_order_2.id])]
+        so = self.so_obj.with_context({"so_discount_ids": discount_ids}).create(
+            {
+                "partner_id": self.partner.id,
+                "date_order": self.date_order,
+                "order_line": [
+                    (
+                        0,
+                        0,
+                        {
+                            "product_id": self.ref(
+                                "sale_discount_advanced.product_product_consultant"
+                            ),
+                            "name": "Line 1",
+                            "product_uom_qty": 1,
+                            "price_unit": 950,
+                        },
+                    ),
+                    (
+                        0,
+                        0,
+                        {
+                            "product_id": self.ref("product.product_product_24"),
+                            "name": "Line 2",
+                            "product_uom_qty": 1,
+                            "price_unit": 100,
+                        },
+                    ),
+                ],
+            }
+        )
+        with Form(so) as so_form:
+            so_form.discount_ids.add(self.discount_order_1)
+            so_form.discount_ids.add(self.discount_order_2)
+        so_form.save()
+        self.assertEquals(so.amount_untaxed, 737.50, "Total amount should be 737.50")
+
+        # Scenario 2:
+        # - 2 discount objects types 'sale_order' and 'sale_line'
+        #   The 'sale_line' discount is 'Exclusive Always'
+        # - 2 sale order lines
+        # The total order volume triggers the 25% of discount object 1
+        # The second line triggers a 75.00 amount exclusive discount on line 2
+        # Result:
+        # Discount: 950.00 * 0.25 + 75.00 = 312.50
+        # Net SO amount: 787.50
+        discount_ids = [(6, 0, [self.discount_order_1.id, self.discount_line.id])]
+        so = self.so_obj.with_context({"so_discount_ids": discount_ids}).create(
+            {
+                "partner_id": self.partner.id,
+                "date_order": self.date_order,
+                "order_line": [
+                    (
+                        0,
+                        0,
+                        {
+                            "product_id": self.ref(
+                                "sale_discount_advanced.product_product_consultant"
+                            ),
+                            "name": "Line 1",
+                            "product_uom_qty": 1,
+                            "price_unit": 950,
+                        },
+                    ),
+                    (
+                        0,
+                        0,
+                        {
+                            "product_id": self.ref("product.product_product_24"),
+                            "name": "Line 2",
+                            "product_uom_qty": 1,
+                            "price_unit": 150,
+                        },
+                    ),
+                ],
+            }
+        )
+        with Form(so) as so_form:
+            so_form.discount_ids.add(self.discount_order_1)
+            so_form.discount_ids.add(self.discount_line)
+        so_form.save()
+        self.assertEquals(so.amount_untaxed, 787.50, "Total amount should be 787.50")
 
     def test_constraints_sale_discount(self):
         with self.assertRaises(ValidationError):

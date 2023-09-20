@@ -1,5 +1,5 @@
 # Copyright (C) 2015 ICTSTUDIO (<http://www.ictstudio.eu>).
-# Copyright (C) 2016-2020 Noviat nv/sa (www.noviat.com).
+# Copyright (C) 2016-2023 Noviat nv/sa (www.noviat.com).
 # Copyright (C) 2016 Onestein (http://www.onestein.eu/).
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
@@ -250,6 +250,26 @@ class SaleDiscountRule(models.Model):
     def _onchange_product_category_ids(self):
         if self.product_category_ids:
             self.product_ids = False
+
+    def _sol_product_match(self, sol):
+        """
+        Return True when Sale Order Line matches with the
+        product filters on the rule.
+        """
+        self.ensure_one()
+        res = False
+        if self.product_ids:
+            if sol.product_id in self.product_ids:
+                res = True
+        elif self.product_category_ids:
+            if any(
+                sol.product_id._belongs_to_category(categ)
+                for categ in self.product_category_ids
+            ):
+                res = True
+        else:
+            res = True
+        return res
 
     def _matching_type_methods(self):
         """

@@ -1,5 +1,5 @@
 # Copyright (C) 2015 ICTSTUDIO (<http://www.ictstudio.eu>).
-# Copyright (C) 2016-2022 Noviat nv/sa (www.noviat.com).
+# Copyright (C) 2016-2023 Noviat nv/sa (www.noviat.com).
 # Copyright (C) 2016 Onestein (http://www.onestein.eu/).
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
@@ -165,98 +165,103 @@ class SaleDiscount(models.Model):
         return start_date <= check_date <= end_date
 
     def _calculate_discount(self, lines):  # noqa: C901
-        match = False
-        disc_pct = 0.0
-        for rule in self.rule_ids:
-            disc_amt = 0.0
-            disc_pct = 0.0
-            qty = 0.0
-            base = 0.0
-            for sol in lines:
-                if rule.product_ids:
-                    if sol.product_id not in rule.product_ids:
-                        continue
-                elif rule.product_category_ids:
-                    if not any(
-                        sol.product_id._belongs_to_category(categ)
-                        for categ in rule.product_category_ids
-                    ):
-                        continue
-                qty += sol.product_uom_qty
-                base += sol.product_uom_qty * sol.price_unit
+        result = {}
+        qty = sum([x.product_uom_qty for x in lines])
+        base = sum([x.product_uom_qty * x.price_unit for x in lines])
 
-            match = False
-            if rule.matching_type == "amount":
-                match_min = match_max = False
-                base = self._round_amt_qty(base, "min_base")
-                rule_min_base = self._round_amt_qty(rule.min_base, "min_base")
-                rule_max_base = self._round_amt_qty(rule.max_base, "min_base")
-                if rule_min_base > 0 and rule_min_base > base:
+        for sol in lines:
+            disc_amt = disc_pct = 0.0
+            for rule in self.rule_ids:
+                if not rule._sol_product_match(sol):
                     continue
-                else:
-                    match_min = True
-                if rule_max_base > 0 and rule_max_base < base:
-                    continue
-                else:
-                    match_max = True
-                match = match_min and match_max
-            elif rule.matching_type == "quantity":
-                match_min = match_max = False
-                qty = sum([x.product_uom_qty for x in lines])
-                qty = self._round_amt_qty(qty, "min_qty")
-                rule_min_qty = self._round_amt_qty(rule.min_qty, "min_qty")
-                rule_max_qty = self._round_amt_qty(rule.max_qty, "min_qty")
-                if rule_min_qty > 0 and rule_min_qty > qty:
-                    continue
-                else:
-                    match_min = True
-                if rule_max_qty > 0 and rule_max_qty < qty:
-                    continue
-                else:
-                    match_max = True
-                match = match_min and match_max
-            else:
-                method = rule._matching_type_methods().get(rule.matching_type)
-                if not method:
-                    raise UserError(
-                        _(
-                            "Programming error: no method defined for "
-                            "matching_type '%s'."
-                        )
-                        % rule.matching_type
-                    )
-                match = getattr(rule, method)(lines)
 
-            if match:
-                if rule.matching_extra != "none":
-                    method = rule._matching_extra_methods().get(rule.matching_extra)
+                rule_match = False
+                if rule.matching_type == "amount":
+                    match_min = match_max = False
+                    base = self._round_amt_qty(base, "min_base")
+                    rule_min_base = self._round_amt_qty(rule.min_base, "min_base")
+                    rule_max_base = self._round_amt_qty(rule.max_base, "min_base")
+                    if rule_min_base > 0 and rule_min_base > base:
+                        continue
+                    else:
+                        match_min = True
+                    if rule_max_base > 0 and rule_max_base < base:
+                        continue
+                    else:
+                        match_max = True
+                    rule_match = match_min and match_max
+                elif rule.matching_type == "quantity":
+                    match_min = match_max = False
+                    qty = sol.product_uom_qty
+                    qty = self._round_amt_qty(qty, "min_qty")
+                    rule_min_qty = self._round_amt_qty(rule.min_qty, "min_qty")
+                    rule_max_qty = self._round_amt_qty(rule.max_qty, "min_qty")
+                    if rule_min_qty > 0 and rule_min_qty > qty:
+                        continue
+                    else:
+                        match_min = True
+                    if rule_max_qty > 0 and rule_max_qty < qty:
+                        continue
+                    else:
+                        match_max = True
+                    rule_match = match_min and match_max
+                else:
+                    method = rule._matching_type_methods().get(rule.matching_type)
                     if not method:
                         raise UserError(
                             _(
                                 "Programming error: no method defined for "
-                                "matching_extra '%s'."
+                                "matching_type '%s'."
                             )
-                            % rule.matching_extra
+                            % rule.matching_type
                         )
-                    if not getattr(rule, method)(lines):
-                        # The extra matching condition is only applied if all
-                        # other conditions match. If the extra matching
-                        # condition returns False, then do not apply this rule.
-                        match = False
-                        continue
-                if rule.discount_type == "perc":
-                    disc_amt = base * rule.discount_pct / 100.0
-                    disc_pct = rule.discount_pct
-                else:
-                    if rule.matching_type == "quantity" and len(rule.product_ids) == 1:
-                        disc_amt = min(rule.discount_amount_unit * qty, base)
-                    else:
-                        disc_amt = min(rule.discount_amount, base)
-                    disc_pct = disc_amt / base * 100.0
-                # Do not apply any other rules for this discount.
-                break
+                    rule_match = getattr(rule, method)(sol)
 
-        return match, disc_pct
+                if rule_match:
+                    if rule.matching_extra != "none":
+                        method = rule._matching_extra_methods().get(rule.matching_extra)
+                        if not method:
+                            raise UserError(
+                                _(
+                                    "Programming error: no method defined for "
+                                    "matching_extra '%s'."
+                                )
+                                % rule.matching_extra
+                            )
+                        if not getattr(rule, method)(sol):
+                            # The extra matching condition is only applied if all
+                            # other conditions match. If the extra matching
+                            # condition returns False, then do not apply this rule.
+                            rule_match = False
+                            continue
+                    if rule.discount_type == "perc":
+                        disc_amt = base * rule.discount_pct / 100.0
+                        disc_pct = rule.discount_pct
+                    else:
+                        if (
+                            rule.matching_type == "quantity"
+                            and len(rule.product_ids) == 1
+                        ):
+                            disc_amt = min(rule.discount_amount_unit * qty, base)
+                        else:
+                            disc_amt = min(rule.discount_amount, base)
+                        disc_pct = disc_amt / base * 100.0
+                    # Do not apply any other rules for this discount.
+                    break
+
+            # Remark:
+            # Only the 'disc_amt' value is used in the code calling this method.
+            # We could hence simply the code via result[sol] = disc_amt.
+            # Returning more values facilitates the tracing when working on bugs
+            # or enhancements for this module.
+            result[sol] = {
+                "qty": qty,
+                "base": base,
+                "disc_amt": disc_amt,
+                "disc_pct": disc_pct,
+            }
+
+        return result
 
     def _round_amt_qty(self, val, field_name):
         digits = (

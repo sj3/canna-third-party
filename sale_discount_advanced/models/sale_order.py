@@ -178,26 +178,27 @@ class SaleOrder(models.Model):
             if discount.discount_base == "sale_order":
                 for so in orders:
                     so_lines = lines.filtered(lambda r: r.order_id == so)
-                    match, pct = discount._calculate_discount(so_lines)
-                    for line in so_lines:
-                        if line not in line_updates:
-                            line_updates[line] = [(discount, pct, match)]
-                        else:
-                            line_updates[line] += [(discount, pct, match)]
-            else:  # 'sale_line' or 'sale_order_group'
-                match, pct = discount._calculate_discount(lines=lines)
+                    res = discount._calculate_discount(so_lines)
+                    self._line_updates(line_updates, so_lines, discount, res)
+            elif discount.discount_base == "sale_order_group":
+                res = discount._calculate_discount(lines)
+                self._line_updates(line_updates, lines, discount, res)
+            elif discount.discount_base == "sale_line":
                 for line in lines:
-                    if line not in line_updates:
-                        line_updates[line] = [(discount, pct, match)]
-                    else:
-                        line_updates[line] += [(discount, pct, match)]
+                    res = discount._calculate_discount(line)
+                    self._line_updates(line_updates, line, discount, res)
+            elif not discount:
+                res = {x: {"disc_pct": 0.0} for x in lines}
+                self._line_updates(line_updates, lines, discount, res)
+            else:
+                raise NotImplementedError
 
         line_update_vals = {}
         for line, line_discounts in line_updates.items():
-            discount_ids = [x[0].id for x in line_discounts]
+            discount_ids = [x[0].id for x in line_discounts if x[0]]
             line_update_vals[line] = {"sale_discount_ids": [(6, 0, discount_ids)]}
             pct_sum = 0.0
-            exclusives = [x for x in line_discounts if x[0].exclusive and x[2]]
+            exclusives = [x for x in line_discounts if x[0].exclusive and x[1]]
             if exclusives:
                 exclusives.sort(key=lambda x: x[0].sequence)
                 exclusive = exclusives[0]
@@ -232,7 +233,7 @@ class SaleOrder(models.Model):
             else:
                 pct_sum = sum([x[1] for x in line_discounts])
                 pct_sum = min(pct_sum, 100.0)
-                applied_discount_ids = [x[0].id for x in line_discounts if x[2]]
+                applied_discount_ids = [x[0].id for x in line_discounts if x[0]]
                 line_update_vals[line] = {
                     "discount": pct_sum,
                     "applied_sale_discount_ids": [(6, 0, applied_discount_ids)],
@@ -257,3 +258,10 @@ class SaleOrder(models.Model):
             if so != so._origin:
                 # trigger update of lines on UI
                 so.order_line = so.order_line
+
+    def _line_updates(self, line_updates, so_lines, discount, res):
+        for line in so_lines:
+            if line not in line_updates:
+                line_updates[line] = [(discount, res[line]["disc_pct"])]
+            else:
+                line_updates[line] += [(discount, res[line]["disc_pct"])]
