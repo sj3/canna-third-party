@@ -92,7 +92,7 @@
                   </li>
                 </ul>
                 <b>Matching criteria: </b>product and amount or quantity.
-                The resulting discount can be specified as a percentage or an amount (or unit amount in case of lorder line product/quantity match).
+                The resulting discount can be specified as a percentage or an amount (or unit amount in case of order line product/quantity match).
               </p>
               <p>
                 The order of the discount rules is important. The first matching rule will be used for the discount calculation.
