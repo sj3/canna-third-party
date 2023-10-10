@@ -1,4 +1,4 @@
-# Copyright 2009-2020 Noviat.
+# Copyright 2009-2023 Noviat.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from odoo import _, api, fields, models
@@ -40,7 +40,6 @@ class AccountMove(models.Model):
             ("type", "=", self.type),
             ("commercial_partner_id", "=", self.commercial_partner_id.id),
             ("state", "=", "posted"),
-            ("invoice_payment_state", "!=", "paid"),
             ("company_id", "=", self.company_id.id),
             ("id", "!=", self.id),
         ]
@@ -62,9 +61,13 @@ class AccountMove(models.Model):
         """
         # find duplicates by date, amount
         domain = self._get_dup_domain()
-        # add supplier invoice number
+        # add supplier invoice number or payment_reference
         if self.ref:
             dom_dups = domain + [("ref", "ilike", self.ref)]
+        elif self.invoice_payment_ref:
+            dom_dups = domain + [
+                ("invoice_payment_ref", "ilike", self.invoice_payment_ref)
+            ]
         else:
             dom_dups = domain + self._get_dup_domain_extra()
         return self.search(dom_dups)
