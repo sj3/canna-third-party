@@ -6,5 +6,5 @@ odoorpc
 msgfy
 odoogap_mtd
 odoo-client-lib
-
+pyotp==2.7.0
 
