@@ -12,10 +12,10 @@ except ImportError:
                                           "Install it to support more countries, for example with `easy_install vatnumber`.")
     vatnumber = None
 
-from openerp.osv import fields, osv
+from odoo import fields, models
 
 
-class res_partner(osv.osv):
+class res_partner(models.Model):
     _inherit = 'res.partner'
 
     def check_vat_sk(self, vat):
