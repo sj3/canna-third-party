@@ -8,12 +8,16 @@ class IrAttachment(models.Model):
     _inherit = "ir.attachment"
 
     def write(self, vals):
+        recs = self
         if {x for x in vals} == {"res_id", "res_model"}:
-            dom = [
-                ("res_id", "=", vals["res_id"]),
-                ("res_model", "=", vals["res_model"]),
-                ("checksum", "=", self.checksum),
-            ]
-            if self._search(dom):
+            recs = recs.filtered(
+                lambda rec: not self.search_count([
+                    ("res_id", "=", vals["res_id"]),
+                    ("res_model", "=", vals["res_model"]),
+                    ("checksum", "=", rec.checksum),
+                ])
+            )
+            if not len(recs):
                 return True
-        return super().write(vals)
+
+        return super(IrAttachment, recs).write(vals)
