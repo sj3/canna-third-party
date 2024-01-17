@@ -120,7 +120,9 @@ class ResUsers(models.Model):
          * tuple - generated secret_code and binary qr-code
         """
         self.ensure_one()
-        key = b32encode(urandom(10))
+        key = self.secret_code_2fa
+        if not key:
+            key = b32encode(urandom(10))
         code = pyotp.totp.TOTP(key).provisioning_uri(self.login)
         img = qrcode.make(code)
         _, file_path = mkstemp()  # creating temporary file
