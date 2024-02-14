@@ -1,4 +1,4 @@
-# Copyright 2009-2022 Noviat.
+# Copyright 2009-2024 Noviat.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from odoo import _, api, models
@@ -23,6 +23,11 @@ class HrExpense(models.Model):
     def update_product(self):
         module = __name__.split("addons.")[1].split(".")[0]
         view = self.env.ref("%s.hr_expense_line_product_wizard_view_form" % module)
+        ctx = dict(
+            self.env.context,
+            default_exp_line_id=self.id,
+            default_product_id=self.product_id.id,
+        )
         return {
             "name": _("Update Product"),
             "view_type": "form",
@@ -31,5 +36,5 @@ class HrExpense(models.Model):
             "view_id": view.id,
             "target": "new",
             "type": "ir.actions.act_window",
-            "context": self.env.context,
+            "context": ctx,
         }

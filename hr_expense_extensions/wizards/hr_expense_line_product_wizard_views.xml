@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <record id="hr_expense_line_product_wizard_view_form" model="ir.ui.view">
         <field name="name">Update Product</field>
