@@ -41,7 +41,7 @@
                 <field name="product_id" />
                 <button
                     name="update_product"
-                    attrs="{'invisible': [('state', 'in', ('submit', 'approve'))]}"
+                    attrs="{'invisible': [('state', 'not in', ('reported', 'approved'))]}"
                     groups="account.group_account_manager"
                     string="Update Product"
                     type="object"
