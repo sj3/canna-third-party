@@ -8,6 +8,7 @@
             <field name="journal_id" position="after">
                 <field name="update_sheet_lines" invisible="1" />
             </field>
+            <!-- remove these buttons (on demand of C. Westerduin)
             <button name="reset_expense_sheets" position="after">
                 <button
                     name="update_approved_lines"
@@ -24,6 +25,7 @@
                     type="object"
                 />
             </button>
+            -->
             <field name="journal_id" position="attributes">
                 <attribute
                     name="domain"
@@ -45,7 +47,7 @@
                     groups="account.group_account_manager"
                     string="Update Product"
                     type="object"
-                    icon="fa-reply"
+                    icon="fa-undo"
                 />
             </xpath>
         </field>
