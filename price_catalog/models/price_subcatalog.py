@@ -26,7 +26,7 @@ class PriceSubcatalog(models.Model):
     start_date = fields.Date(copy=False, default=fields.Date.today)
     end_date = fields.Date(copy=False)
     item_ids = fields.One2many(
-        comodel_name="price.catalog.item", inverse_name="subcatalog_id"
+        comodel_name="price.catalog.item", inverse_name="subcatalog_id", copy=True
     )
     catalog_id = fields.Many2one(
         comodel_name="price.catalog", string="Price Catalog", required=True
@@ -47,6 +47,14 @@ class PriceSubcatalog(models.Model):
         ctx = self._context.copy()
         ctx["default_name"] = self.name
         ctx["default_catalog_id"] = self.catalog_id.id
+        new_subcatalog = self.copy()
+        new_catalog = []
+        for line in self.item_ids:
+            new_catalog.append((0, 0, {'product_id': line.product_id.id,
+                                       'price': line.price,
+                                       'subcatalog_id': new_subcatalog.id,
+        }))
+        ctx["default_item_ids"] = new_catalog
         return {
             "name": _("Price Subcatalog"),
             "type": "ir.actions.act_window",
