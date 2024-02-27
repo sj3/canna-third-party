@@ -18,6 +18,7 @@
     "installable": True,
     "depends": [
         "web",
+        "auth_ldap",
     ],
     "data": [
         "security/two_factor_otp_auth.xml",
