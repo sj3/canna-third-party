@@ -47,12 +47,10 @@ class PriceSubcatalog(models.Model):
         ctx = self._context.copy()
         ctx["default_name"] = self.name
         ctx["default_catalog_id"] = self.catalog_id.id
-        new_subcatalog = self.copy()
         new_catalog = []
         for line in self.item_ids:
             new_catalog.append((0, 0, {'product_id': line.product_id.id,
                                        'price': line.price,
-                                       'subcatalog_id': new_subcatalog.id,
         }))
         ctx["default_item_ids"] = new_catalog
         return {
