@@ -19,10 +19,12 @@ class AccountBankStatementLine(models.Model):
         Also for this reason we do not use _prepare_reconciliation_move()
         since that method is called after update of the sequence field.
         """
+        update_sequence = False
         if (
             not self.move_name
             and self.statement_id.journal_id.transaction_numbering == "statement"
         ):
+            update_sequence = True
             lines = self.statement_id.line_ids
             lines_done = lines.filtered(lambda r: r.move_name)
             lines_todo = lines - lines_done
@@ -56,5 +58,6 @@ class AccountBankStatementLine(models.Model):
             payment_aml_rec=payment_aml_rec,
             new_aml_dicts=new_aml_dicts,
         )
-        self.sequence = sequence
+        if update_sequence:
+            self.sequence = sequence
         return res
