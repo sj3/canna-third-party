@@ -33,6 +33,8 @@ class PriceCatalog(models.Model):
         comodel_name="price.subcatalog", inverse_name="catalog_id"
     )
 
+    is_marketing_pricelist = fields.Boolean(default=False, tracking=True,string="Is Marketing Pricelist")
+
     def _get_items(self, product_id, date_order):
         """Get the catalog items, ordered by the related subcatalog's sequence
         for the provided product and dates.

@@ -44,6 +44,7 @@
           </div>
           <group name="main">
             <field name="name"/>
+            <field name="is_marketing_pricelist"/>
             <field name="currency_id"/>
             <field name="catalog_type" readonly="1" force_save="1"/>
           </group>
