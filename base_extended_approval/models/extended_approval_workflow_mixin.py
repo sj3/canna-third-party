@@ -13,8 +13,7 @@ class ExtendedApprovalWorkflowMixin(models.AbstractModel):
     """
 
     _name = "extended.approval.workflow.mixin"
-    _inherit = ["extended.approval.mixin", "extended.approval.state_field.mixin"]
-
+    _inherit = "extended.approval.state.field.mixin"
     _description = "Mixin class for extended approval workflow"
 
     # The state which, when written to ea_state_field triggers approval
