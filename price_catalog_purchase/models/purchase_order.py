@@ -2,6 +2,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo import api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class PurchaseOrder(models.Model):
@@ -42,6 +43,7 @@ class PurchaseOrder(models.Model):
                     line.product_id, self.date_order
                 )
 
+
 class PurchaseOrderLine(models.Model):
     """Override PurchaseOrderLine for catalog prices."""
 
@@ -54,4 +56,18 @@ class PurchaseOrderLine(models.Model):
         self.price_unit = self.order_id.price_catalog_id.get_price(
             self.product_id, self.order_id.date_order
         )
+        return res
+
+    @api.onchange('product_id')
+    def onchange_product_id(self):
+        res = super().onchange_product_id()
+        if not self.product_id:
+            return
+        if not self.product_id.type == 'service':
+            price_exists = self.order_id.price_catalog_id.get_price(
+                self.product_id, self.order_id.date_order
+            )
+            if price_exists is False:
+                raise ValidationError("You Cant Select this Product."
+                                      "Product is not added in this Pricelist")
         return res
