@@ -42,9 +42,10 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
     def _compute_approval_allowed(self):
         for rec in self:
-            rec.approval_allowed = not rec.next_approver or any(
-                [a in self.env.user.groups_id for a in rec.next_approver]
-            )
+            rec.approval_allowed = (
+                not rec.next_approver
+                or any([a in self.env.user.groups_id for a in rec.next_approver])
+            ) and rec._get_applicable_approval_flow()
 
     @api.model
     def _search_approval_allowed(self, operator, value):
