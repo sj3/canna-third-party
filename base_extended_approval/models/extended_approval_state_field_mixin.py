@@ -9,8 +9,8 @@ class ExtendedApprovalStateFieldMixin(models.AbstractModel):
     """
     This mixin defines the state field used for the extended approval.
     """
-
-    _name = "extended.approval.state_field.mixin"
+    _name = "extended.approval.state.field.mixin"
+    _inherit = "extended.approval.mixin"
     _description = "Mixin class for extended approval state field"
 
     # field used to track the approval flow. Must be a selection field
@@ -27,6 +27,7 @@ class ExtendedApprovalStateFieldMixin(models.AbstractModel):
         the workflow_signal or at the end if there is no workflow_signal is the
         selection
         """
+
         super()._setup_complete()
         field = self.fields_get([self.ea_state_field]).get(self.ea_state_field)
         if field:

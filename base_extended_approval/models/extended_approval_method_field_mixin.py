@@ -11,5 +11,5 @@ class ExtendedApprovalMethodFieldMixin(models.AbstractModel):
     """
 
     _name = "extended.approval.method.field.mixin"
-    _inherit = ["extended.approval.state_field.mixin", "extended.approval.method.mixin"]
+    _inherit = ["extended.approval.state.field.mixin", "extended.approval.method.mixin"]
     _description = "Mixin class for extended approval button with field"

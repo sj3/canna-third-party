@@ -116,3 +116,10 @@ selection field.
 
 The State selection field will automatically have an approval stated added
 (after the start state).
+
+--------------------------------
+extended.approval.workflow.mixin
+--------------------------------
+
+This mixin triggers the approval workflow when setting the 'ea_state_field'
+to the value defined into via the 'ea_signal' class attribute.
