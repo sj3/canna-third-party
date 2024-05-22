@@ -18,12 +18,13 @@ class SaleOrderLine(models.Model):
         if not self.product_id:
             return
         if not self.product_id.type == 'service':
-            price_exists = self.order_id.price_catalog_id.get_price(
-                self.product_id, self.order_id.date_order
-            )
-            if price_exists is False:
-                raise ValidationError("You Cant Select this Product."
-                                      "Product is not added in this Pricelist")
+            if "P0" not in str(self.product_id.default_code):
+                price_exists = self.order_id.price_catalog_id.get_price(
+                    self.product_id, self.order_id.date_order
+                )
+                if price_exists is False:
+                    raise ValidationError("You Cant Select this Product."
+                                          "Product is not added in this Pricelist")
         return res
 
     def _get_display_price(self, product):
