@@ -1,7 +1,7 @@
 # Copyright 2020 Onestein B.V.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import api, fields, models
+from odoo import api, fields, models,_
 from odoo.exceptions import ValidationError
 
 
@@ -39,9 +39,19 @@ class PurchaseOrder(models.Model):
             self.currency_id = self.partner_id.property_purchase_currency_id.id or self.env.company.currency_id.id
         if self.price_catalog_id:
             for line in self.order_line:
+                if not line.product_id.type == 'service':
+                    if "P0" not in str(line.product_id.default_code):
+                        price_exists = self.price_catalog_id.get_price(
+                            line.product_id, self.date_order
+                        )
+                        if not price_exists:
+                            raise ValidationError(_("%s : Product is not added in the Pricelist") % (line.product_id.name))
                 line.price_unit = self.price_catalog_id.get_price(
                     line.product_id, self.date_order
                 )
+        else:
+            if self.order_line:
+                raise ValidationError(_("Product is not added in the Pricelist"))
 
 
 class PurchaseOrderLine(models.Model):
@@ -56,19 +66,4 @@ class PurchaseOrderLine(models.Model):
         self.price_unit = self.order_id.price_catalog_id.get_price(
             self.product_id, self.order_id.date_order
         )
-        return res
-
-    @api.onchange('product_id')
-    def onchange_product_id(self):
-        res = super().onchange_product_id()
-        if not self.product_id:
-            return
-        if not self.product_id.type == 'service':
-            if "P0" not in str(self.product_id.default_code):
-                price_exists = self.order_id.price_catalog_id.get_price(
-                    self.product_id, self.order_id.date_order
-                )
-                if price_exists is False:
-                    raise ValidationError("You Cant Select this Product."
-                                          "Product is not added in this Pricelist")
         return res
