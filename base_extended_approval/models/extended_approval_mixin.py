@@ -144,6 +144,7 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
         step = self._get_next_approval_step()
         if not step:
+            self.current_step = step
             return False
 
         prev_step = False
