@@ -1,25 +1,28 @@
-# -*- coding: utf-8 -*-
 # Copyright 2019 Onestein (<https://www.onestein.eu>)
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 import logging
+
+from odoo import models
+
 _logger = logging.getLogger(__name__)
 
 try:
     import vatnumber
 except ImportError:
-    _logger.warning("VAT validation partially unavailable because the `vatnumber` Python library cannot be found. "
-                                          "Install it to support more countries, for example with `easy_install vatnumber`.")
+    _logger.warning(
+        "VAT validation partially unavailable because the `vatnumber` "
+        "Python library cannot be found. "
+        "Install it to support more countries, for example with `easy_install vatnumber`."
+    )
     vatnumber = None
-
-from odoo import fields, models
 
 
 class res_partner(models.Model):
-    _inherit = 'res.partner'
+    _inherit = "res.partner"
 
     def check_vat_sk(self, vat):
-        '''
+        """
         Check Slovakia VAT number.
         VAT format: [C1 C2 C3 C4 C5 C6 C7 C8 C9 C10]
           Where:
@@ -29,7 +32,8 @@ class res_partner(models.Model):
             C3: One of 2, 3, 4, 7, 8, 9
           Rules:
             [C1 C2 C3 C4 C5 C6 C7 C8 C9 C10] modulo 11 = 0
-        '''
+        """
+
         def check_vat_ch_match(vat):
             if len(vat) != 10:
                 return False
@@ -45,8 +49,8 @@ class res_partner(models.Model):
         if not check_vat_ch_match(vat):
             _logger.info("Slovakia VAT number: regex not OK")
             if vatnumber:
-                check_func = getattr(vatnumber, 'check_vat_sk', None)
+                check_func = getattr(vatnumber, "check_vat_sk", None)
                 return check_func(vat)
             return False
-        #digits = filter(lambda s: s.isdigit(), vat)
+        # digits = filter(lambda s: s.isdigit(), vat)
         return int(vat) % 11 == 0.0
