@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <template
+        id="assets_backend_attachment"
+        name="attachment assets"
+        inherit_id="mail.assets_backend"
+    >
+        <xpath expr="." position="inside">
+            <script
+                type="text/javascript"
+                src="/web_formview_chatter_attachment/static/src/js/form_renderer.js"
+            />
+        </xpath>
+    </template>
+
+</odoo>
