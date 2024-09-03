@@ -38,7 +38,6 @@ odoo.define("canna_kyc_document.FormRenderer", function (require) {
                                         self.chatter.$el,
                                         node
                                     );
-                                    console.log("self=", self);
                                     if (options.open_attachments) {
                                         self.chatter._onClickAttachmentButton();
                                     }
