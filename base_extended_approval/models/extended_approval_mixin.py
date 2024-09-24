@@ -104,18 +104,30 @@ class ExtendedApprovalMixin(models.AbstractModel):
     def _get_applicable_approval_flow(self):
         self.ensure_one()
 
-        flows = self.env["extended.approval.flow"].search(
+        if self.current_step:
+            return self.current_step.flow_id
+        
+        flows = self._get_applicable_approval_flows()
+        if len(flows):
+            return flows[0]
+        
+        return self.env["extended.approval.flow"]
+
+    def _get_applicable_approval_flows(self):
+        self.ensure_one()
+        
+        applicable_flows = self.env["extended.approval.flow"].search(
             [("model", "=", self._name)], order="sequence"
         )
-        for c_flow in flows:
-            if self.search(
+        flows = applicable_flows.filtered(lambda c_flow: len(
+            self.search(
                 [("id", "in", self._ids)] + safe_eval(c_flow.domain)
                 if c_flow.domain
                 else []
-            ):
-                return c_flow
-        return False
-
+            ))
+        )
+        return flows
+    
     def _get_next_approval_step(self):
         self.ensure_one()
 

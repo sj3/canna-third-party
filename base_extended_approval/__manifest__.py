@@ -9,6 +9,6 @@
     "author": "Onestein, Noviat",
     "category": "base",
     "depends": ["base", "account"],  # necessary for menu placement
-    "data": ["views/base_extended_approval.xml", "security/ir.model.access.csv"],
+    "data": ["views/base_extended_approval.xml", "wizards/wizard_change_approval_flow_views.xml", "security/ir.model.access.csv"],
     "installable": True,
 }
