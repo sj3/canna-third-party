@@ -51,7 +51,9 @@ class PurchaseOrderLine(models.Model):
     def _onchange_quantity(self):
         """Override method to use catalog prices instead of price lists."""
         res = super()._onchange_quantity()
-        self.price_unit = self.order_id.price_catalog_id.get_price(
+        price = self.order_id.price_catalog_id.get_price(
             self.product_id, self.order_id.date_order
         )
+        if price is not False:
+            self.price_unit = price
         return res
