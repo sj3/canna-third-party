@@ -69,7 +69,7 @@ class PriceCatalog(models.Model):
         """
         if not self or not product_id:
             return False
-        
+
         items = self._get_items(
             product_id,
             date_order.date() if isinstance(date_order, datetime) else date_order

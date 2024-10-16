@@ -14,7 +14,7 @@ class SaleOrderLine(models.Model):
     def _get_display_price(self, product):
         """Override to use price catalogs instead of pricelists."""
         price = self.order_id.price_catalog_id.get_price(
-            self.product_id, self.order_id.date_order
+            product, self.order_id.date_order
         )
         if price is False:
             price = super()._get_display_price(product)
