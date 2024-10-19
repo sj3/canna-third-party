@@ -11,6 +11,10 @@
                 type="text/javascript"
                 src="/web_formview_chatter_attachment/static/src/js/form_renderer.js"
             />
+            <script
+                type="text/javascript"
+                src="/web_formview_chatter_attachment/static/src/js/attachment_box.js"
+            />
         </xpath>
     </template>
 
