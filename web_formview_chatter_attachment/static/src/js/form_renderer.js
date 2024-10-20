@@ -1,6 +1,6 @@
 /* Copyright 2009-2024 Noviat (www.noviat.com) */
 
-odoo.define("canna_kyc_document.FormRenderer", function (require) {
+odoo.define("web_formview_chatter_attachment.FormRenderer", function (require) {
     "use strict";
 
     var Chatter = require("mail.Chatter");
@@ -8,6 +8,7 @@ odoo.define("canna_kyc_document.FormRenderer", function (require) {
     var py_utils = require("web.py_utils");
 
     FormRenderer.include({
+
         _renderNode: function (node) {
             var self = this;
             if (
@@ -44,6 +45,7 @@ odoo.define("canna_kyc_document.FormRenderer", function (require) {
                                     if (options.hide_attachments_topbar) {
                                         self.chatter._$topbar.hide();
                                     }
+                                    self.chatter.options = options;
                                 })
                         );
                         return $temporaryParentDiv;

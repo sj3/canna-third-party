@@ -19,7 +19,7 @@ The attachment handling widget is rendered when adding the following div to your
 
        <div class="oe_chatter"
             style="display:block;"
-            options="{'render_attachments': True, 'open_attachments': True, 'hide_attachments_topbar': True,}"
+            options="{'render_attachments': True, 'open_attachments': True, 'hide_attachments_topbar': True, 'readonly': True}"
        />
 
 |
@@ -30,6 +30,7 @@ Widget options
 * render_attachments: set to True to show the attachment widget
 * open_attachments: set to True to open the attachment widget
 * hide_attachments_topbar: set to True to hide the attachment topbar
+* readonly: set to True to hide the attachment add and delete buttons
 
 |
 
