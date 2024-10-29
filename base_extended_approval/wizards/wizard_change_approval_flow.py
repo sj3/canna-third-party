@@ -6,7 +6,7 @@ from odoo.exceptions import UserError
 from odoo.tools.safe_eval import safe_eval
 
 
-class ExtendedApprovalMixin(models.TransientModel):
+class WizardChangeApprovalFlow(models.TransientModel):
     _name = "wizard.change.approval.flow"
     _description = "Change approval flow"
 
