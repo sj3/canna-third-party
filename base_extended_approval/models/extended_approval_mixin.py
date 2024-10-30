@@ -2,6 +2,8 @@
 # Copyright (C) Noviat 2020
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
+import json
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools.safe_eval import safe_eval
@@ -23,7 +25,22 @@ class ExtendedApprovalMixin(models.AbstractModel):
         copy=False,
         string="Current Approval Step",
     )
-    flow_name = fields.Char(related="current_step.flow_id.name", string="Flow")
+
+    current_flow = fields.Many2one(
+        comodel_name="extended.approval.flow",
+        compute="_compute_current_flow",
+        inverse="_inverse_current_flow",
+        string="Current Approval Flow",
+        domain="current_flow_domain"
+    )
+    current_flow_domain = fields.Char(
+        compute="_compute_current_flow_domain",
+        readonly=True,
+        )
+    selected_flow = fields.Many2one(
+        comodel_name="extended.approval.flow",
+        readonly=True,
+    )
 
     approval_history_ids = fields.One2many(
         comodel_name="extended.approval.history",
@@ -39,6 +56,23 @@ class ExtendedApprovalMixin(models.AbstractModel):
         search="_search_approval_allowed",
         help="This option is set if you are allowed to approve.",
     )
+
+    def _compute_current_flow(self):
+        for rec in self:
+            if rec.current_step:
+                rec.current_flow = rec.current_step.flow_id
+            else:
+                rec.current_flow = rec.selected_flow
+
+    def _inverse_current_flow(self):
+        for rec in self:
+            if rec.current_step:
+                rec.ea_cancel_approval()
+            rec.selected_flow = rec.current_flow
+
+    def _compute_current_flow_domain(self):
+        for rec in self:
+            rec.current_flow_domain = json.dumps([('id', 'in', rec._get_applicable_approval_flows()._ids)])
 
     def _compute_approval_allowed(self):
         for rec in self:
@@ -69,10 +103,7 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
     @api.model
     def recompute_all_next_approvers(self):
-        if hasattr(self, "ea_state_field") and hasattr(self, "ea_start_state"):
-            self.search(
-                [(self.ea_state_field, "in", [self.ea_start_state])]
-            )._recompute_next_approvers()
+        self.search([('current_step', '!=', False)])._recompute_next_approvers()
 
     def ea_retry_approval(self):
         for rec in self:
@@ -82,14 +113,10 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
     def _recompute_next_approvers(self):
         for rec in self:
-            completed = (
-                self.env["extended.approval.history"]
-                .search([("source", "=", "{},{}".format(rec._name, rec.id))])
-                .mapped("step_id")
-            )
+            completed = rec._get_completed_steps()
             if not completed:
                 # re-evaluate current step, but not during approval ?
-                step = rec._get_next_approval_step()
+                step = rec._get_next_approval_step(new_flow=True)
                 if step and step != rec.current_step:
                     rec.with_context(approval_flow_update=True).current_step = step
 
@@ -101,21 +128,37 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
         return r
 
-    def _get_applicable_approval_flow(self):
+    def _get_completed_steps(self):
+        self.ensure_one()
+        # computed field approval_history_ids is not refreshed, so search
+        return (
+            self.env["extended.approval.history"]
+            .search([("source", "=", "{},{}".format(self._name, self.id))])
+            .mapped("step_id")
+        )
+
+    def _get_applicable_approval_flow(self, new_flow=False):
         self.ensure_one()
 
-        if self.current_step:
+        if not new_flow and self.current_step:
             return self.current_step.flow_id
-        
+
+        return self._get_new_applicable_approval_flow()
+
+    def _get_new_applicable_approval_flow(self):
         flows = self._get_applicable_approval_flows()
+
+        if self.selected_flow in flows:
+            return self.selected_flow
+
         if len(flows):
             return flows[0]
-        
+
         return self.env["extended.approval.flow"]
 
     def _get_applicable_approval_flows(self):
         self.ensure_one()
-        
+
         applicable_flows = self.env["extended.approval.flow"].search(
             [("model", "=", self._name)], order="sequence"
         )
@@ -127,20 +170,15 @@ class ExtendedApprovalMixin(models.AbstractModel):
             ))
         )
         return flows
-    
-    def _get_next_approval_step(self):
+
+    def _get_next_approval_step(self, new_flow=False):
         self.ensure_one()
 
-        flow = self._get_applicable_approval_flow()
+        flow = self._get_applicable_approval_flow(new_flow=new_flow)
         if not flow:
             return False
 
-        # computed field approval_history_ids is not refreshed, so search
-        completed = (
-            self.env["extended.approval.history"]
-            .search([("source", "=", "{},{}".format(self._name, self.id))])
-            .mapped("step_id")
-        )
+        completed = self._get_completed_steps()
         for step in flow.steps:
             if step not in completed and step.is_applicable(self):
                 return step

@@ -61,3 +61,10 @@ class ExtendedApprovalStateFieldMixin(models.AbstractModel):
             self.write({self.ea_state_field: self.ea_state})
 
         return r
+
+    @api.model
+    def recompute_all_next_approvers(self):
+        if hasattr(self, "ea_state_field") and hasattr(self, "ea_start_state"):
+            self.search(
+                [(self.ea_state_field, "in", [self.ea_start_state])]
+            )._recompute_next_approvers()

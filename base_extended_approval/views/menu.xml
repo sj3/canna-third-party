@@ -1,0 +1,41 @@
+<odoo>
+
+    <menuitem
+        name="Extended Approval"
+        id="menu_extended_approval_config"
+        sequence="4"
+        parent="account.menu_finance_configuration"
+    />
+
+    <menuitem
+        id="menu_extended_approval_condition"
+        action="action_extended_approval_condition_form"
+        parent="menu_extended_approval_config"
+        groups="base.group_erp_manager"
+        sequence="10"
+    />
+
+    <menuitem
+        id="menu_extended_approval_step"
+        action="action_extended_approval_step_form"
+        parent="menu_extended_approval_config"
+        groups="base.group_erp_manager"
+        sequence="20"
+    />
+    <menuitem
+        id="menu_extended_approval_flow"
+        action="action_extended_approval_flow_form"
+        parent="menu_extended_approval_config"
+        groups="base.group_erp_manager"
+        sequence="30"
+    />
+
+    <menuitem
+        id="extended_approval_recompute_menu"
+        action="wizard_recompute_approval_flow_action"
+        parent="menu_extended_approval_config"
+        groups="base.group_erp_manager"
+        sequence="10"
+    />
+
+</odoo>
