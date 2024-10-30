@@ -31,15 +31,13 @@ class ExtendedApprovalMixin(models.AbstractModel):
         compute="_compute_current_flow",
         inverse="_inverse_current_flow",
         string="Current Approval Flow",
-        domain="current_flow_domain"
+        domain="current_flow_domain",
     )
     current_flow_domain = fields.Char(
-        compute="_compute_current_flow_domain",
-        readonly=True,
-        )
+        compute="_compute_current_flow_domain", readonly=True
+    )
     selected_flow = fields.Many2one(
-        comodel_name="extended.approval.flow",
-        readonly=True,
+        comodel_name="extended.approval.flow", readonly=True
     )
 
     approval_history_ids = fields.One2many(
@@ -72,7 +70,9 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
     def _compute_current_flow_domain(self):
         for rec in self:
-            rec.current_flow_domain = json.dumps([('id', 'in', rec._get_applicable_approval_flows()._ids)])
+            rec.current_flow_domain = json.dumps(
+                [("id", "in", rec._get_applicable_approval_flows()._ids)]
+            )
 
     def _compute_approval_allowed(self):
         for rec in self:
@@ -103,7 +103,7 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
     @api.model
     def recompute_all_next_approvers(self):
-        self.search([('current_step', '!=', False)])._recompute_next_approvers()
+        self.search([("current_step", "!=", False)])._recompute_next_approvers()
 
     def ea_retry_approval(self):
         for rec in self:
@@ -118,7 +118,9 @@ class ExtendedApprovalMixin(models.AbstractModel):
                 # re-evaluate current step, but not during approval ?
                 step = rec._get_next_approval_step(new_flow=True)
                 if step and step != rec.current_step:
-                    rec.with_context(approval_flow_update=True).sudo().current_step = step
+                    rec.with_context(
+                        approval_flow_update=True
+                    ).sudo().current_step = step
 
     def write(self, values):
         r = super().write(values)
@@ -162,12 +164,14 @@ class ExtendedApprovalMixin(models.AbstractModel):
         applicable_flows = self.env["extended.approval.flow"].search(
             [("model", "=", self._name)], order="sequence"
         )
-        flows = applicable_flows.filtered(lambda c_flow: len(
-            self.search(
-                [("id", "in", self._ids)] + safe_eval(c_flow.domain)
-                if c_flow.domain
-                else []
-            ))
+        flows = applicable_flows.filtered(
+            lambda c_flow: len(
+                self.search(
+                    [("id", "in", self._ids)] + safe_eval(c_flow.domain)
+                    if c_flow.domain
+                    else []
+                )
+            )
         )
         return flows
 

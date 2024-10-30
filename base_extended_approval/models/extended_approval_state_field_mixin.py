@@ -9,6 +9,7 @@ class ExtendedApprovalStateFieldMixin(models.AbstractModel):
     """
     This mixin defines the state field used for the extended approval.
     """
+
     _name = "extended.approval.state.field.mixin"
     _inherit = "extended.approval.mixin"
     _description = "Mixin class for extended approval state field"

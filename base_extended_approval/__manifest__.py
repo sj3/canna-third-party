@@ -8,7 +8,16 @@
     "license": "AGPL-3",
     "author": "Onestein, Noviat",
     "category": "base",
-    "depends": ["base", "account", "web_domain_field"],  # account necessary for menu placement
-    "data": ["views/base_extended_approval.xml", "wizards/wizard_recompute_approval_flow_views.xml", "views/menu.xml", "security/ir.model.access.csv"],
+    "depends": [
+        "base",
+        "account",
+        "web_domain_field",
+    ],  # account necessary for menu placement
+    "data": [
+        "views/base_extended_approval.xml",
+        "wizards/wizard_recompute_approval_flow_views.xml",
+        "views/menu.xml",
+        "security/ir.model.access.csv",
+    ],
     "installable": True,
 }
