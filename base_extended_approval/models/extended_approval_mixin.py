@@ -58,14 +58,14 @@ class ExtendedApprovalMixin(models.AbstractModel):
     )
 
     def _compute_current_flow(self):
-        for rec in self:
+        for rec in self.sudo():
             if rec.current_step:
                 rec.current_flow = rec.current_step.flow_id
             else:
                 rec.current_flow = rec.selected_flow
 
     def _inverse_current_flow(self):
-        for rec in self:
+        for rec in self.sudo():
             if rec.current_step:
                 rec.ea_cancel_approval()
             rec.selected_flow = rec.current_flow
@@ -76,7 +76,7 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
     def _compute_approval_allowed(self):
         for rec in self:
-            rec.approval_allowed = (
+            rec.sudo().approval_allowed = (
                 not rec.next_approver
                 or any([a in self.env.user.groups_id for a in rec.next_approver])
             ) and rec._get_applicable_approval_flow()
@@ -109,7 +109,7 @@ class ExtendedApprovalMixin(models.AbstractModel):
         for rec in self:
             step = rec._get_next_approval_step()
             if step != rec.current_step:
-                rec.with_context(approval_flow_update=True).current_step = step
+                rec.with_context(approval_flow_update=True).sudo().current_step = step
 
     def _recompute_next_approvers(self):
         for rec in self:
@@ -118,7 +118,7 @@ class ExtendedApprovalMixin(models.AbstractModel):
                 # re-evaluate current step, but not during approval ?
                 step = rec._get_next_approval_step(new_flow=True)
                 if step and step != rec.current_step:
-                    rec.with_context(approval_flow_update=True).current_step = step
+                    rec.with_context(approval_flow_update=True).sudo().current_step = step
 
     def write(self, values):
         r = super().write(values)
@@ -194,14 +194,14 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
         step = self._get_next_approval_step()
         if not step:
-            self.current_step = step
+            self.sudo().current_step = step
             return False
 
         prev_step = False
         while step and step != prev_step:
             prev_step = step
             if any([g in self.env.user.groups_id for g in step.group_ids]):
-                self.env["extended.approval.history"].create(
+                self.env["extended.approval.history"].sudo().create(
                     {
                         "approver_id": self.env.user.id,
                         "source": "{},{}".format(self._name, self.id),
@@ -212,7 +212,7 @@ class ExtendedApprovalMixin(models.AbstractModel):
                 # move to next step
                 step = self._get_next_approval_step()
 
-        self.current_step = step
+        self.sudo().current_step = step
         if step:
             return {
                 "warning": {
@@ -227,7 +227,7 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
     def ea_cancel_approval(self):
         self.approval_history_ids.sudo().write({"active": False})
-        self.write({"current_step": False})
+        self.sudo().write({"current_step": False})
         return {}
 
     def ea_abort_approval(self):

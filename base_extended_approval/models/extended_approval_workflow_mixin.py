@@ -33,7 +33,7 @@ class ExtendedApprovalWorkflowMixin(models.AbstractModel):
                         with registry(self.env.cr.dbname).cursor() as new_cr:
                             new_env = api.Environment(
                                 new_cr, self.env.uid, self.env.context
-                            )
+                            ).sudo()
                             new_rec = rec.with_env(new_env)
                             r = new_rec.approve_step()
 

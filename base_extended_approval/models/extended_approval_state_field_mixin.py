@@ -48,7 +48,7 @@ class ExtendedApprovalStateFieldMixin(models.AbstractModel):
 
     def ea_abort_approval(self):
         super().ea_abort_approval()
-        self.write({self.ea_state_field: self.ea_start_state})
+        self.sudo().write({self.ea_state_field: self.ea_start_state})
         return {}
 
     def approve_step(self):
@@ -56,9 +56,9 @@ class ExtendedApprovalStateFieldMixin(models.AbstractModel):
         if r is False:
             # reset state to start_state after approval, because
             # eg ocb / purchase button_confirm checks it
-            self.write({self.ea_state_field: self.ea_start_state})
+            self.sudo().write({self.ea_state_field: self.ea_start_state})
         else:
-            self.write({self.ea_state_field: self.ea_state})
+            self.sudo().write({self.ea_state_field: self.ea_state})
 
         return r
 
