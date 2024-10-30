@@ -23,8 +23,8 @@ class SaleOrder(models.Model):
                 )
         return super().approve_step()
 
-    def _get_applicable_approval_flow(self):
+    def _get_applicable_approval_flow(self, *args, **kwargs):
         if self.sale_order_group_id:
             return False
 
-        return super()._get_applicable_approval_flow()
+        return super()._get_applicable_approval_flow(*args, **kwargs)
