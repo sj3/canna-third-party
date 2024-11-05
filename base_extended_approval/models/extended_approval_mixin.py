@@ -30,7 +30,7 @@ class ExtendedApprovalMixin(models.AbstractModel):
         comodel_name="extended.approval.flow",
         compute="_compute_current_flow",
         inverse="_inverse_current_flow",
-        string="Current Approval Flow",
+        string="Approval Flow",
         domain="current_flow_domain",
     )
     current_flow_domain = fields.Char(
