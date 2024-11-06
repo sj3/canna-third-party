@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
     <record model="ir.ui.view" id="view_extended_approval_step_form">
@@ -61,6 +62,7 @@
                         <field name="sequence" />
                         <field name="model" />
                         <field name="domain" />
+                        <field name="active" />
                         <field name="steps">
                             <tree string="steps">
                                 <field name="sequence" widget="handle" />

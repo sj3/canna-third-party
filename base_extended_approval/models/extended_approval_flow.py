@@ -21,6 +21,7 @@ class ExtendedApprovalFlow(models.Model):
     steps = fields.One2many(
         comodel_name="extended.approval.step", inverse_name="flow_id", string="Steps"
     )
+    active = fields.Boolean(default=True)
 
     def get_applicable_models(self):
         return [self.model]
