@@ -37,7 +37,7 @@ class ExtendedApprovalMixin(models.AbstractModel):
     current_flow_domain = fields.Char(
         compute="_compute_current_flow_domain",
         compute_sudo=True,
-        readonly=True
+        readonly=True,
     )
     selected_flow = fields.Many2one(
         comodel_name="extended.approval.flow", readonly=True
@@ -80,6 +80,7 @@ class ExtendedApprovalMixin(models.AbstractModel):
                 rec.ea_cancel_approval()
             rec.selected_flow = rec.current_flow
 
+    @api.depends("current_flow")
     def _compute_current_flow_domain(self):
         for rec in self:
             rec.current_flow_domain = json.dumps(
@@ -177,20 +178,12 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
     def _get_applicable_approval_flows(self):
         self.ensure_one()
-
         applicable_flows = self.env["extended.approval.flow"].search(
             [("model", "=", self._name)], order="sequence"
         )
-        flows = applicable_flows.filtered(
-            lambda c_flow: len(
-                self.search(
-                    [("id", "in", self._ids)] + safe_eval(c_flow.domain)
-                    if c_flow.domain
-                    else []
-                )
-            )
+        return applicable_flows.filtered(
+            lambda r: self.filtered_domain(safe_eval(r.domain or "[]"))
         )
-        return flows
 
     def _get_next_approval_step(self, new_flow=False):
         self.ensure_one()
@@ -249,10 +242,12 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
     def ea_cancel_approval(self):
         self.approval_history_ids.sudo().write({"active": False})
-        self.sudo().write({
-            "current_step": False,
-            "approver_ids": False,
-        })
+        self.sudo().write(
+            {
+                "current_step": False,
+                "approver_ids": False,
+            }
+        )
         return {}
 
     def ea_abort_approval(self):

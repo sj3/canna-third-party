@@ -1,5 +1,5 @@
 # Copyright (C) Onestein 2019-2020
-# Copyright (C) Noviat 2020
+# Copyright (C) Noviat 2020-2024
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo import api, fields, models
@@ -40,9 +40,7 @@ class ExtendedApprovalCondition(models.Model):
         return True
 
     def _is_applicable_domain(self, record):
-        return record.search(
-            [("id", "in", record._ids)] + safe_eval(self.domain) if self.domain else []
-        )
+        return record.filtered_domain(safe_eval(self.domain or "[]"))
 
     def _is_applicable_expression(self, record):
         return safe_eval(self.domain, {"record": record})
