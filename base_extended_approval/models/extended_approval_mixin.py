@@ -29,12 +29,15 @@ class ExtendedApprovalMixin(models.AbstractModel):
     current_flow = fields.Many2one(
         comodel_name="extended.approval.flow",
         compute="_compute_current_flow",
+        compute_sudo=True,
         inverse="_inverse_current_flow",
         string="Approval Flow",
         domain="current_flow_domain",
     )
     current_flow_domain = fields.Char(
-        compute="_compute_current_flow_domain", readonly=True
+        compute="_compute_current_flow_domain",
+        compute_sudo=True,
+        readonly=True
     )
     selected_flow = fields.Many2one(
         comodel_name="extended.approval.flow", readonly=True
@@ -43,6 +46,7 @@ class ExtendedApprovalMixin(models.AbstractModel):
     approval_history_ids = fields.One2many(
         comodel_name="extended.approval.history",
         compute="_compute_history_ids",
+        compute_sudo=True,
         readonly=True,
         copy=False,
         string="Approval History",
@@ -51,8 +55,16 @@ class ExtendedApprovalMixin(models.AbstractModel):
     approval_allowed = fields.Boolean(
         string="Approval allowed",
         compute="_compute_approval_allowed",
+        compute_sudo=True,
         search="_search_approval_allowed",
         help="This option is set if you are allowed to approve.",
+    )
+    approver_ids = fields.Many2many(
+        string="Approvers",
+        comodel_name="res.users",
+        compute="_compute_approver_ids",
+        store=True,
+        copy=False,
     )
 
     def _compute_current_flow(self):
@@ -100,6 +112,11 @@ class ExtendedApprovalMixin(models.AbstractModel):
             rec.approval_history_ids = self.env["extended.approval.history"].search(
                 [("source", "=", "{},{}".format(rec._name, rec.id))]
             )
+
+    @api.depends("approval_history_ids")
+    def _compute_approver_ids(self):
+        for rec in self:
+            rec.approver_ids = rec.approval_history_ids.mapped("approver_id")
 
     @api.model
     def recompute_all_next_approvers(self):
@@ -212,6 +229,7 @@ class ExtendedApprovalMixin(models.AbstractModel):
                         "step_id": step.id,
                     }
                 )
+                self.sudo().approver_ids += self.env.user
 
                 # move to next step
                 step = self._get_next_approval_step()
@@ -231,7 +249,10 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
     def ea_cancel_approval(self):
         self.approval_history_ids.sudo().write({"active": False})
-        self.sudo().write({"current_step": False})
+        self.sudo().write({
+            "current_step": False,
+            "approver_ids": False,
+        })
         return {}
 
     def ea_abort_approval(self):
