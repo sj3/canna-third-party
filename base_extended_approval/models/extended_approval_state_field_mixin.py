@@ -1,5 +1,5 @@
 # Copyright (C) Onestein 2019-2020
-# Copyright (C) Noviat 2020-2022
+# Copyright (C) Noviat 2020-2024
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo import api, models
@@ -49,7 +49,8 @@ class ExtendedApprovalStateFieldMixin(models.AbstractModel):
 
     def ea_abort_approval(self):
         super().ea_abort_approval()
-        self.sudo().write({self.ea_state_field: self.ea_start_state})
+        for rec in self:
+            self.sudo().write({self.ea_state_field: rec.has_approval_flow and self.ea_start_state})
         return {}
 
     def approve_step(self):

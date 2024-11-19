@@ -39,6 +39,10 @@ class ExtendedApprovalMixin(models.AbstractModel):
         compute_sudo=True,
         readonly=True,
     )
+    has_approval_flow = fields.Boolean(
+        compute="_compute_current_flow_domain",
+        compute_sudo=True,
+    )
     selected_flow = fields.Many2one(
         comodel_name="extended.approval.flow", readonly=True
     )
@@ -83,9 +87,11 @@ class ExtendedApprovalMixin(models.AbstractModel):
     @api.depends("current_flow")
     def _compute_current_flow_domain(self):
         for rec in self:
+            flows = rec._get_applicable_approval_flows()
             rec.current_flow_domain = json.dumps(
-                [("id", "in", rec._get_applicable_approval_flows()._ids)]
+                [("id", "in", flows._ids)]
             )
+            rec.has_approval_flow = flows
 
     def _compute_approval_allowed(self):
         for rec in self:
