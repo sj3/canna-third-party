@@ -2,6 +2,8 @@
 # Copyright (C) Noviat 2020
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
+import json
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools.safe_eval import safe_eval
@@ -23,11 +25,32 @@ class ExtendedApprovalMixin(models.AbstractModel):
         copy=False,
         string="Current Approval Step",
     )
-    flow_name = fields.Char(related="current_step.flow_id.name", string="Flow")
+
+    current_flow = fields.Many2one(
+        comodel_name="extended.approval.flow",
+        compute="_compute_current_flow",
+        compute_sudo=True,
+        inverse="_inverse_current_flow",
+        string="Approval Flow",
+        domain="current_flow_domain",
+    )
+    current_flow_domain = fields.Char(
+        compute="_compute_current_flow_domain",
+        compute_sudo=True,
+        readonly=True,
+    )
+    has_approval_flow = fields.Boolean(
+        compute="_compute_current_flow_domain",
+        compute_sudo=True,
+    )
+    selected_flow = fields.Many2one(
+        comodel_name="extended.approval.flow", readonly=True
+    )
 
     approval_history_ids = fields.One2many(
         comodel_name="extended.approval.history",
         compute="_compute_history_ids",
+        compute_sudo=True,
         readonly=True,
         copy=False,
         string="Approval History",
@@ -36,13 +59,43 @@ class ExtendedApprovalMixin(models.AbstractModel):
     approval_allowed = fields.Boolean(
         string="Approval allowed",
         compute="_compute_approval_allowed",
+        compute_sudo=True,
         search="_search_approval_allowed",
         help="This option is set if you are allowed to approve.",
     )
+    approver_ids = fields.Many2many(
+        string="Approvers",
+        comodel_name="res.users",
+        compute="_compute_approver_ids",
+        store=True,
+        copy=False,
+    )
+
+    def _compute_current_flow(self):
+        for rec in self.sudo():
+            if rec.current_step:
+                rec.current_flow = rec.current_step.flow_id
+            else:
+                rec.current_flow = rec.selected_flow
+
+    def _inverse_current_flow(self):
+        for rec in self.sudo():
+            if rec.current_step:
+                rec.ea_cancel_approval()
+            rec.selected_flow = rec.current_flow
+
+    @api.depends("current_flow")
+    def _compute_current_flow_domain(self):
+        for rec in self:
+            flows = rec._get_applicable_approval_flows()
+            rec.current_flow_domain = json.dumps(
+                [("id", "in", flows._ids)]
+            )
+            rec.has_approval_flow = flows
 
     def _compute_approval_allowed(self):
         for rec in self:
-            rec.approval_allowed = (
+            rec.sudo().approval_allowed = (
                 not rec.next_approver
                 or any([a in self.env.user.groups_id for a in rec.next_approver])
             ) and rec._get_applicable_approval_flow()
@@ -67,31 +120,31 @@ class ExtendedApprovalMixin(models.AbstractModel):
                 [("source", "=", "{},{}".format(rec._name, rec.id))]
             )
 
+    @api.depends("approval_history_ids")
+    def _compute_approver_ids(self):
+        for rec in self:
+            rec.approver_ids = rec.approval_history_ids.mapped("approver_id")
+
     @api.model
     def recompute_all_next_approvers(self):
-        if hasattr(self, "ea_state_field") and hasattr(self, "ea_start_state"):
-            self.search(
-                [(self.ea_state_field, "in", [self.ea_start_state])]
-            )._recompute_next_approvers()
+        self.search([("current_step", "!=", False)])._recompute_next_approvers()
 
     def ea_retry_approval(self):
         for rec in self:
             step = rec._get_next_approval_step()
             if step != rec.current_step:
-                rec.with_context(approval_flow_update=True).current_step = step
+                rec.with_context(approval_flow_update=True).sudo().current_step = step
 
     def _recompute_next_approvers(self):
         for rec in self:
-            completed = (
-                self.env["extended.approval.history"]
-                .search([("source", "=", "{},{}".format(rec._name, rec.id))])
-                .mapped("step_id")
-            )
+            completed = rec._get_completed_steps()
             if not completed:
                 # re-evaluate current step, but not during approval ?
-                step = rec._get_next_approval_step()
+                step = rec._get_next_approval_step(new_flow=True)
                 if step and step != rec.current_step:
-                    rec.with_context(approval_flow_update=True).current_step = step
+                    rec.with_context(
+                        approval_flow_update=True
+                    ).sudo().current_step = step
 
     def write(self, values):
         r = super().write(values)
@@ -101,34 +154,51 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
         return r
 
-    def _get_applicable_approval_flow(self):
+    def _get_completed_steps(self):
         self.ensure_one()
-
-        flows = self.env["extended.approval.flow"].search(
-            [("model", "=", self._name)], order="sequence"
-        )
-        for c_flow in flows:
-            if self.search(
-                [("id", "in", self._ids)] + safe_eval(c_flow.domain)
-                if c_flow.domain
-                else []
-            ):
-                return c_flow
-        return False
-
-    def _get_next_approval_step(self):
-        self.ensure_one()
-
-        flow = self._get_applicable_approval_flow()
-        if not flow:
-            return False
-
         # computed field approval_history_ids is not refreshed, so search
-        completed = (
+        return (
             self.env["extended.approval.history"]
             .search([("source", "=", "{},{}".format(self._name, self.id))])
             .mapped("step_id")
         )
+
+    def _get_applicable_approval_flow(self, new_flow=False):
+        self.ensure_one()
+
+        if not new_flow and self.current_step:
+            return self.current_step.flow_id
+
+        return self._get_new_applicable_approval_flow()
+
+    def _get_new_applicable_approval_flow(self):
+        flows = self._get_applicable_approval_flows()
+
+        if self.selected_flow in flows:
+            return self.selected_flow
+
+        if len(flows):
+            return flows[0]
+
+        return self.env["extended.approval.flow"]
+
+    def _get_applicable_approval_flows(self):
+        self.ensure_one()
+        applicable_flows = self.env["extended.approval.flow"].search(
+            [("model", "=", self._name)], order="sequence"
+        )
+        return applicable_flows.filtered(
+            lambda r: self.filtered_domain(safe_eval(r.domain or "[]"))
+        )
+
+    def _get_next_approval_step(self, new_flow=False):
+        self.ensure_one()
+
+        flow = self._get_applicable_approval_flow(new_flow=new_flow)
+        if not flow:
+            return False
+
+        completed = self._get_completed_steps()
         for step in flow.steps:
             if step not in completed and step.is_applicable(self):
                 return step
@@ -144,25 +214,26 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
         step = self._get_next_approval_step()
         if not step:
-            self.current_step = step
+            self.sudo().current_step = step
             return False
 
         prev_step = False
         while step and step != prev_step:
             prev_step = step
             if any([g in self.env.user.groups_id for g in step.group_ids]):
-                self.env["extended.approval.history"].create(
+                self.env["extended.approval.history"].sudo().create(
                     {
                         "approver_id": self.env.user.id,
                         "source": "{},{}".format(self._name, self.id),
                         "step_id": step.id,
                     }
                 )
+                self.sudo().approver_ids += self.env.user
 
                 # move to next step
                 step = self._get_next_approval_step()
 
-        self.current_step = step
+        self.sudo().current_step = step
         if step:
             return {
                 "warning": {
@@ -177,7 +248,12 @@ class ExtendedApprovalMixin(models.AbstractModel):
 
     def ea_cancel_approval(self):
         self.approval_history_ids.sudo().write({"active": False})
-        self.write({"current_step": False})
+        self.sudo().write(
+            {
+                "current_step": False,
+                "approver_ids": False,
+            }
+        )
         return {}
 
     def ea_abort_approval(self):

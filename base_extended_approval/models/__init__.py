@@ -1,6 +1,5 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from . import extended_approval_config_mixin
 from . import extended_approval_mixin
 from . import extended_approval_state_field_mixin
 from . import extended_approval_workflow_mixin

@@ -1,5 +1,5 @@
 # Copyright (C) Onestein 2019-2020
-# Copyright (C) Noviat 2020-2022
+# Copyright (C) Noviat 2020-2024
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo import api, models
@@ -9,6 +9,7 @@ class ExtendedApprovalStateFieldMixin(models.AbstractModel):
     """
     This mixin defines the state field used for the extended approval.
     """
+
     _name = "extended.approval.state.field.mixin"
     _inherit = "extended.approval.mixin"
     _description = "Mixin class for extended approval state field"
@@ -48,7 +49,8 @@ class ExtendedApprovalStateFieldMixin(models.AbstractModel):
 
     def ea_abort_approval(self):
         super().ea_abort_approval()
-        self.write({self.ea_state_field: self.ea_start_state})
+        for rec in self:
+            self.sudo().write({self.ea_state_field: rec.has_approval_flow and self.ea_start_state})
         return {}
 
     def approve_step(self):
@@ -56,8 +58,15 @@ class ExtendedApprovalStateFieldMixin(models.AbstractModel):
         if r is False:
             # reset state to start_state after approval, because
             # eg ocb / purchase button_confirm checks it
-            self.write({self.ea_state_field: self.ea_start_state})
+            self.sudo().write({self.ea_state_field: self.ea_start_state})
         else:
-            self.write({self.ea_state_field: self.ea_state})
+            self.sudo().write({self.ea_state_field: self.ea_state})
 
         return r
+
+    @api.model
+    def recompute_all_next_approvers(self):
+        if hasattr(self, "ea_state_field") and hasattr(self, "ea_start_state"):
+            self.search(
+                [(self.ea_state_field, "in", [self.ea_start_state])]
+            )._recompute_next_approvers()

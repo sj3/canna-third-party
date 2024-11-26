@@ -7,7 +7,6 @@ from odoo import fields, models
 
 class ExtendedApprovalStep(models.Model):
     _name = "extended.approval.step"
-    _inherit = ["extended.approval.config.mixin"]
     _description = "Extended approval step"
     _order = "sequence"
 
