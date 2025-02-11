@@ -1,7 +1,7 @@
 # Copyright (C) 2015 ICTSTUDIO (<http://www.ictstudio.eu>).
-# Copyright (C) 2016-2023 Noviat nv/sa (www.noviat.com).
 # Copyright (C) 2016 Onestein (http://www.onestein.eu/).
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+# Copyright 2009-2025 Noviat.
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from datetime import MAXYEAR, MINYEAR, date
 
@@ -164,15 +164,27 @@ class SaleDiscount(models.Model):
         end_date = self.end_date or date(MAXYEAR, 12, 31)
         return start_date <= check_date <= end_date
 
-    def _calculate_discount(self, lines):  # noqa: C901
+    def _calculate_discount(self, lines):
+        """
+        Here we calculate the discount for the standard
+        sale.discount,discount_base and sale.discount.rule,matching_type
+        selection list values.
+        Extension modules must inherit this method to add support for other
+        discount_base and matching_type values.
+        """
         result = {}
-        qty = sum([x.product_uom_qty for x in lines])
-        base = sum([x.product_uom_qty * x.price_unit for x in lines])
+        rules = self.rule_ids.filtered(
+            lambda r: r.matching_type in ("amount", "quantity")
+        )
+        rule_lines = self._get_rule_lines(rules, lines)
 
         for sol in lines:
             disc_amt = disc_pct = 0.0
-            for rule in self.rule_ids:
-                if not rule._sol_product_match(sol):
+            for rule in rules:
+                base = sum([x.product_uom_qty * x.price_unit for x in rule_lines[rule]])
+                qty = sum([x.product_uom_qty for x in rule_lines[rule]])
+
+                if sol not in rule_lines[rule]:
                     continue
 
                 rule_match = False
@@ -205,35 +217,8 @@ class SaleDiscount(models.Model):
                     else:
                         match_max = True
                     rule_match = match_min and match_max
-                else:
-                    method = rule._matching_type_methods().get(rule.matching_type)
-                    if not method:
-                        raise UserError(
-                            _(
-                                "Programming error: no method defined for "
-                                "matching_type '%s'."
-                            )
-                            % rule.matching_type
-                        )
-                    rule_match = getattr(rule, method)(sol)
 
                 if rule_match:
-                    if rule.matching_extra != "none":
-                        method = rule._matching_extra_methods().get(rule.matching_extra)
-                        if not method:
-                            raise UserError(
-                                _(
-                                    "Programming error: no method defined for "
-                                    "matching_extra '%s'."
-                                )
-                                % rule.matching_extra
-                            )
-                        if not getattr(rule, method)(sol):
-                            # The extra matching condition is only applied if all
-                            # other conditions match. If the extra matching
-                            # condition returns False, then do not apply this rule.
-                            rule_match = False
-                            continue
                     if rule.discount_type == "perc":
                         disc_amt = base * rule.discount_pct / 100.0
                         disc_pct = rule.discount_pct
@@ -251,7 +236,7 @@ class SaleDiscount(models.Model):
 
             # Remark:
             # Only the 'disc_amt' value is used in the code calling this method.
-            # We could hence simply the code via result[sol] = disc_amt.
+            # We could hence simplify the code via result[sol] = disc_amt.
             # Returning more values facilitates the tracing when working on bugs
             # or enhancements for this module.
             result[sol] = {
@@ -262,6 +247,29 @@ class SaleDiscount(models.Model):
             }
 
         return result
+
+    def _get_rule_lines(self, rules, lines):
+        """
+        Get lines per rule by applying the following filters:
+        - product / product category match
+        - extra match
+        """
+        rule_lines = {}
+        for rule in rules:
+            lines = lines.filtered(lambda r: rule._sol_product_match(r))
+            if rule.matching_extra != "none":
+                method = rule._matching_extra_methods().get(rule.matching_extra)
+                if not method:
+                    raise UserError(
+                        _(
+                            "Programming error: no method defined for "
+                            "matching_extra '%s'."
+                        )
+                        % rule.matching_extra
+                    )
+                lines = lines.filtered(lambda r: getattr(rule, method)(r))
+            rule_lines[rule] = lines
+        return rule_lines
 
     def _round_amt_qty(self, val, field_name):
         digits = (
