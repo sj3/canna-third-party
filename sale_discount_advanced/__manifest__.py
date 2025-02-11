@@ -1,15 +1,14 @@
 # Copyright (C) 2015 ICTSTUDIO (<http://www.ictstudio.eu>).
-# Copyright (C) 2016-2023 Noviat nv/sa (www.noviat.com).
 # Copyright (C) 2016 Onestein (http://www.onestein.eu/).
 # Copyright (C) 2020 SerpentCS Pvt. Ltd. (<http://www.serpentcs.com>).
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+# Copyright 2009-2025 Noviat.
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 {
     "name": "Sale Discount Advanced",
     "author": "ICTSTUDIO,Noviat,Onestein,Serpent Consulting Services Pvt. Ltd.",
-    "website": "http://www.ictstudio.eu",
     "category": "Sales",
-    "version": "13.0.1.2.0",
+    "version": "13.0.1.3.0",
     "license": "AGPL-3",
     "depends": ["sale"],
     "data": [
