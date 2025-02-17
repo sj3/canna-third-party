@@ -7,7 +7,7 @@
     "development_status": "Alpha",
     "category": "Sales",
     "website": "https://onestein.nl/",
-    "author": "Noviat,Onestein",
+    "author": "Noviat,Onestein,Calin",
     "license": "AGPL-3",
     "application": False,
     "installable": True,
