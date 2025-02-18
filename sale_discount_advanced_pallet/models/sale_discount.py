@@ -19,7 +19,9 @@ class SaleDiscount(models.Model):
                     disc_pct = rule.discount_pct
                 else:
                     if rule.matching_type == "quantity" and len(rule.product_ids) == 1:
-                        disc_amt = min(rule.discount_amount_unit * sol.product_uom_qty, base)
+                        disc_amt = min(
+                            rule.discount_amount_unit * sol.product_uom_qty, base
+                        )
                     else:
                         disc_amt = min(rule.discount_amount, base)
                     disc_pct = disc_amt / base * 100.0

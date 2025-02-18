@@ -7,8 +7,14 @@
     "author": "Onestein, Noviat",
     "summary": """Extends Discounts with the pallet matching type""",
     "category": "Sales",
-    "version": "13.0.1.0.1",
+    "version": "13.0.1.1.0",
     "license": "AGPL-3",
     "depends": ["sale_discount_advanced", "product_packaging_type_pallet"],
     "data": ["views/sale_discount_views.xml"],
+    "demo": [
+        "demo/product_packaging_type_demo.xml",
+        "demo/product_packaging_demo.xml",
+        "demo/sale_discount_demo.xml",
+        "demo/sale_discount_rule_demo.xml",
+    ],
 }

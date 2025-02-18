@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="sale_discount_rule_1" model="sale.discount.rule">
+        <field name="sale_discount_id" ref="sale_discount_pallet"/>
+        <field name="sequence">1</field>
+        <field name="matching_type">pallet</field>
+        <field name="discount_type">perc</field>
+        <field name="discount_pct">10</field>
+        <field name="min_pallet">1</field>
+        <field name="max_pallet">1.99</field>
+    </record>
+
+    <record id="sale_discount_rule_2" model="sale.discount.rule">
+        <field name="sale_discount_id" ref="sale_discount_pallet"/>
+        <field name="sequence">2</field>
+        <field name="matching_type">pallet</field>
+        <field name="discount_type">perc</field>
+        <field name="discount_pct">20</field>
+        <field name="min_pallet">2</field>
+        <field name="max_pallet">0</field>
+    </record>
+
+</odoo>

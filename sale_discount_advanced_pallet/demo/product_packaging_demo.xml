@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_packaging_pallet" model="product.packaging">
+        <field name="name">Pallet</field>
+        <field name="product_id" ref="product.product_product_7"/>
+        <field name="packaging_type_id" ref="product_packaging_type_pallet"/>
+        <field name="qty">10</field>
+    </record>
+</odoo>
