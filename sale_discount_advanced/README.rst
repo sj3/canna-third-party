@@ -45,6 +45,8 @@ Discounts can be marked as exclusive via the 'Exclusive' checkbox on the discoun
 If your conditions are met for multiple discounts, then only
 the first exclusive discount (based on sequence) will be set on the order line.
 
+Discounts can be based on order line or full Sale Order (Group).
+
 Known issues
 ============
 

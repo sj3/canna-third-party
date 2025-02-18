@@ -160,25 +160,21 @@ class SaleDiscountRule(models.Model):
     @api.onchange("discount_base", "discount_type", "matching_type", "product_ids")
     def _onchange_discount_fields_invisible(self):
         for rule in self:
-            if rule.discount_type == "perc":
-                rule.discount_amount_invisible = True
-                rule.discount_amount_unit_invisible = True
-            else:
+            rule.discount_amount_invisible = True
+            rule.discount_amount_unit_invisible = True
+            if rule.discount_type != "perc":
                 if rule.discount_base == "sale_line":
                     if rule.matching_type == "quantity":
                         if len(rule.product_ids) == 1:
-                            rule.discount_amount_invisible = True
+                            rule.discount_amount_unit_invisible = False
                         else:
                             rule.discount_amount_invisible = False
-                            rule.discount_amount_unit_invisible = True
                     else:
                         # matching_type == 'amount'
                         rule.discount_amount_invisible = False
-                        rule.discount_amount_unit_invisible = True
                 else:
                     # discount_base == 'sale_order'
                     rule.discount_amount_invisible = False
-                    rule.discount_amount_unit_invisible = True
 
     @api.constrains(
         "discount_pct", "discount_amount", "discount_amount_unit", "discount_type"
