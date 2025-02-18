@@ -88,9 +88,12 @@ class ImportPriceCatalog(models.TransientModel):
         product = self.env["product.product"]
         price_catalog_item = self.env["price.catalog.item"]
         for row_idx in range(1, sheet.nrows):
-            product_code = sheet.cell(row_idx, 0).value
             price = sheet.cell(row_idx, 2).value
-            product_id = product.search([('default_code', '=', str(product_code))], limit=1)
+            if isinstance(sheet.cell(row_idx, 0).value, float):
+                product_code = str(int(sheet.cell(row_idx, 0).value))
+            else:
+                product_code = str(sheet.cell(row_idx, 0).value)
+            product_id = product.search([('default_code', '=', product_code)], limit=1)
             if product_id:
                 product_id = product_id[0]
                 vals = {
