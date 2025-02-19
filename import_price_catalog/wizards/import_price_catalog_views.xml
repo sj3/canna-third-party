@@ -7,20 +7,19 @@
     <field name="arch" type="xml">
       <form string="Import Price Catalog">
         <separator string="File Settings"/>
-        <group colspan="4">
+        <group name="g1" colspan="4">
           <field name="filename" invisible="1"/>
-           <field name="data" filename="filename" required="1"/>
+          <field name="data" filename="filename" required="1"/>
+          <span>You have to import an .xlsx file or a .CSV file wich is encoded in UTF-8.</span>
         </group>
-        <group>
-          <group>
+        <group name="g2">
+          <group name="g2-l">
             <field name="subcatalog_id"/>
+            <field name="remove_data"/>
           </group>
-          <group>
-            <field name="company_id"/>
+          <group name="g2-r">
+            <field name="company_id" groups="base.group_multi_company"/>
           </group>
-        </group>
-        <group>
-          <field name="remove_data"/>
         </group>
         <footer>
           <button string="Import" name="import_catalog" type="object" class="oe_highlight"/>
@@ -38,21 +37,11 @@
     <field name="target">new</field>
   </record>
 
-  <menuitem
-    action="import_price_catalog_action"
-    id="import_price_catalog_menu_sale"
-    parent="sale.menu_sale_config"/>
-
-  <menuitem
-    action="import_price_catalog_action"
-    id="import_price_catalog_menu_purchase"
-    parent="purchase.menu_purchase_config"/>
-
-  <record id="data_price_catalog_view_form" model="ir.ui.view">
-    <field name="name">data.price.catalog.form</field>
-    <field name="model">data.price.catalog</field>
+  <record id="import_price_catalog_view_form_result" model="ir.ui.view">
+    <field name="name">import.price.catalog.form.result</field>
+    <field name="model">import.price.catalog</field>
     <field name="arch" type="xml">
-      <form string="Import Price Catalog">
+      <form string="Import Price Catalog Result">
         <group>
           <span>Import Completed</span>
           <separator string="Report" colspan="4"/>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <menuitem
+    action="import_price_catalog_action"
+    id="import_price_catalog_menu_sale"
+    parent="price_catalog_sale.price_catalog_menu_main"/>
+
+  <menuitem
+    action="import_price_catalog_action"
+    id="import_price_catalog_menu_purchase"
+    parent="price_catalog_purchase.price_catalog_menu_main"/>
+
+</odoo>
