@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+    <data>
+        <record id="view_move_form_customer" model="ir.ui.view">
+            <field name="name">account.move.split</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="canna_invoice.view_move_form_customer"/>
+            <field name="arch" type="xml">
+                <button name="button_draft" position="after">
+                    <button string="Split Invoice"
+                            states="draft"
+                            name="split_invoice"
+                            type="object"
+                            />
+                </button>
+            </field>
+        </record>
+
+        <record id="view_move_form_supplier" model="ir.ui.view">
+            <field name="name">account.move.split</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="canna_invoice.view_move_form_supplier"/>
+            <field name="arch" type="xml">
+                <button name="button_draft" position="after">
+                    <button string="Split Invoice"
+                            states="draft"
+                            name="split_invoice"
+                            type="object"
+                            />
+                </button>
+            </field>
+        </record>
+
+    </data>
+</odoo>
