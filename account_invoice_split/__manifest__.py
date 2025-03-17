@@ -13,6 +13,6 @@
         'views/account_move_views.xml',
         'wizard/account_move_split.xml',
         ],
-    'depends': ['canna_invoice'],
+    'depends': ['account'],
     'installable': True
 }
