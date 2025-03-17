@@ -36,7 +36,6 @@ class AccountMoveSplit(models.TransientModel):
                 "type": "ir.actions.act_window",
                 "res_model": "account.move",
                 "view_mode": "tree,form",
-                "view_id": False,
                 "domain": [("id", "in", (old_invoice + new_invoice).ids)],
                 "target": "current"
             }
