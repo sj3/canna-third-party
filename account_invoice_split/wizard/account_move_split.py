@@ -36,9 +36,9 @@ class AccountMoveSplit(models.TransientModel):
                 "type": "ir.actions.act_window",
                 "res_model": "account.move",
                 "view_mode": "tree,form",
-                "view_type": "form",
-                "target":"current",
+                "view_id": False,
                 "domain": [("id", "in", (old_invoice + new_invoice).ids)],
+                "target": "current"
             }
         else:
             raise UserError(_("Select At least one invoice line to split."))
