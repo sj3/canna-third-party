@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="account_invoice_split_view_form" model="ir.ui.view">
+        <field name="name">Split Invoice</field>
+        <field name="model">account.invoice.split</field>
+        <field name="arch" type="xml">
+            <form string="Split Invoice">
+                <group>
+                    <separator string="Select Lines that will be moved to a new invoice" colspan="4"/>
+                    <field name="invoice_split_line_ids" nolabel="1">
+                        <tree create="0">
+                            <field name="product_id"/>
+                            <field name="name"/>
+                            <field name="quantity"/>
+                            <field name="product_uom_id" string="UoM" groups="uom.group_uom" optional="show"/>
+                            <field name="price_unit" string="Price"/>
+                            <field name="tax_ids" widget="many2many_tags"/>
+                            <field name="price_subtotal" string="Subtotal" />
+                        </tree>
+                    </field>
+                </group>
+                <footer>
+                    <button name="split_invoice" string="Split Invoice"
+                                type="object" class="oe_highlight"/>
+                        or
+                    <button string="Cancel" class="oe_link"
+                                special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>
