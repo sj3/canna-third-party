@@ -12,7 +12,7 @@ class AccountInvoiceSplit(models.TransientModel):
 
     invoice_split_line_ids = fields.Many2many(
         comodel_name="account.move.line",
-        relation="account_invoice_split_invoice_line_rel",
+        relation="account_move_split_invoice_line_rel",
         string="Invoice Lines",
     )
 
