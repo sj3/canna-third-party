@@ -37,6 +37,22 @@ class AccountPartnerOpenItemsXlsx(models.AbstractModel):
         val = val and val[0].value or _(src)
         return val
 
+    def _define_formats(self, workbook):
+        super()._define_formats(workbook)
+        border_grey = "#D3D3D3"
+        bg_yellow = "#FFFFCC"
+        border = {"border": True, "border_color": border_grey}
+        theader = dict(border, bold=True)
+        theader_yellow = dict(theader, bg_color=bg_yellow)
+        self.format_left_bold_top = workbook.add_format({
+            'bold': True,
+            'align': 'left',
+            'valign': 'top',
+        })
+        self.format_theader_yellow_top = workbook.add_format(
+            dict(theader_yellow, valign="top")
+        )
+
     def _get_ws_params(self, workbook, data, partners):  # noqa: C901
 
         wiz = self.env["wiz.partner.open.items"].browse(data["wiz_id"])
@@ -521,6 +537,7 @@ class AccountPartnerOpenItemsXlsx(models.AbstractModel):
                 "totals": {
                     "type": "string",
                     "value": self._render("p['p_full_name']"),
+                    "format":self.format_theader_yellow_top
                 },
                 "width": 20,
             },
@@ -727,7 +744,7 @@ class AccountPartnerOpenItemsXlsx(models.AbstractModel):
 
         for partner in report["partners"]:
 
-            ws.write_string(row_pos, 0, partner["p_full_name"], self.format_left_bold)
+            ws.write_string(row_pos, 0, partner["p_full_name"], self.format_left_bold_top)
             row_pos += 1
             row_pos = self._write_line(
                 ws,
