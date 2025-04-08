@@ -17,7 +17,6 @@ class AccountMove(models.Model):
 
     def split_invoice(self):
         self.ensure_one()
-
         if self.state != "draft":
             raise UserError(_("Only draft invoices can be splitted"))
 
@@ -35,6 +34,7 @@ class AccountMove(models.Model):
             "target": "new",
             "context": dict(
                 self.env.context,
+                active_id=self.id,
                 default_invoice_split_line_ids=self.invoice_line_ids.ids,
             ),
         }
