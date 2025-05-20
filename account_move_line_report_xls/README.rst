@@ -7,7 +7,10 @@ Journal Items Excel Export
 ==========================
 
 This module extends the functionality of the journal items 
-('account.move.line') list view and allow you to export the selected lines.
+('account.move.line') list view and allow you to export the selected lines
+or all lines via a pre-configured Excel Template that can be tailored via
+and inherited module.
+
 
 Installation
 ============
@@ -23,8 +26,11 @@ Usage
 To use this module, you need to:
 
 * go to the list view of the journal items
-* select the lines you wish to export
-* click on the button on top to export
+* select the lines you wish to export so that the 'Action' menu becomes available
+* two actions are added by this module:
+
+  1) Export Selected Lines : export only the selected lines
+  2) Export All Lines : export all lines that match the search domain
 
 The Excel export can be tailored to your exact needs via the following methods
 of the 'account.move.line' object:

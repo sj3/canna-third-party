@@ -17,6 +17,16 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #. module: account_move_line_report_xls
+#: model:ir.actions.report,name:account_move_line_report_xls.action_account_move_line_xlsx
+msgid "Export Selected Lines"
+msgstr "Exporter les lignes sélectionnées"
+
+#. module: account_move_line_report_xls
+#: model:ir.actions.report,name:account_move_line_report_xls.action_account_move_line_xlsx_all
+msgid "Export All Lines"
+msgstr "Exporter toutes les lignes"
+
+#. module: account_move_line_report_xls
 #: model_terms:ir.actions.report,help:account_move_line_report_xls.action_account_move_line_xlsx
 msgid "Journal Items"
 msgstr "Écritures comptables"
