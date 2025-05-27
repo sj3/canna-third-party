@@ -31,6 +31,7 @@ class AccountBankStatementLine(models.Model):
             sequence = self.sequence
             sequences = [x.sequence for x in lines]
             seqs_done = [x.sequence for x in lines_done]
+            seqs_free = []
             if len(lines) != len(set(sequences)):
                 # this is the case when a statement has been entered manually
                 # without the use of the handle widget
@@ -48,7 +49,8 @@ class AccountBankStatementLine(models.Model):
             )
             if move_name in lines.mapped("move_name"):
                 # fix any remaining naming conflict via highest number
-                sequence = max(seqs_done[-1], seqs_free[-1]) + 1
+                sequence = max(seqs_done[-1] if seqs_done else 0, seqs_free[-1]
+                if seqs_free else 0) + 1
                 move_name = "{}/{}".format(
                     self.statement_id.name, str(sequence).rjust(3, "0")
                 )
