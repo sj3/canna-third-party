@@ -1,5 +1,5 @@
-# Copyright 2009-2020 Noviat.
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+# Copyright 2009-2025 Noviat.
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo import api, models
 
@@ -12,6 +12,14 @@ _render = ReportXlsxAbstract._render
 
 class AccountMoveLine(models.Model):
     _inherit = "account.move.line"
+
+    @api.model
+    def aml_export_all(self, domain):
+        xmlid = "account_move_line_report_xls.action_account_move_line_xlsx_all"
+        docids = None
+        data = {"aml_domain": domain}
+        act = self.env.ref(xmlid).report_action(docids, data=data)
+        return act
 
     # Change list in custom module e.g. to add/drop columns or change order
     @api.model
