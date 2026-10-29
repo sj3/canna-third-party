@@ -1,0 +1,20 @@
+# Only run for (updates to) merge requests.
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+include:
+  - project: 'canna-infrastructure/gitlabci-odoo'
+    ref: main
+    file: '/odoo-tests.template.yml'
+
+variables:
+  ODOO_CI_IMAGE: registry.canna.lan/canna-infrastructure/oca-ci/18.0-canna
+  # no pre-commit for third-party
+  ODOO_PRECOMMIT: "0"
+  ODOO_GITLAB_PACKAGES: "1"
+
+odoo-gitlab-packages:
+  # use python image with canna CA certificate.
+  image: registry.canna.lan/canna-infrastructure/canna-docker-images/python:latest

@@ -1,0 +1,9 @@
+Shapely
+geojson
+pycountry
+Pygments
+odoorpc
+msgfy
+odoogap_mtd
+odoo-client-lib
+pyotp
