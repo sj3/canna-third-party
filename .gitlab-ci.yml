@@ -6,7 +6,7 @@ workflow:
 
 include:
   - project: 'canna-infrastructure/gitlabci-odoo'
-    ref: main
+    ref: '18.0'
     file: '/odoo-tests.template.yml'
 
 variables:

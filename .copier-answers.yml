@@ -24,4 +24,3 @@ repo_slug: third-party
 repo_website: https://gitlab.canna.lan/canna-odoo/third-party
 use_pyproject_toml: true
 use_ruff: true
-
