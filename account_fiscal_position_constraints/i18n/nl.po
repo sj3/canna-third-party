@@ -1,0 +1,57 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * account_fiscal_position_constraints
+#
+# Weblate Translation Memory <noreply-mt-weblate-translation-memory@weblate.org>, 2025, 2026.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-12-07 16:09+0000\n"
+"PO-Revision-Date: 2026-06-04 11:26+0000\n"
+"Last-Translator: Weblate Translation Memory <noreply-mt-weblate-translation-memory@weblate.org>\n"
+"Language-Team: Dutch <https://translation.noviat.io/projects/noviat-generic-accounting-v18/account_fiscal_position_constraints/nl/>\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.15.1\n"
+
+#. module: account_fiscal_position_constraints
+#. odoo-python
+#: code:addons/account_fiscal_position_constraints/models/account_fiscal_position.py:0
+msgid "%s (copy)"
+msgstr "%s (kopie)"
+
+#. module: account_fiscal_position_constraints
+#: model:ir.model,name:account_fiscal_position_constraints.model_account_fiscal_position
+msgid "Fiscal Position"
+msgstr "Fiscale positie"
+
+#. module: account_fiscal_position_constraints
+#: model:ir.model.constraint,message:account_fiscal_position_constraints.constraint_account_fiscal_position_name_company_uniq
+msgid "The name of the fiscal position must be unique per company !"
+msgstr "De naam van de fiscale positie moet uniek zijn per bedrijf!"
+
+#. module: account_fiscal_position_constraints
+#. odoo-python
+#: code:addons/account_fiscal_position_constraints/models/account_fiscal_position.py:0
+msgid "View invoices"
+msgstr "Facturen bekijken"
+
+#. module: account_fiscal_position_constraints
+#. odoo-python
+#: code:addons/account_fiscal_position_constraints/models/account_fiscal_position.py:0
+msgid "View partners"
+msgstr "Relaties bekijken"
+
+#. module: account_fiscal_position_constraints
+#. odoo-python
+#: code:addons/account_fiscal_position_constraints/models/account_fiscal_position.py:0
+msgid ""
+"You cannot delete a fiscal position that has been set on partner records\n"
+"As an alternative, you can disable a fiscal position with the button 'Archive'"
+msgstr ""
+"U kunt een fiscale positie die op relatiefiches is ingesteld niet verwijderen\n"
+"Als alternatief kunt u een fiscale positie uitschakelen met de knop 'Archiveren'"
