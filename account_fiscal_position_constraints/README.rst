@@ -2,9 +2,9 @@
    :target: https://www.gnu.org/licenses/agpl
    :alt: License: AGPL-3
 
-===================================
+====================================
 Account Fiscal Position Constraints
-===================================
+====================================
 
 This module prohibits the removal of a fiscal position when this position
 is already used in invoices or partner records.
